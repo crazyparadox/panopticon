@@ -127,7 +127,7 @@ struct ColorOrganizerRoot: View {
       VStack(spacing: verticalSpacing) {
         if stage == .details && showsTitles {
           Text("Customize your categories")
-            .font(Font.custom("Instrument Serif", size: 44))
+            .font(Font.system(size: 44, weight: .semibold))
             .foregroundColor(.black)
             .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -176,12 +176,12 @@ struct ColorOrganizerRoot: View {
       if showTitles {
         VStack(alignment: .leading, spacing: 6) {
           Text("Part 1 of 2")
-            .font(Font.custom("Figtree", size: 14).weight(.bold))
-            .foregroundColor(Color(red: 0.98, green: 0.43, blue: 0))
+            .font(Font.system(size: 14).weight(.bold))
+            .foregroundColor(Theme.Palette.accent)
             .frame(maxWidth: .infinity, alignment: .leading)
 
           Text("Edit title and description")
-            .font(Font.custom("Instrument Serif", size: 30))
+            .font(Font.system(size: 30, weight: .semibold))
             .foregroundColor(.black)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -206,8 +206,8 @@ struct ColorOrganizerRoot: View {
       Text(
         "This step is optional. You can customize the categories or create new ones anytime while using Panopticon."
       )
-      .font(Font.custom("Figtree", size: 12).weight(.medium))
-      .foregroundColor(Color(red: 0.48, green: 0.48, blue: 0.48))
+      .font(Font.system(size: 12).weight(.medium))
+      .foregroundColor(Theme.Palette.ink2)
       .frame(maxWidth: isCompact ? .infinity : 280, alignment: .leading)
     }
   }
@@ -219,7 +219,7 @@ struct ColorOrganizerRoot: View {
         .frame(width: 28, height: 28)
 
       Text(text)
-        .font(Font.custom("Figtree", size: 14).weight(.medium))
+        .font(Font.system(size: 14).weight(.medium))
         .foregroundColor(.black)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -230,12 +230,12 @@ struct ColorOrganizerRoot: View {
       if showTitles {
         VStack(alignment: .leading, spacing: 6) {
           Text("Part 2 of 2")
-            .font(Font.custom("Figtree", size: 14).weight(.bold))
-            .foregroundColor(Color(red: 0.98, green: 0.43, blue: 0))
+            .font(Font.system(size: 14).weight(.bold))
+            .foregroundColor(Theme.Palette.accent)
             .frame(maxWidth: .infinity, alignment: .leading)
 
           Text("Edit colors")
-            .font(Font.custom("Instrument Serif", size: 30))
+            .font(Font.system(size: 30, weight: .semibold))
             .foregroundColor(.black)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -274,8 +274,8 @@ struct ColorOrganizerRoot: View {
             ? "Drop on a category →"
             : "Click and drag on the canvas above to change the color palette. Then drag a color onto a category."
         )
-        .font(Font.custom("Figtree", size: 13).weight(.medium))
-        .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+        .font(Font.system(size: 13).weight(.medium))
+        .foregroundColor(Theme.Palette.ink)
 
         LazyVGrid(
           columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8
@@ -310,19 +310,19 @@ struct ColorOrganizerRoot: View {
       HStack(spacing: 8) {
         Image(systemName: "plus")
           .font(.system(size: 10, weight: .bold))
-          .foregroundColor(Color(red: 0.49, green: 0.33, blue: 0.16))
+          .foregroundColor(Theme.Palette.ink)
 
         Text("Create a new category")
-          .font(Font.custom("Figtree", size: 14).weight(.bold))
-          .foregroundColor(Color(red: 0.49, green: 0.33, blue: 0.16))
+          .font(Font.system(size: 14).weight(.bold))
+          .foregroundColor(Theme.Palette.ink)
       }
       .padding(.horizontal, 14)
       .padding(.vertical, 8)
       .background(
         LinearGradient(
           gradient: Gradient(stops: [
-            .init(color: Color(red: 1, green: 0.94, blue: 0.79), location: 0),
-            .init(color: Color(red: 1, green: 0.72, blue: 0.43), location: 1),
+            .init(color: Theme.Palette.inset, location: 0),
+            .init(color: Theme.Palette.accent, location: 1),
           ]),
           startPoint: .leading,
           endPoint: .trailing
@@ -332,7 +332,7 @@ struct ColorOrganizerRoot: View {
       .overlay(
         RoundedRectangle(cornerRadius: 6)
           .inset(by: 0.5)
-          .stroke(Color(red: 0.95, green: 0.71, blue: 0.56), lineWidth: 1)
+          .stroke(Theme.Palette.accentTint, lineWidth: 1)
       )
       .opacity(canAddMoreCategories ? 1 : 0.45)
     }
@@ -364,7 +364,7 @@ struct ColorOrganizerRoot: View {
           .frame(maxWidth: .infinity, minHeight: containerHeight, maxHeight: containerHeight)
 
         RoundedRectangle(cornerRadius: 16)
-          .stroke(Color(red: 0.94, green: 0.91, blue: 0.87), lineWidth: 1)
+          .stroke(Theme.Palette.line, lineWidth: 1)
           .frame(maxWidth: .infinity, minHeight: containerHeight, maxHeight: containerHeight)
 
         ScrollView(showsIndicators: false) {
@@ -390,8 +390,8 @@ struct ColorOrganizerRoot: View {
       .frame(height: containerHeight, alignment: .topLeading)
 
       Text("This step is optional. You can change the colors anytime while using Panopticon.")
-        .font(Font.custom("Figtree", size: 12).weight(.medium))
-        .foregroundColor(Color(red: 0.48, green: 0.48, blue: 0.48))
+        .font(Font.system(size: 12).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
         .frame(maxWidth: .infinity, alignment: .leading)
 
       HStack(spacing: 16) {
@@ -429,7 +429,7 @@ struct ColorOrganizerRoot: View {
             .frame(maxWidth: .infinity, minHeight: containerHeight, maxHeight: containerHeight)
 
           RoundedRectangle(cornerRadius: 16)
-            .stroke(Color(red: 0.94, green: 0.91, blue: 0.87), lineWidth: 1)
+            .stroke(Theme.Palette.line, lineWidth: 1)
             .frame(maxWidth: .infinity, minHeight: containerHeight, maxHeight: containerHeight)
 
           ScrollView(showsIndicators: false) {
@@ -495,13 +495,13 @@ struct ColorOrganizerRoot: View {
 
   private var emptyState: some View {
     Text("Add a category to get started.")
-      .font(Font.custom("Figtree", size: 13).weight(.medium))
-      .foregroundColor(Color(red: 0.35, green: 0.35, blue: 0.35))
+      .font(Font.system(size: 13).weight(.medium))
+      .foregroundColor(Theme.Palette.ink2)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding()
       .background(
         RoundedRectangle(cornerRadius: 8)
-          .stroke(Color(red: 0.89, green: 0.89, blue: 0.89), lineWidth: 0.5)
+          .stroke(Theme.Palette.line, lineWidth: 0.5)
       )
   }
 
@@ -533,8 +533,8 @@ struct ColorOrganizerRoot: View {
     var body: some View {
       Button(action: isEnabled ? action : {}) {
         Text(title)
-          .font(Font.custom("Figtree", size: 16).weight(.semibold))
-          .foregroundColor(Color(red: 0.26, green: 0.26, blue: 0.26))
+          .font(Font.system(size: 16).weight(.semibold))
+          .foregroundColor(Theme.Palette.ink)
           .padding(.horizontal, 59)
           .padding(.vertical, 18)
           .frame(width: 160, alignment: .center)
@@ -543,7 +543,7 @@ struct ColorOrganizerRoot: View {
               .fill(Color.white.opacity(0.85))
               .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                  .stroke(Color(red: 0.88, green: 0.88, blue: 0.88), lineWidth: 1)
+                  .stroke(Theme.Palette.line, lineWidth: 1)
               )
           )
           .opacity(isEnabled ? 1.0 : 0.4)

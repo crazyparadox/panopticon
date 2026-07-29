@@ -76,7 +76,7 @@ struct SettingsDataTabView: View {
         Text(
           "Use Markdown exports to archive in Notion, share with teammates, or paste into ChatGPT / Claude / Gemini for deeper analysis."
         )
-        .font(.custom("Figtree", size: 12))
+        .font(.system(size: 12))
         .foregroundColor(SettingsStyle.secondary)
         .fixedSize(horizontal: false, vertical: true)
 
@@ -91,20 +91,20 @@ struct SettingsDataTabView: View {
 
           if rangeInvalid {
             Text("Start must be on or before end.")
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .foregroundColor(SettingsStyle.destructive)
           }
         }
 
         if let message = viewModel.exportStatusMessage {
           Text(message)
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(SettingsStyle.statusGood)
         }
 
         if let error = viewModel.exportErrorMessage {
           Text(error)
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(SettingsStyle.destructive)
         }
       }
@@ -150,19 +150,19 @@ struct SettingsDataTabView: View {
         }
 
         Text(dayString)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.meta)
 
         VStack(alignment: .leading, spacing: 4) {
           Text(
             "Clears existing cards and observations for that day, then runs analysis again from the original recordings."
           )
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.secondary)
           .fixedSize(horizontal: false, vertical: true)
 
           Text("Heads up: this can consume a large number of API calls.")
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .fontWeight(.semibold)
             .foregroundColor(SettingsStyle.text)
         }
@@ -177,14 +177,14 @@ struct SettingsDataTabView: View {
 
           if let status = viewModel.reprocessStatusMessage {
             Text(status)
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .foregroundColor(SettingsStyle.secondary)
           }
         }
 
         if let error = viewModel.reprocessErrorMessage {
           Text(error)
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(SettingsStyle.destructive)
         }
       }
@@ -215,7 +215,7 @@ struct SettingsDataTabView: View {
   ) -> some View {
     VStack(alignment: .leading, spacing: 6) {
       Text(label)
-        .font(.custom("Figtree", size: 11))
+        .font(.system(size: 11))
         .fontWeight(.semibold)
         .textCase(.uppercase)
         .foregroundColor(SettingsStyle.meta)
@@ -226,7 +226,7 @@ struct SettingsDataTabView: View {
       } label: {
         HStack(spacing: 8) {
           Text(formattedTimelineDate(date))
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .fontWeight(.semibold)
             .foregroundColor(SettingsStyle.ink.opacity(disabled ? 0.4 : 1))
 
@@ -328,7 +328,7 @@ private struct PanopticonCalendarGrid: View {
   private var monthHeader: some View {
     HStack {
       Text(monthYearString)
-        .font(.custom("Figtree", size: 14))
+        .font(.system(size: 14))
         .fontWeight(.semibold)
         .foregroundColor(SettingsStyle.text)
 
@@ -376,7 +376,7 @@ private struct PanopticonCalendarGrid: View {
     return LazyVGrid(columns: columns, spacing: 2) {
       ForEach(ordered, id: \.self) { symbol in
         Text(symbol)
-          .font(.custom("Figtree", size: 11))
+          .font(.system(size: 11))
           .fontWeight(.medium)
           .foregroundColor(SettingsStyle.meta)
           .frame(maxWidth: .infinity)
@@ -413,7 +413,7 @@ private struct PanopticonCalendarGrid: View {
           }
         } label: {
           Text("\(day)")
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .fontWeight(isSelected ? .bold : (isToday ? .semibold : .regular))
             .foregroundColor(
               isSelected ? .white : (isToday ? SettingsStyle.ink : SettingsStyle.text)

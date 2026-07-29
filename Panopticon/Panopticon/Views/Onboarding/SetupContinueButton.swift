@@ -25,7 +25,7 @@ struct SetupContinueButton: View {
     Button(action: isEnabled ? action : {}) {
       HStack(alignment: .center, spacing: 8) {
         Text(title)
-          .font(.custom("Figtree", size: 16))
+          .font(.system(size: 16))
           .fontWeight(.semibold)
           .foregroundColor(.white)
       }
@@ -33,7 +33,7 @@ struct SetupContinueButton: View {
       .padding(.vertical, 18)
       .frame(width: 160, alignment: .center)
       .background(
-        Color(red: 0.25, green: 0.17, blue: 0)
+        Theme.Palette.ink
       )
       .cornerRadius(12)
       .shadow(color: .black.opacity(0.25), radius: 0.25, x: 0, y: 0.5)

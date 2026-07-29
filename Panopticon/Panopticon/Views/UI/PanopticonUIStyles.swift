@@ -8,18 +8,25 @@
 import SwiftUI
 
 extension View {
-  /// Applies complete Panopticon style with rounded rectangle shape
+  /// Surface fill with the standard control radius.
+  ///
+  /// This used to default to a 735pt radius (an effectively fully-round pill).
+  /// The reference system uses square-ish 8pt controls, so that is the default
+  /// now; pass an explicit radius where a pill is actually wanted.
   func panopticonStyle(
-    cornerRadius: CGFloat = 735.4068,
-    backgroundColor: Color = .white
+    cornerRadius: CGFloat = Theme.Radius.control,
+    backgroundColor: Color = Theme.Palette.surface
   ) -> some View {
     self
-      .background(backgroundColor)
-      .cornerRadius(cornerRadius)
+      .background(
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+          .fill(backgroundColor)
+      )
+      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
   }
 
-  /// Applies complete Panopticon style with circle shape
-  func panopticonCircleStyle(backgroundColor: Color = .white) -> some View {
+  /// Surface fill clipped to a circle.
+  func panopticonCircleStyle(backgroundColor: Color = Theme.Palette.surface) -> some View {
     self
       .background(backgroundColor)
       .clipShape(Circle())
@@ -34,9 +41,9 @@ struct PanopticonCircleButton<Content: View>: View {
   @ViewBuilder let content: () -> Content
 
   init(
-    width: CGFloat = 31.40301,
-    height: CGFloat = 30.4514,
-    pressedScale: CGFloat = 0.97,
+    width: CGFloat = Theme.Metric.control,
+    height: CGFloat = Theme.Metric.control,
+    pressedScale: CGFloat = Theme.Motion.pressedScale,
     pressAnimation: Animation = .spring(response: 0.24, dampingFraction: 0.82),
     action: @escaping () -> Void,
     @ViewBuilder content: @escaping () -> Content
@@ -52,7 +59,7 @@ struct PanopticonCircleButton<Content: View>: View {
     Button(action: action) {
       ZStack {
         Circle()
-          .fill(Color.white)
+          .fill(Theme.Palette.surface)
 
         content()
           .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,10 +86,10 @@ struct PanopticonPillButton: View {
 
   init(
     text: String,
-    font: Font = .custom("InstrumentSerif-Regular", size: 18),
-    foregroundColor: Color = Color(red: 0.2, green: 0.2, blue: 0.2),
-    horizontalPadding: CGFloat = 11.77829,
-    height: CGFloat = 30.4514,
+    font: Font = Theme.Font_.label,
+    foregroundColor: Color = Theme.Palette.ink,
+    horizontalPadding: CGFloat = 12,
+    height: CGFloat = Theme.Metric.control,
     fixedWidth: CGFloat? = nil
   ) {
     self.text = text

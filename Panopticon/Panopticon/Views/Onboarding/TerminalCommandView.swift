@@ -17,19 +17,19 @@ struct TerminalCommandView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(title)
-        .font(.custom("Figtree", size: 16))
+        .font(.system(size: 16))
         .fontWeight(.semibold)
         .foregroundColor(.black.opacity(0.9))
 
       Text(subtitle)
-        .font(.custom("Figtree", size: 14))
+        .font(.system(size: 14))
         .foregroundColor(.black.opacity(0.6))
 
       // Command block with trailing copy button (overlay for tight right alignment)
       ZStack(alignment: .leading) {
         // Command text area
         Text(command)
-          .font(.custom("SF Mono", size: 13))
+          .font(.system(size: 13, design: .monospaced))
           .foregroundColor(.black.opacity(0.85))
           .textSelection(.enabled)
           .padding(.horizontal, 16)
@@ -45,11 +45,11 @@ struct TerminalCommandView: View {
               Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
                 .font(.system(size: 12, weight: .medium))
               Text(isCopied ? "Copied" : "Copy")
-                .font(.custom("Figtree", size: 13))
+                .font(.system(size: 13))
                 .fontWeight(.medium)
             }
             .foregroundColor(
-              isCopied ? Color(red: 0.34, green: 1, blue: 0.45) : .black.opacity(0.75))
+              isCopied ? Theme.Palette.green : .black.opacity(0.75))
           },
           background: Color.white.opacity(0.93),
           foreground: .black,
@@ -62,7 +62,7 @@ struct TerminalCommandView: View {
         .padding(.trailing, 6)
         .padding(.vertical, 6)
       }
-      .background(Color(hex: "F8F9FA"))
+      .background(Theme.Palette.canvas)
       .cornerRadius(8)
       .overlay(
         RoundedRectangle(cornerRadius: 8)

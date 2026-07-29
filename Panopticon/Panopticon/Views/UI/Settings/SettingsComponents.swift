@@ -8,41 +8,43 @@ import SwiftUI
 // existing primitive can carry the weight. Almost always the latter.
 //
 // Principles:
-//   1. The warm paper background IS the surface. No cards on top.
-//   2. Hierarchy from typography + opacity, not borders + backgrounds.
-//   3. One accent color (ink brown) for everything that needs emphasis.
+//   1. The canvas IS the surface. No cards on top.
+//   2. Hierarchy from typography + hairlines, not heavy borders + fills.
+//   3. One accent color for everything that needs emphasis.
 //   4. Exactly three button treatments. No one-offs.
 //   5. Rows always read label-left, control-right. Always.
 
 // MARK: - Tokens
+//
+// These are a thin, settings-flavored view onto `Theme`. Add new values to
+// `Theme` and alias them here rather than introducing literals.
 
 enum SettingsStyle {
   // Spacing
-  static let sectionSpacing: CGFloat = 44
-  static let rowVerticalPadding: CGFloat = 14
+  static let sectionSpacing: CGFloat = 40
+  static let rowVerticalPadding: CGFloat = 12
 
   // Type colors
-  static let text = Color.black.opacity(0.9)
-  static let secondary = Color.black.opacity(0.55)
-  static let meta = Color.black.opacity(0.4)
+  static let text = Theme.Palette.ink
+  static let secondary = Theme.Palette.ink2
+  static let meta = Theme.Palette.ink3
 
   // Structure
-  static let divider = Color.black.opacity(0.08)
+  static let divider = Theme.Palette.line
 
   // The one accent — used for primary buttons, active tab pill, progress
-  // fills, inline links, focused states. Deliberately the only branded
-  // color on this surface.
-  static let ink = Color(red: 0.25, green: 0.17, blue: 0)
+  // fills, inline links, focused states.
+  static let ink = Theme.Palette.accent
 
   // Destructive — only for red-stroked confirm buttons and error copy.
-  static let destructive = Color(red: 0.76, green: 0.19, blue: 0.19)
+  static let destructive = Theme.Palette.red
 
   // Status dots (paired with 13pt labels — the dot carries the color, the
   // label carries the word).
-  static let statusGood = Color(red: 0.25, green: 0.62, blue: 0.32)
-  static let statusIdle = Color.black.opacity(0.3)
-  static let statusWarn = Color(red: 0.86, green: 0.6, blue: 0.1)
-  static let statusBad = Color(red: 0.76, green: 0.19, blue: 0.19)
+  static let statusGood = Theme.Palette.green
+  static let statusIdle = Theme.Palette.ink3
+  static let statusWarn = Theme.Palette.orange
+  static let statusBad = Theme.Palette.red
 }
 
 // MARK: - SettingsSection
@@ -74,12 +76,12 @@ struct SettingsSection<Content: View, Trailing: View>: View {
       HStack(alignment: .firstTextBaseline, spacing: 16) {
         VStack(alignment: .leading, spacing: 4) {
           Text(title)
-            .font(.custom("Figtree", size: 17))
+            .font(.system(size: 17))
             .fontWeight(.semibold)
             .foregroundColor(SettingsStyle.text)
           if let subtitle {
             Text(subtitle)
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .foregroundColor(SettingsStyle.secondary)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -130,13 +132,13 @@ struct SettingsRow<Trailing: View>: View {
       HStack(alignment: .center, spacing: 16) {
         VStack(alignment: .leading, spacing: 3) {
           Text(label)
-            .font(.custom("Figtree", size: 14))
+            .font(.system(size: 14))
             .fontWeight(.semibold)
             .foregroundColor(SettingsStyle.text)
             .fixedSize(horizontal: false, vertical: true)
           if let subtitle {
             Text(subtitle)
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .foregroundColor(SettingsStyle.secondary)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -194,7 +196,7 @@ struct SettingsPrimaryButton: View {
             .font(.system(size: 12, weight: .semibold))
         }
         Text(title)
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
       }
       .foregroundColor(.white)
@@ -225,7 +227,7 @@ struct SettingsSecondaryButton: View {
             .font(.system(size: 11, weight: .semibold))
         }
         Text(title)
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
       }
       .foregroundColor(SettingsStyle.ink.opacity(isDisabled ? 0.4 : 1))
@@ -251,7 +253,7 @@ struct SettingsLinkButton: View {
     Button(action: action) {
       HStack(spacing: 5) {
         Text(title)
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
         if let systemImage {
           Image(systemName: systemImage)
@@ -307,7 +309,7 @@ struct SettingsStatusDot: View {
         .fill(color)
         .frame(width: 8, height: 8)
       Text(label)
-        .font(.custom("Figtree", size: 13))
+        .font(.system(size: 13))
         .fontWeight(.semibold)
         .foregroundColor(color)
     }
@@ -349,7 +351,7 @@ struct SettingsBadge: View {
 
   var body: some View {
     Text(text)
-      .font(.custom("Figtree", size: 10))
+      .font(.system(size: 10))
       .fontWeight(.bold)
       .kerning(0.6)
       .foregroundColor(isAccent ? SettingsStyle.ink : SettingsStyle.secondary)
@@ -372,7 +374,7 @@ struct SettingsMetadata: View {
   let text: String
   var body: some View {
     Text(text)
-      .font(.custom("Figtree", size: 13))
+      .font(.system(size: 13))
       .foregroundColor(SettingsStyle.secondary)
   }
 }

@@ -148,7 +148,7 @@ struct SettingsView: View {
   private var sidebar: some View {
     VStack(alignment: .leading, spacing: 0) {
       Text("Settings")
-        .font(.custom("InstrumentSerif-Regular", size: 22))
+        .font(.system(size: 22, weight: .semibold))
         .foregroundColor(.black.opacity(0.9))
         .padding(.leading, 10)
         .padding(.bottom, 18)
@@ -174,7 +174,7 @@ struct SettingsView: View {
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     return VStack(alignment: .leading, spacing: 8) {
       Text("Panopticon v\(version)")
-        .font(.custom("Figtree", size: 11))
+        .font(.system(size: 11))
         .foregroundColor(.black.opacity(0.4))
     }
   }
@@ -186,7 +186,7 @@ struct SettingsView: View {
       }
     } label: {
       Text(tab.title)
-        .font(.custom("Figtree", size: 13))
+        .font(.system(size: 13))
         .fontWeight(.semibold)
         .foregroundColor(.black.opacity(selectedTab == tab ? 0.9 : 0.55))
         .frame(maxWidth: .infinity, alignment: .leading)

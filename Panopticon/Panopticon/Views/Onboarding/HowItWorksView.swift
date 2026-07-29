@@ -41,7 +41,7 @@ struct HowItWorksView: View {
     ScrollView(.vertical, showsIndicators: false) {
       VStack(spacing: 40) {
         Text(fullText)
-          .font(.custom("InstrumentSerif-Regular", size: 48))
+          .font(.system(size: 48, weight: .semibold))
           .multilineTextAlignment(.center)
           .frame(maxWidth: .infinity, minHeight: 60)
           .foregroundColor(.black)
@@ -73,15 +73,15 @@ struct HowItWorksView: View {
       HStack {
         PanopticonSurfaceButton(
           action: onBack,
-          content: { Text("Back").font(.custom("Figtree", size: 14)).fontWeight(.semibold) },
+          content: { Text("Back").font(.system(size: 14)).fontWeight(.semibold) },
           background: .white,
-          foreground: Color(red: 0.25, green: 0.17, blue: 0),
+          foreground: Theme.Palette.ink,
           borderColor: .clear,
           cornerRadius: 8,
           horizontalPadding: 20,
           verticalPadding: 12,
           minWidth: 120,
-          isSecondaryStyle: true
+          isOutlinedStyle: true
         )
 
         Spacer()
@@ -97,31 +97,31 @@ struct HowItWorksView: View {
               Image("GithubIcon").resizable().aspectRatio(contentMode: .fit).frame(
                 width: 20, height: 20
               ).colorInvert()
-              Text("Star Panopticon on GitHub").font(.custom("Figtree", size: 14)).fontWeight(.medium)
+              Text("Star Panopticon on GitHub").font(.system(size: 14)).fontWeight(.medium)
             }
           },
-          background: Color(red: 0.25, green: 0.17, blue: 0),
+          background: Theme.Palette.ink,
           foreground: .white,
           borderColor: .clear,
           cornerRadius: 8,
           horizontalPadding: 24,
           verticalPadding: 12,
-          showOverlayStroke: true
+          isFilledStyle: true
         )
 
         Spacer()
 
         PanopticonSurfaceButton(
           action: onNext,
-          content: { Text("Next").font(.custom("Figtree", size: 14)).fontWeight(.semibold) },
-          background: Color(red: 0.25, green: 0.17, blue: 0),
+          content: { Text("Next").font(.system(size: 14)).fontWeight(.semibold) },
+          background: Theme.Palette.ink,
           foreground: .white,
           borderColor: .clear,
           cornerRadius: 8,
           horizontalPadding: 20,
           verticalPadding: 12,
           minWidth: 120,
-          showOverlayStroke: true
+          isFilledStyle: true
         )
       }
       .frame(maxWidth: 600)  // Match card width

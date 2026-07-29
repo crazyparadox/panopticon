@@ -24,8 +24,8 @@ struct ScreenRecordingPermissionView: View {
     case needsAction  // requested or settings opened, awaiting quit & reopen / toggle
   }
 
-  private let brownAccent = Color(hex: "492304")
-  private let privacyTextColor = Color(hex: "89380E")
+  private let brownAccent = Theme.Palette.ink
+  private let privacyTextColor = Theme.Palette.ink2
 
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
@@ -33,16 +33,16 @@ struct ScreenRecordingPermissionView: View {
         // Left side — text and controls
         VStack(alignment: .leading, spacing: 10) {
           Text("Last step!")
-            .font(.custom("Figtree-Bold", size: 16))
-            .foregroundColor(Color(hex: "F96E00"))
+            .font(.system(size: 16, weight: .bold))
+            .foregroundColor(Theme.Palette.accent)
 
           Text("Permission")
-            .font(.custom("InstrumentSerif-Regular", size: 28))
+            .font(.system(size: 28, weight: .semibold))
             .foregroundColor(.black)
 
           Text("Panopticon can help understand your day.")
-            .font(.custom("Figtree-Medium", size: 14))
-            .foregroundColor(Color(hex: "5B5B5B"))
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(Theme.Palette.ink2)
             .fixedSize(horizontal: false, vertical: true)
 
           // Privacy info box
@@ -52,7 +52,7 @@ struct ScreenRecordingPermissionView: View {
                 .font(.system(size: 14))
                 .foregroundColor(privacyTextColor)
               Text("Panopticon is built to be private and secure.")
-                .font(.custom("Figtree-Bold", size: 14))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundColor(privacyTextColor)
                 .fixedSize(horizontal: false, vertical: true)
             }
@@ -60,11 +60,11 @@ struct ScreenRecordingPermissionView: View {
             Text(
               "Panopticon stores all recordings locally on your Mac, and can process everything privately on your device using local AI models."
             )
-            .font(.custom("Figtree-Medium", size: 14))
+            .font(.system(size: 14, weight: .medium))
             .foregroundColor(privacyTextColor)
 
             Text("You are always in control — you can pause or turn off Panopticon whenever you like.")
-              .font(.custom("Figtree-Medium", size: 14))
+              .font(.system(size: 14, weight: .medium))
               .foregroundColor(privacyTextColor)
           }
           .padding(16)
@@ -73,10 +73,10 @@ struct ScreenRecordingPermissionView: View {
           .cornerRadius(5)
           .overlay(
             RoundedRectangle(cornerRadius: 5)
-              .stroke(Color(red: 0.8, green: 0.278, blue: 0).opacity(0.15), lineWidth: 1)
+              .stroke(Theme.Palette.accent.opacity(0.15), lineWidth: 1)
           )
           .shadow(
-            color: Color(red: 0.725, green: 0.608, blue: 0.482).opacity(0.3), radius: 4, x: 0, y: 0)
+            color: Theme.Palette.accent.opacity(0.3), radius: 4, x: 0, y: 0)
 
           // State-based messaging
           Group {
@@ -85,11 +85,11 @@ struct ScreenRecordingPermissionView: View {
               EmptyView()
             case .granted:
               Text("✓ Permission granted! Click Next to continue.")
-                .font(.custom("Figtree", size: 14))
+                .font(.system(size: 14))
                 .foregroundColor(.green)
             case .needsAction:
               Text("Turn on Screen Recording for Panopticon, then quit and reopen the app to finish.")
-                .font(.custom("Figtree", size: 14))
+                .font(.system(size: 14))
                 .foregroundColor(.orange)
             }
           }
@@ -106,7 +106,7 @@ struct ScreenRecordingPermissionView: View {
                       .progressViewStyle(CircularProgressViewStyle())
                   }
                   Text(isCheckingPermission ? "Checking..." : "Open System Settings")
-                    .font(.custom("Figtree-SemiBold", size: 12))
+                    .font(.system(size: 12, weight: .semibold))
                     .tracking(-0.48)
                     .foregroundColor(brownAccent)
                 }
@@ -117,9 +117,9 @@ struct ScreenRecordingPermissionView: View {
                 LinearGradient(
                   stops: [
                     .init(
-                      color: Color(red: 1, green: 0.773, blue: 0.341).opacity(0.7), location: 0.73),
+                      color: Theme.Palette.accentTint.opacity(0.7), location: 0.73),
                     .init(
-                      color: Color(red: 1, green: 0.98, blue: 0.945).opacity(0), location: 0.99),
+                      color: Theme.Palette.inset.opacity(0), location: 0.99),
                   ],
                   startPoint: UnitPoint(x: 0.7, y: 1),
                   endPoint: UnitPoint(x: 0.3, y: 0)
@@ -129,7 +129,7 @@ struct ScreenRecordingPermissionView: View {
               .cornerRadius(6)
               .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                  .stroke(Color(hex: "FFBC80"), lineWidth: 1)
+                  .stroke(Theme.Palette.line, lineWidth: 1)
               )
               .disabled(isCheckingPermission)
             case .needsAction:
@@ -139,7 +139,7 @@ struct ScreenRecordingPermissionView: View {
                 HStack(spacing: 12) {
                   Button(action: openSystemSettings) {
                     Text("Open System Settings")
-                      .font(.custom("Figtree-SemiBold", size: 12))
+                      .font(.system(size: 12, weight: .semibold))
                       .tracking(-0.48)
                       .foregroundColor(brownAccent)
                       .padding(12)
@@ -149,11 +149,11 @@ struct ScreenRecordingPermissionView: View {
                     LinearGradient(
                       stops: [
                         .init(
-                          color: Color(red: 1, green: 0.773, blue: 0.341).opacity(0.7),
+                          color: Theme.Palette.accentTint.opacity(0.7),
                           location: 0.73
                         ),
                         .init(
-                          color: Color(red: 1, green: 0.98, blue: 0.945).opacity(0),
+                          color: Theme.Palette.inset.opacity(0),
                           location: 0.99),
                       ],
                       startPoint: UnitPoint(x: 0.7, y: 1),
@@ -164,12 +164,12 @@ struct ScreenRecordingPermissionView: View {
                   .cornerRadius(6)
                   .overlay(
                     RoundedRectangle(cornerRadius: 6)
-                      .stroke(Color(hex: "FFBC80"), lineWidth: 1)
+                      .stroke(Theme.Palette.line, lineWidth: 1)
                   )
 
                   Button(action: quitAndReopen) {
                     Text("Quit & Reopen")
-                      .font(.custom("Figtree-SemiBold", size: 12))
+                      .font(.system(size: 12, weight: .semibold))
                       .tracking(-0.48)
                       .foregroundColor(brownAccent)
                       .padding(12)
@@ -179,7 +179,7 @@ struct ScreenRecordingPermissionView: View {
                   .cornerRadius(6)
                   .overlay(
                     RoundedRectangle(cornerRadius: 6)
-                      .stroke(Color(hex: "FFBC80"), lineWidth: 1)
+                      .stroke(Theme.Palette.line, lineWidth: 1)
                   )
                 }
               }
@@ -200,14 +200,14 @@ struct ScreenRecordingPermissionView: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(maxWidth: 486)
-            .background(Color(hex: "FCFCFC"))
+            .background(Theme.Palette.surface)
             .cornerRadius(8)
             .overlay(
               RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(hex: "F0F0F0"), lineWidth: 1)
+                .stroke(Theme.Palette.inset, lineWidth: 1)
             )
             .shadow(
-              color: Color(red: 0.725, green: 0.608, blue: 0.482).opacity(0.25), radius: 3, x: 0,
+              color: Theme.Palette.accent.opacity(0.25), radius: 3, x: 0,
               y: 2)
         }
       }
@@ -216,29 +216,29 @@ struct ScreenRecordingPermissionView: View {
       HStack(spacing: 15) {
         PanopticonSurfaceButton(
           action: onBack,
-          content: { Text("Back").font(.custom("Figtree-Medium", size: 12)).tracking(-0.48) },
+          content: { Text("Back").font(.system(size: 12, weight: .medium)).tracking(-0.48) },
           background: .white,
-          foreground: Color(hex: "B6B6B6"),
-          borderColor: Color(hex: "B6B6B6"),
+          foreground: Theme.Palette.ink3,
+          borderColor: Theme.Palette.ink3,
           cornerRadius: 4,
           horizontalPadding: 40,
           verticalPadding: 12,
-          isSecondaryStyle: true
+          isOutlinedStyle: true
         )
         PanopticonSurfaceButton(
           action: {
             if permissionState == .granted { onNext() }
           },
-          content: { Text("Next").font(.custom("Figtree-Medium", size: 12)).tracking(-0.48) },
+          content: { Text("Next").font(.system(size: 12, weight: .medium)).tracking(-0.48) },
           background: permissionState == .granted
-            ? Color(hex: "402B00")
-            : Color(hex: "402B00").opacity(0.3),
+            ? Theme.Palette.ink
+            : Theme.Palette.ink.opacity(0.3),
           foreground: .white,
           borderColor: .clear,
           cornerRadius: 4,
           horizontalPadding: 40,
           verticalPadding: 12,
-          showOverlayStroke: permissionState == .granted
+          isFilledStyle: permissionState == .granted
         )
         .disabled(permissionState != .granted)
       }

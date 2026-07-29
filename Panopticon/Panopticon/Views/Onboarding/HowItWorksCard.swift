@@ -24,7 +24,7 @@ struct HowItWorksCard: View {
       VStack(alignment: .leading, spacing: 4) {
         // Heading
         Text(title)
-          .font(.custom("Figtree", size: 16))
+          .font(.system(size: 16))
           .fontWeight(.semibold)
           .foregroundColor(.black.opacity(0.85))
           .multilineTextAlignment(.leading)
@@ -32,7 +32,7 @@ struct HowItWorksCard: View {
 
         // Body
         Text(description)
-          .font(.custom("Figtree", size: 14))
+          .font(.system(size: 14))
           .fontWeight(.regular)
           .foregroundColor(.black.opacity(0.6))
           .multilineTextAlignment(.leading)

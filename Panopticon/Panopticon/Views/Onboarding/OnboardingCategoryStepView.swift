@@ -83,26 +83,26 @@ struct OnboardingCategoryStepView: View {
   private var instructionsColumn: some View {
     VStack(alignment: .leading, spacing: 16) {
       Text("Help Panopticon understand your workflow")
-        .font(.custom("InstrumentSerif-Regular", size: 28))
+        .font(.system(size: 28, weight: .semibold))
         .foregroundColor(.black)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.bottom, 24)
 
       Text("Panopticon will organize your activities based on the categories you provide.")
-        .font(.custom("Figtree", size: 14).weight(.medium))
-        .foregroundColor(Color(hex: "5B5B5B"))
+        .font(.system(size: 14).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
         .fixedSize(horizontal: false, vertical: true)
 
       Text(
         "Here are options tailored to your work to help you get started. Provide more personalized descriptions to help Panopticon better understand your actions."
       )
-      .font(.custom("Figtree", size: 14).weight(.medium))
-      .foregroundColor(Color(hex: "5B5B5B"))
+      .font(.system(size: 14).weight(.medium))
+      .foregroundColor(Theme.Palette.ink2)
       .fixedSize(horizontal: false, vertical: true)
 
       Text("You can customize or create new categories any time.")
-        .font(.custom("Figtree", size: 14).weight(.medium))
-        .foregroundColor(Color(hex: "5B5B5B"))
+        .font(.system(size: 14).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
         .fixedSize(horizontal: false, vertical: true)
     }
   }
@@ -133,7 +133,7 @@ struct OnboardingCategoryStepView: View {
       colorSwatch(hex: category.colorHex)
 
       TextField("Category name", text: $draftName)
-        .font(.custom("Figtree", size: 12).weight(.bold))
+        .font(.system(size: 12).weight(.bold))
         .textFieldStyle(.plain)
         .foregroundColor(.black)
 
@@ -144,7 +144,7 @@ struct OnboardingCategoryStepView: View {
       } label: {
         Image(systemName: "checkmark.circle.fill")
           .font(.system(size: 16))
-          .foregroundColor(Color(hex: "4CAF50"))
+          .foregroundColor(Theme.Palette.green)
       }
       .buttonStyle(.plain)
       .pointingHandCursor()
@@ -167,7 +167,7 @@ struct OnboardingCategoryStepView: View {
       } label: {
         Image(systemName: "xmark.circle.fill")
           .font(.system(size: 16))
-          .foregroundColor(Color(hex: "F44336"))
+          .foregroundColor(Theme.Palette.red)
       }
       .buttonStyle(.plain)
       .pointingHandCursor()
@@ -178,9 +178,9 @@ struct OnboardingCategoryStepView: View {
     .cornerRadius(4)
     .overlay(
       RoundedRectangle(cornerRadius: 4)
-        .stroke(Color(hex: "E3DBD9"), lineWidth: 0.5)
+        .stroke(Theme.Palette.line, lineWidth: 0.5)
     )
-    .shadow(color: Color(hex: "FCB278"), radius: 3, x: 0, y: 0)
+    .shadow(color: Theme.Palette.accentTint, radius: 3, x: 0, y: 0)
   }
 
   // MARK: - Read-Only Card
@@ -190,7 +190,7 @@ struct OnboardingCategoryStepView: View {
       colorSwatch(hex: category.colorHex)
 
       Text(category.name)
-        .font(.custom("Figtree", size: 12).weight(.bold))
+        .font(.system(size: 12).weight(.bold))
         .foregroundColor(.black)
 
       Spacer()
@@ -226,9 +226,9 @@ struct OnboardingCategoryStepView: View {
     .cornerRadius(6)
     .overlay(
       RoundedRectangle(cornerRadius: 6)
-        .stroke(Color(hex: "E3DBD9"), lineWidth: 0.5)
+        .stroke(Theme.Palette.line, lineWidth: 0.5)
     )
-    .shadow(color: Color(hex: "DCCDC1").opacity(0.5), radius: 3, x: 0, y: 0)
+    .shadow(color: Theme.Palette.line.opacity(0.5), radius: 3, x: 0, y: 0)
     .onTapGesture {
       if !category.isSystem {
         startEditing(category)
@@ -263,16 +263,16 @@ struct OnboardingCategoryStepView: View {
       }
     } label: {
       Text("+ Add category")
-        .font(.custom("Figtree", size: 12).weight(.medium))
-        .foregroundColor(Color(hex: "2B2B2B"))
+        .font(.system(size: 12).weight(.medium))
+        .foregroundColor(Theme.Palette.ink)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Color(hex: "FFBA81").opacity(0.3))
+        .background(Theme.Palette.accentTint.opacity(0.3))
         .cornerRadius(4)
         .overlay(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(hex: "F3A462"), lineWidth: 0.5)
+            .stroke(Theme.Palette.accentTint, lineWidth: 0.5)
         )
         .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 0)
     }
@@ -291,14 +291,14 @@ struct OnboardingCategoryStepView: View {
       // Back button (outlined)
       Button(action: onBack) {
         Text("Back")
-          .font(.custom("Figtree", size: 12).weight(.medium))
+          .font(.system(size: 12).weight(.medium))
           .tracking(-0.48)
-          .foregroundColor(Color(hex: "B6B6B6"))
+          .foregroundColor(Theme.Palette.ink3)
           .padding(.horizontal, 40)
           .padding(.vertical, 12)
           .overlay(
             RoundedRectangle(cornerRadius: 4)
-              .stroke(Color(hex: "B6B6B6"), lineWidth: 1)
+              .stroke(Theme.Palette.ink3, lineWidth: 1)
           )
       }
       .buttonStyle(.plain)
@@ -311,12 +311,12 @@ struct OnboardingCategoryStepView: View {
         onNext()
       } label: {
         Text("Next")
-          .font(.custom("Figtree", size: 12).weight(.medium))
+          .font(.system(size: 12).weight(.medium))
           .tracking(-0.48)
           .foregroundColor(.white)
           .padding(.horizontal, 40)
           .padding(.vertical, 12)
-          .background(Color(hex: "402B00"))
+          .background(Theme.Palette.ink)
           .cornerRadius(4)
       }
       .buttonStyle(.plain)
@@ -393,9 +393,6 @@ struct OnboardingCategoryStepView: View {
   .environmentObject(CategoryStore.shared)
   .frame(width: 1200, height: 680)
   .background {
-    Image("OnboardingBackgroundv2")
-      .resizable()
-      .aspectRatio(contentMode: .fill)
-      .ignoresSafeArea()
+    Theme.Palette.canvas.ignoresSafeArea()
   }
 }

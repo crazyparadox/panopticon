@@ -212,11 +212,9 @@ struct OnboardingFlow: View {
       restoreSavedStep()
     }
     .background {
-      // Background at parent level - fills entire window!
-      Image("OnboardingBackgroundv2")
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-        .ignoresSafeArea()
+      // Flat canvas fills the window; the reference system has no
+      // decorative background art.
+      Theme.Palette.canvas.ignoresSafeArea()
     }
     .preferredColorScheme(.light)
   }
@@ -416,7 +414,7 @@ struct WelcomeView: View {
             .opacity(textOpacity)
 
           Text(fullText)
-            .font(.custom("InstrumentSerif-Regular", size: 36))
+            .font(.system(size: 36, weight: .semibold))
             .multilineTextAlignment(.center)
             .foregroundColor(.black.opacity(0.8))
             .padding(.horizontal, 20)
@@ -432,15 +430,15 @@ struct WelcomeView: View {
 
           PanopticonSurfaceButton(
             action: onStart,
-            content: { Text("Start").font(.custom("Figtree", size: 16)).fontWeight(.semibold) },
-            background: Color(red: 0.25, green: 0.17, blue: 0),
+            content: { Text("Start").font(.system(size: 16)).fontWeight(.semibold) },
+            background: Theme.Palette.ink,
             foreground: .white,
             borderColor: .clear,
             cornerRadius: 8,
             horizontalPadding: 28,
             verticalPadding: 14,
             minWidth: 160,
-            showOverlayStroke: true
+            isFilledStyle: true
           )
           .opacity(textOpacity)
           .animation(.easeIn(duration: 0.3).delay(0.4), value: textOpacity)
@@ -528,12 +526,12 @@ struct OnboardingPrototypeDownloadReasonStep: View {
       VStack(spacing: 22) {
         VStack(spacing: 4) {
           Text("What are you hoping to get out of Panopticon?")
-            .font(.custom("Figtree", size: 20))
-            .foregroundColor(Color(hex: "89380E"))
+            .font(.system(size: 20))
+            .foregroundColor(Theme.Palette.ink2)
 
           Text("This helps personalize the experience for you.")
-            .font(.custom("Figtree", size: 16))
-            .foregroundColor(Color(hex: "89380E").opacity(0.78))
+            .font(.system(size: 16))
+            .foregroundColor(Theme.Palette.ink2.opacity(0.78))
         }
         .multilineTextAlignment(.center)
 
@@ -558,17 +556,17 @@ struct OnboardingPrototypeDownloadReasonStep: View {
         },
         content: {
           Text("Continue")
-            .font(.custom("Figtree", size: 14))
+            .font(.system(size: 14))
             .fontWeight(.semibold)
         },
-        background: Color(hex: "402C00"),
+        background: Theme.Palette.ink,
         foreground: .white,
         borderColor: .clear,
         cornerRadius: 8,
         horizontalPadding: 59,
         verticalPadding: 12,
         minWidth: 234,
-        showOverlayStroke: true
+        isFilledStyle: true
       )
       .opacity(canContinue ? 1.0 : 0.4)
       .allowsHitTesting(canContinue)
@@ -590,11 +588,11 @@ struct OnboardingPrototypeDownloadReasonStep: View {
       HStack(spacing: 10) {
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
           .font(.system(size: 17, weight: .semibold))
-          .foregroundColor(Color(hex: "402C00"))
+          .foregroundColor(Theme.Palette.ink)
 
         Text(option.displayName)
-          .font(.custom("Figtree", size: 15))
-          .foregroundColor(Color(hex: "492304"))
+          .font(.system(size: 15))
+          .foregroundColor(Theme.Palette.ink)
           .fixedSize(horizontal: false, vertical: true)
 
         Spacer(minLength: 0)
@@ -604,16 +602,16 @@ struct OnboardingPrototypeDownloadReasonStep: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(
         RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Color(hex: "FFE5CF").opacity(0.48) : Color.white.opacity(0.42))
+          .fill(isSelected ? Theme.Palette.accentTint.opacity(0.48) : Color.white.opacity(0.42))
       )
       .overlay(
         RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .stroke(isSelected ? Color(hex: "FFCCA7") : Color(hex: "E4D3C2"), lineWidth: 1)
+          .stroke(isSelected ? Theme.Palette.accentTint : Theme.Palette.line, lineWidth: 1)
       )
       .shadow(
         color: isSelected
-          ? Color(red: 1, green: 0.416, blue: 0).opacity(0.22)
-          : Color(hex: "AF7246").opacity(0.12),
+          ? Theme.Palette.accent.opacity(0.22)
+          : Theme.Palette.ink3.opacity(0.12),
         radius: isSelected ? 3 : 2,
         x: 0,
         y: 0
@@ -625,8 +623,8 @@ struct OnboardingPrototypeDownloadReasonStep: View {
 
   private var otherField: some View {
     TextField("Tell me more", text: $otherText)
-      .font(.custom("Figtree", size: 16))
-      .foregroundColor(Color(hex: "492304"))
+      .font(.system(size: 16))
+      .foregroundColor(Theme.Palette.ink)
       .textFieldStyle(.plain)
       .padding(.horizontal, 12)
       .frame(height: 36)
@@ -634,10 +632,10 @@ struct OnboardingPrototypeDownloadReasonStep: View {
       .cornerRadius(5)
       .overlay(
         RoundedRectangle(cornerRadius: 5)
-          .stroke(Color(hex: "E4D3C2"), lineWidth: 1)
+          .stroke(Theme.Palette.line, lineWidth: 1)
       )
       .shadow(
-        color: Color(hex: "AF7246").opacity(0.15),
+        color: Theme.Palette.ink3.opacity(0.15),
         radius: 2, x: 0, y: 0
       )
       .opacity(selectedReasons.contains(.other) ? 1 : 0)
@@ -727,13 +725,13 @@ struct CompletionView: View {
       // Title section
       VStack(spacing: 8) {
         Text("You are ready to go!")
-          .font(.custom("InstrumentSerif-Regular", size: 36))
+          .font(.system(size: 36, weight: .semibold))
           .foregroundColor(.black.opacity(0.9))
 
         Text(
           "To get useful insights, let Panopticon run in the background for an hour or two to gather enough context, then check back in."
         )
-        .font(.custom("Figtree", size: 15))
+        .font(.system(size: 15))
         .foregroundColor(.black.opacity(0.6))
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -745,17 +743,17 @@ struct CompletionView: View {
         },
         content: {
           Text("Launch Panopticon")
-            .font(.custom("Figtree", size: 16))
+            .font(.system(size: 16))
             .fontWeight(.semibold)
         },
-        background: Color(red: 0.25, green: 0.17, blue: 0),
+        background: Theme.Palette.ink,
         foreground: .white,
         borderColor: .clear,
         cornerRadius: 8,
         horizontalPadding: 40,
         verticalPadding: 14,
         minWidth: 200,
-        showOverlayStroke: true
+        isFilledStyle: true
       )
       .padding(.top, 16)
     }

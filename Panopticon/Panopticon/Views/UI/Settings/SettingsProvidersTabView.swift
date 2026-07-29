@@ -20,7 +20,7 @@ struct SettingsProvidersTabView: View {
 
       if let status = viewModel.upgradeStatusMessage {
         Text(status)
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .foregroundColor(SettingsStyle.statusGood)
       }
 
@@ -129,7 +129,7 @@ struct SettingsProvidersTabView: View {
     ) {
       VStack(alignment: .leading, spacing: 14) {
         Text(viewModel.connectionHealthLabel)
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
           .foregroundColor(SettingsStyle.text)
 
@@ -152,7 +152,7 @@ struct SettingsProvidersTabView: View {
           )
         default:
           Text("Diagnostics coming soon")
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .foregroundColor(SettingsStyle.secondary)
         }
       }
@@ -190,7 +190,7 @@ struct SettingsProvidersTabView: View {
     return VStack(alignment: .leading, spacing: 10) {
       HStack(alignment: .center, spacing: 10) {
         Text(provider.providerTableName)
-          .font(.custom("Figtree", size: 14))
+          .font(.system(size: 14))
           .fontWeight(.semibold)
           .foregroundColor(SettingsStyle.text)
 
@@ -208,7 +208,7 @@ struct SettingsProvidersTabView: View {
       }
 
       Text(provider.summary)
-        .font(.custom("Figtree", size: 12))
+        .font(.system(size: 12))
         .foregroundColor(SettingsStyle.secondary)
         .fixedSize(horizontal: false, vertical: true)
 
@@ -269,13 +269,13 @@ struct SettingsProvidersTabView: View {
         }
 
         Text(GeminiModelPreference(primary: viewModel.selectedGeminiModel).fallbackSummary)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.secondary)
 
         Text(
           "Panopticon automatically downgrades if your chosen model is rate limited or unavailable."
         )
-        .font(.custom("Figtree", size: 11))
+        .font(.system(size: 11))
         .foregroundColor(SettingsStyle.meta)
       }
     }
@@ -406,7 +406,7 @@ struct SettingsProvidersTabView: View {
     SettingsSection(title: title, subtitle: subtitle) {
       VStack(alignment: .leading, spacing: 18) {
         Text(intro)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.secondary)
           .fixedSize(horizontal: false, vertical: true)
 
@@ -434,11 +434,11 @@ struct SettingsProvidersTabView: View {
       Toggle(isOn: config.isEnabled) {
         VStack(alignment: .leading, spacing: 3) {
           Text(config.heading)
-            .font(.custom("Figtree", size: 14))
+            .font(.system(size: 14))
             .fontWeight(.semibold)
             .foregroundColor(SettingsStyle.text)
           Text(config.description)
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(SettingsStyle.secondary)
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -449,7 +449,7 @@ struct SettingsProvidersTabView: View {
       ZStack(alignment: .topLeading) {
         if config.text.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           Text(config.defaultText)
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(SettingsStyle.meta)
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -458,7 +458,7 @@ struct SettingsProvidersTabView: View {
         }
 
         TextEditor(text: config.text)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.text.opacity(config.isEnabled.wrappedValue ? 1 : 0.4))
           .scrollContentBackground(.hidden)
           .disabled(!config.isEnabled.wrappedValue)
@@ -495,15 +495,15 @@ private struct LocalModelUpgradeBanner: View {
         Image(systemName: "sparkles")
           .foregroundStyle(Color.white)
           .padding(8)
-          .background(Color(red: 0.12, green: 0.09, blue: 0.02))
+          .background(Theme.Palette.ink)
           .clipShape(RoundedRectangle(cornerRadius: 8))
         VStack(alignment: .leading, spacing: 4) {
           Text("Upgrade to \(preset.displayName)")
-            .font(.custom("Figtree", size: 16))
+            .font(.system(size: 16))
             .fontWeight(.semibold)
             .foregroundColor(.white)
           Text("Upgrade to Qwen3VL for a big improvement in quality.")
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .foregroundColor(.white.opacity(0.8))
         }
         Spacer()
@@ -514,10 +514,10 @@ private struct LocalModelUpgradeBanner: View {
           HStack(alignment: .top, spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
               .font(.system(size: 12))
-              .foregroundColor(Color(red: 0.76, green: 1, blue: 0.74))
+              .foregroundColor(Theme.Palette.greenTint)
               .padding(.top, 2)
             Text(bullet)
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .foregroundColor(.white.opacity(0.85))
           }
         }
@@ -526,7 +526,7 @@ private struct LocalModelUpgradeBanner: View {
       HStack(spacing: 12) {
         Button(action: onKeepLegacy) {
           Text("Keep Qwen2.5")
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .fontWeight(.semibold)
             .foregroundColor(.white)
             .padding(.horizontal, 18)
@@ -542,7 +542,7 @@ private struct LocalModelUpgradeBanner: View {
         Button(action: onUpgrade) {
           HStack(spacing: 6) {
             Text("Upgrade now")
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .fontWeight(.semibold)
             Image(systemName: "arrow.right")
               .font(.system(size: 12, weight: .semibold))
@@ -562,7 +562,7 @@ private struct LocalModelUpgradeBanner: View {
     .padding(20)
     .background(
       RoundedRectangle(cornerRadius: 14, style: .continuous)
-        .fill(Color(red: 0.16, green: 0.11, blue: 0))
+        .fill(Theme.Palette.ink)
     )
   }
 }
@@ -616,12 +616,12 @@ struct LocalModelUpgradeSheet: View {
         HStack {
           VStack(alignment: .leading, spacing: 6) {
             Text("Upgrade to \(preset.displayName)")
-              .font(.custom("Figtree", size: 22))
+              .font(.system(size: 22))
               .fontWeight(.semibold)
             Text(
               "Follow the steps below, run a quick test, and Panopticon will switch you over automatically."
             )
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .foregroundColor(SettingsStyle.secondary)
           }
           Spacer()
@@ -641,7 +641,7 @@ struct LocalModelUpgradeSheet: View {
                 .font(.system(size: 12))
                 .foregroundColor(SettingsStyle.ink)
               Text(bullet)
-                .font(.custom("Figtree", size: 13))
+                .font(.system(size: 13))
                 .foregroundColor(SettingsStyle.text)
             }
           }
@@ -649,7 +649,7 @@ struct LocalModelUpgradeSheet: View {
 
         VStack(alignment: .leading, spacing: 12) {
           Text("Which local runtime are you using?")
-            .font(.custom("Figtree", size: 14))
+            .font(.system(size: 14))
             .foregroundColor(SettingsStyle.secondary)
           Picker("Engine", selection: $selectedEngine) {
             Text("Ollama").tag(LocalEngine.ollama)
@@ -683,7 +683,7 @@ struct LocalModelUpgradeSheet: View {
         Text(
           "Once the test succeeds, Panopticon updates your settings to \(preset.displayName) automatically."
         )
-        .font(.custom("Figtree", size: 12))
+        .font(.system(size: 12))
         .foregroundColor(SettingsStyle.secondary)
 
         HStack {
@@ -709,20 +709,20 @@ struct LocalModelUpgradeSheet: View {
     let instruction = preset.instructions(for: engine == .custom ? .ollama : engine)
     VStack(alignment: .leading, spacing: 12) {
       Text(instruction.title)
-        .font(.custom("Figtree", size: 16))
+        .font(.system(size: 16))
         .fontWeight(.semibold)
       Text(instruction.subtitle)
-        .font(.custom("Figtree", size: 13))
+        .font(.system(size: 13))
         .foregroundColor(SettingsStyle.secondary)
       VStack(alignment: .leading, spacing: 6) {
         ForEach(Array(instruction.bullets.enumerated()), id: \.offset) { index, bullet in
           HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("\(index + 1).")
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .foregroundColor(SettingsStyle.secondary)
               .frame(width: 18, alignment: .leading)
             Text(bullet)
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .foregroundColor(SettingsStyle.text)
           }
         }
@@ -751,7 +751,7 @@ struct LocalModelUpgradeSheet: View {
 
       if let note = instruction.note {
         Text(note)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(SettingsStyle.secondary)
       }
     }

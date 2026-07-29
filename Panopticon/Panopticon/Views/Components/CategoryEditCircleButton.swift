@@ -15,11 +15,11 @@ struct CategoryEditCircleButton: View {
         .scaledToFit()
         .frame(width: resolvedIconSize, height: resolvedIconSize)
         .frame(width: diameter, height: diameter)
-        .background(Color(hex: "FFEFE4"))
+        .background(Theme.Palette.accentTint)
         .clipShape(Circle())
         .overlay(
           Circle()
-            .stroke(Color(hex: "F2D2BD"), lineWidth: 1)
+            .stroke(Theme.Palette.line, lineWidth: 1)
         )
     }
     .buttonStyle(PanopticonPressScaleButtonStyle(pressedScale: 0.97))

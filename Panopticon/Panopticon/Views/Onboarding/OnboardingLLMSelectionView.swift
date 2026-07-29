@@ -48,7 +48,7 @@ struct OnboardingLLMSelectionView: View {
       VStack(spacing: 0) {
         // Header
         Text("Choose a way to run Panopticon")
-          .font(.custom("InstrumentSerif-Regular", size: titleSize))
+          .font(.system(size: titleSize, weight: .semibold))
           .multilineTextAlignment(.center)
           .foregroundColor(.black.opacity(0.9))
           .frame(maxWidth: .infinity)
@@ -97,7 +97,7 @@ struct OnboardingLLMSelectionView: View {
                 .foregroundColor(.black.opacity(0.6))
             }
           }
-          .font(.custom("Figtree", size: 14))
+          .font(.system(size: 14))
           .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -319,11 +319,6 @@ struct OnboardingLLMSelectionView_Previews: PreviewProvider {
       onNext: { _ in }  // Takes provider string now
     )
     .frame(width: 1400, height: 900)
-    .background(
-      Image("OnboardingBackgroundv2")
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-        .ignoresSafeArea()
-    )
+    .background(Theme.Palette.canvas.ignoresSafeArea())
   }
 }

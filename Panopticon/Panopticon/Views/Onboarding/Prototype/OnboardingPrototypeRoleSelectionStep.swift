@@ -30,10 +30,10 @@ struct OnboardingPrototypeRoleSelectionStep: View {
         .frame(height: 39)
 
       Text("Help Panopticon understand your work patterns better.")
-        .font(.custom("InstrumentSerif-Regular", size: 40))
+        .font(.system(size: 40, weight: .semibold))
         .tracking(-1.2)
         .multilineTextAlignment(.center)
-        .foregroundColor(Color(hex: "492304"))
+        .foregroundColor(Theme.Palette.ink)
         .lineSpacing(40 * 0.2)
         .frame(maxWidth: 708)
         .fixedSize(horizontal: false, vertical: true)
@@ -44,12 +44,12 @@ struct OnboardingPrototypeRoleSelectionStep: View {
       VStack(spacing: 24) {
         VStack(spacing: 4) {
           Text("What do you do for work?")
-            .font(.custom("Figtree", size: 20))
-            .foregroundColor(Color(hex: "89380E"))
+            .font(.system(size: 20))
+            .foregroundColor(Theme.Palette.ink2)
 
           Text("This will help Panopticon generate categories that are most helpful to you.")
-            .font(.custom("Figtree", size: 20))
-            .foregroundColor(Color(hex: "89380E"))
+            .font(.system(size: 20))
+            .foregroundColor(Theme.Palette.ink2)
         }
         .multilineTextAlignment(.center)
 
@@ -70,12 +70,12 @@ struct OnboardingPrototypeRoleSelectionStep: View {
       if selectedRole == "Other" {
         VStack(spacing: 16) {
           Text("Please specify")
-            .font(.custom("Figtree", size: 20))
-            .foregroundColor(Color(hex: "89380E"))
+            .font(.system(size: 20))
+            .foregroundColor(Theme.Palette.ink2)
 
           TextField("", text: $otherText)
-            .font(.custom("Figtree", size: 16))
-            .foregroundColor(Color(hex: "492304"))
+            .font(.system(size: 16))
+            .foregroundColor(Theme.Palette.ink)
             .textFieldStyle(.plain)
             .padding(.horizontal, 12)
             .frame(width: 353, height: 34)
@@ -83,10 +83,10 @@ struct OnboardingPrototypeRoleSelectionStep: View {
             .cornerRadius(5)
             .overlay(
               RoundedRectangle(cornerRadius: 5)
-                .stroke(Color(hex: "E4D3C2"), lineWidth: 1)
+                .stroke(Theme.Palette.line, lineWidth: 1)
             )
             .shadow(
-              color: Color(hex: "AF7246").opacity(0.15),
+              color: Theme.Palette.ink3.opacity(0.15),
               radius: 2, x: 0, y: 0
             )
         }
@@ -104,17 +104,17 @@ struct OnboardingPrototypeRoleSelectionStep: View {
         },
         content: {
           Text("Continue")
-            .font(.custom("Figtree", size: 14))
+            .font(.system(size: 14))
             .fontWeight(.semibold)
         },
-        background: Color(hex: "402C00"),
+        background: Theme.Palette.ink,
         foreground: .white,
         borderColor: .clear,
         cornerRadius: 8,
         horizontalPadding: 59,
         verticalPadding: 12,
         minWidth: 234,
-        showOverlayStroke: true
+        isFilledStyle: true
       )
       .opacity(resolvedRole == nil ? 0.4 : 1.0)
       .allowsHitTesting(resolvedRole != nil)
@@ -133,27 +133,27 @@ struct OnboardingPrototypeRoleSelectionStep: View {
       selectedRole = role
     } label: {
       Text(role)
-        .font(.custom("Figtree", size: 16))
-        .foregroundColor(Color(hex: "492304"))
+        .font(.system(size: 16))
+        .foregroundColor(Theme.Palette.ink)
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
         .background(
           isSelected
-            ? Color(red: 1, green: 0.898, blue: 0.812).opacity(0.4)
+            ? Theme.Palette.inset.opacity(0.4)
             : Color.white.opacity(0.4)
         )
         .clipShape(Capsule())
         .overlay(
           Capsule()
             .stroke(
-              isSelected ? Color(hex: "FFCCA7") : Color(hex: "E4D3C2"),
+              isSelected ? Theme.Palette.accent : Theme.Palette.line,
               lineWidth: 1
             )
         )
         .shadow(
           color: isSelected
-            ? Color(red: 1, green: 0.416, blue: 0).opacity(0.5)
-            : Color(hex: "AF7246").opacity(0.15),
+            ? Theme.Palette.accent.opacity(0.5)
+            : Theme.Palette.ink3.opacity(0.15),
           radius: isSelected ? 3 : 2, x: 0, y: 0
         )
     }

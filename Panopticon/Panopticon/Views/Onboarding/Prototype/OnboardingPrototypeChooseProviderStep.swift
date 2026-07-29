@@ -10,21 +10,23 @@ import SwiftUI
 private enum ComparisonRating {
   case best, medium, basic
 
+  /// Rating dots read green → amber → neutral, so the color carries the
+  /// judgement even before the adjacent label is read.
   var dotGradient: LinearGradient {
     switch self {
     case .best:
       return LinearGradient(
-        colors: [Color(hex: "10F06D"), Color(hex: "08E8E4")],
+        colors: [Theme.Palette.green, Theme.Palette.green.opacity(0.75)],
         startPoint: .top, endPoint: .bottom
       )
     case .medium:
       return LinearGradient(
-        colors: [Color(hex: "FFD560"), Color(hex: "FCAE6A")],
+        colors: [Theme.Palette.orange, Theme.Palette.orange.opacity(0.75)],
         startPoint: .top, endPoint: .bottom
       )
     case .basic:
       return LinearGradient(
-        colors: [Color(hex: "EDD9CF"), Color(hex: "B6AAA4")],
+        colors: [Theme.Palette.lineStrong, Theme.Palette.ink3],
         startPoint: .top, endPoint: .bottom
       )
     }
@@ -91,10 +93,10 @@ struct OnboardingPrototypeChooseProviderStep: View {
   var body: some View {
     VStack(spacing: 0) {
       Text("Choose a way to run Panopticon")
-        .font(.custom("InstrumentSerif-Regular", size: 40))
+        .font(.system(size: 40, weight: .semibold))
         .tracking(-1.2)
         .multilineTextAlignment(.center)
-        .foregroundColor(Color(hex: "492304"))
+        .foregroundColor(Theme.Palette.ink)
         .frame(maxWidth: .infinity)
         .padding(.top, 20)
         .padding(.bottom, 45)
@@ -184,7 +186,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
 
   private func rowLabel(_ text: String) -> some View {
     Text(text)
-      .font(.custom("Figtree", size: 14))
+      .font(.system(size: 14))
       .fontWeight(.semibold)
       .foregroundColor(.black)
       .fixedSize(horizontal: false, vertical: true)
@@ -195,7 +197,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
     VStack(spacing: 7) {
       headerIcon(for: provider.id)
       Text(provider.title)
-        .font(.custom("Figtree", size: 16))
+        .font(.system(size: 16))
         .fontWeight(.semibold)
         .foregroundColor(.black)
     }
@@ -256,7 +258,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
         .fill(value.rating.dotGradient)
         .frame(width: 10, height: 10)
       Text(value.text)
-        .font(.custom("Figtree", size: 14))
+        .font(.system(size: 14))
         .foregroundColor(.black)
         .fixedSize(horizontal: false, vertical: true)
     }
@@ -264,7 +266,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
 
   private func subscriptionCell(_ text: String) -> some View {
     Text(text)
-      .font(.custom("Figtree", size: 14))
+      .font(.system(size: 14))
       .foregroundColor(.black)
       .multilineTextAlignment(.center)
       .fixedSize(horizontal: false, vertical: true)
@@ -273,7 +275,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
 
   private func notesCell(_ text: String) -> some View {
     Text(text)
-      .font(.custom("Figtree", size: 12))
+      .font(.system(size: 12))
       .foregroundColor(.black)
       .multilineTextAlignment(.leading)
       .fixedSize(horizontal: false, vertical: true)
@@ -285,17 +287,17 @@ struct OnboardingPrototypeChooseProviderStep: View {
       action: { onSelect(provider.selectionName) },
       content: {
         Text("Select")
-          .font(.custom("Nunito", size: 14))
+          .font(.system(size: 14))
           .fontWeight(.semibold)
           .tracking(-0.14)
       },
-      background: Color(hex: "402C00"),
+      background: Theme.Palette.ink,
       foreground: .white,
       borderColor: .clear,
       cornerRadius: 8,
       horizontalPadding: 40,
       verticalPadding: 8,
-      showOverlayStroke: true
+      isFilledStyle: true
     )
   }
 }

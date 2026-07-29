@@ -37,7 +37,7 @@ struct SettingsRecordingPrivacyTabView: View {
 
       TextField("Search installed apps", text: $viewModel.searchText)
         .textFieldStyle(.plain)
-        .font(.custom("Figtree", size: 13))
+        .font(.system(size: 13))
         .foregroundColor(SettingsStyle.text)
     }
     .padding(.horizontal, 12)
@@ -56,7 +56,7 @@ struct SettingsRecordingPrivacyTabView: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .firstTextBaseline) {
         Text("Installed apps")
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
           .foregroundColor(SettingsStyle.text)
 
@@ -76,7 +76,7 @@ struct SettingsRecordingPrivacyTabView: View {
           .frame(maxWidth: .infinity, alignment: .center)
       } else if viewModel.filteredApplications.isEmpty {
         Text("No apps match your search.")
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .foregroundColor(SettingsStyle.secondary)
           .padding(.vertical, 20)
           .frame(maxWidth: .infinity, alignment: .center)
@@ -119,7 +119,7 @@ struct SettingsRecordingPrivacyTabView: View {
 
       HStack(alignment: .firstTextBaseline, spacing: 10) {
         Text("Blocked apps")
-          .font(.custom("Figtree", size: 13))
+          .font(.system(size: 13))
           .fontWeight(.semibold)
           .foregroundColor(SettingsStyle.text)
 
@@ -138,7 +138,7 @@ struct SettingsRecordingPrivacyTabView: View {
         HStack(spacing: 12) {
           if viewModel.blockedApplications.isEmpty {
             Text("Drag apps here to hide them from recording")
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .foregroundColor(SettingsStyle.meta)
               .frame(height: 58)
               .padding(.horizontal, 12)
@@ -200,7 +200,7 @@ private struct RecordingPrivacyGridAppButton: View {
         }
 
         Text(app.name)
-          .font(.custom("Figtree", size: 11))
+          .font(.system(size: 11))
           .fontWeight(.semibold)
           .foregroundColor(isBlocked ? SettingsStyle.ink : SettingsStyle.text)
           .lineLimit(2)

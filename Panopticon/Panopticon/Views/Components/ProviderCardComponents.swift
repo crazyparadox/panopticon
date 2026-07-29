@@ -128,7 +128,7 @@ struct FlexibleProviderCard: View {
     HStack {
       Spacer()
       Text(title)
-        .font(.custom("Figtree", size: 18))
+        .font(.system(size: 18))
         .fontWeight(.semibold)
         .foregroundColor(.black.opacity(0.9))
         .lineLimit(2)
@@ -156,7 +156,7 @@ struct FlexibleProviderCard: View {
             .font(.system(size: 12))
             .foregroundColor(.green)
           Text(customStatusText ?? "Currently selected")
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .fontWeight(.medium)
             .foregroundColor(.black.opacity(0.6))
         }
@@ -185,7 +185,7 @@ struct FlexibleProviderCard: View {
       action: buttonAction,
       content: {
         Text(buttonTitle)
-          .font(.custom("Figtree", size: 14))
+          .font(.system(size: 14))
           .fontWeight(.semibold)
           .foregroundColor(buttonForegroundColor)
           .frame(maxWidth: .infinity)
@@ -197,7 +197,7 @@ struct FlexibleProviderCard: View {
       horizontalPadding: 24,
       verticalPadding: 12,
       minWidth: nil,
-      showOverlayStroke: true
+      isFilledStyle: true
     )
     .disabled(isButtonDisabled)
     .opacity(isComingSoon ? 0.4 : 1.0)
@@ -247,7 +247,7 @@ struct FlexibleProviderCard: View {
   }
 
   private var buttonBackgroundColor: Color {
-    return Color(red: 0.25, green: 0.17, blue: 0)
+    return Theme.Palette.ink
   }
 
   @ViewBuilder
@@ -291,7 +291,7 @@ struct BadgeView: View {
   var body: some View {
     HStack(spacing: 4 * scale) {
       Text(text)
-        .font(Font.custom("Figtree", size: 10 * scale * fontScale).weight(textWeight))
+        .font(Font.system(size: 10 * scale * fontScale).weight(textWeight))
         .kerning(kerningValue * scale * fontScale)
         .foregroundColor(textColor)
     }
@@ -324,11 +324,11 @@ struct BadgeView: View {
   private var textColor: Color {
     switch type {
     case .green:
-      return Color(red: 0.13, green: 0.7, blue: 0.23)
+      return Theme.Palette.green
     case .orange:
-      return Color(red: 0.91, green: 0.34, blue: 0.16)
+      return Theme.Palette.orange
     case .blue:
-      return Color(red: 0.19, green: 0.39, blue: 0.8)
+      return Theme.Palette.accent
     }
   }
 
@@ -354,18 +354,18 @@ struct BadgeView: View {
     switch type {
     case .green:
       return [
-        Gradient.Stop(color: Color(red: 0.34, green: 1, blue: 0.45), location: 0.00),
-        Gradient.Stop(color: Color(red: 1, green: 0.98, blue: 0.95).opacity(0), location: 1.00),
+        Gradient.Stop(color: Theme.Palette.green, location: 0.00),
+        Gradient.Stop(color: Theme.Palette.inset.opacity(0), location: 1.00),
       ]
     case .orange:
       return [
-        Gradient.Stop(color: Color(red: 1, green: 0.49, blue: 0.34), location: 0.00),
-        Gradient.Stop(color: Color(red: 1, green: 0.98, blue: 0.95).opacity(0), location: 1.00),
+        Gradient.Stop(color: Theme.Palette.accent, location: 0.00),
+        Gradient.Stop(color: Theme.Palette.inset.opacity(0), location: 1.00),
       ]
     case .blue:
       return [
-        Gradient.Stop(color: Color(red: 0.34, green: 0.56, blue: 1), location: 0.00),
-        Gradient.Stop(color: Color(red: 1, green: 0.98, blue: 0.95).opacity(0), location: 1.00),
+        Gradient.Stop(color: Theme.Palette.accent, location: 0.00),
+        Gradient.Stop(color: Theme.Palette.inset.opacity(0), location: 1.00),
       ]
     }
   }
@@ -373,22 +373,22 @@ struct BadgeView: View {
   private var shadowColor: Color {
     switch type {
     case .green:
-      return Color(red: 0.34, green: 1, blue: 0.45)
+      return Theme.Palette.green
     case .orange:
-      return Color(red: 1, green: 0.53, blue: 0)
+      return Theme.Palette.orange
     case .blue:
-      return Color(red: 0.34, green: 0.56, blue: 1)
+      return Theme.Palette.accent
     }
   }
 
   private var strokeColor: Color {
     switch type {
     case .green:
-      return Color(red: 0.34, green: 1, blue: 0.45).opacity(0.3)
+      return Theme.Palette.green.opacity(0.3)
     case .orange:
-      return Color(red: 1, green: 0.25, blue: 0.02).opacity(0.3)
+      return Theme.Palette.orange.opacity(0.3)
     case .blue:
-      return Color(red: 0.34, green: 0.56, blue: 1).opacity(0.3)
+      return Theme.Palette.accent.opacity(0.3)
     }
   }
 }
@@ -501,7 +501,7 @@ struct ProviderIconView: View {
       .background(.white.opacity(0.6))
       .cornerRadius(3 * scale)
       .shadow(
-        color: Color(red: 0.92, green: 0.91, blue: 0.91),
+        color: Theme.Palette.line,
         radius: 1 * scale,
         x: -1 * scale,
         y: 2 * scale
@@ -530,12 +530,12 @@ struct FeatureRowView: View {
       Image(systemName: feature.isAvailable ? "checkmark" : "xmark")
         .font(.system(size: 12 * scale, weight: .bold))
         .foregroundColor(
-          feature.isAvailable ? Color(red: 0.34, green: 1, blue: 0.45) : Color(hex: "E91515")
+          feature.isAvailable ? Theme.Palette.green : Theme.Palette.red
         )
         .frame(width: 16 * scale)
 
       Text(feature.text)
-        .font(.custom("Figtree", size: 14 * scale * fontScale))
+        .font(.system(size: 14 * scale * fontScale))
         .foregroundColor(.black.opacity(0.75))
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -546,13 +546,13 @@ struct FeatureRowView: View {
 struct SelectedCardBackground: View {
   var body: some View {
     ZStack {
-      Color(hex: "FCF2E3")
+      Theme.Palette.inset
       Color.white.opacity(0.69)
       LinearGradient(
         stops: [
           Gradient.Stop(color: Color.clear, location: 0.25),
-          Gradient.Stop(color: Color(hex: "FF7506").opacity(0.05), location: 0.7),
-          Gradient.Stop(color: Color(hex: "FF7506").opacity(0.15), location: 1.0),
+          Gradient.Stop(color: Theme.Palette.accent.opacity(0.05), location: 0.7),
+          Gradient.Stop(color: Theme.Palette.accent.opacity(0.15), location: 1.0),
         ],
         startPoint: UnitPoint(x: 0, y: 0.5),
         endPoint: UnitPoint(x: 1, y: 0.5)
@@ -566,29 +566,29 @@ struct SelectedCardOverlay: View {
     ZStack {
       RoundedRectangle(cornerRadius: 4)
         .inset(by: 0.5)
-        .stroke(Color(hex: "EBE9E6"), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
 
       RoundedRectangle(cornerRadius: 4)
         .inset(by: 0.5)
-        .stroke(Color(hex: "FFEBC9"), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
 
       RoundedRectangle(cornerRadius: 4)
         .inset(by: 0.5)
         .stroke(
           AngularGradient(
             stops: [
-              .init(color: Color(hex: "FFF1D3").opacity(0.50), location: 0.00),
-              .init(color: Color(hex: "FF8904").opacity(0.50), location: 0.03),
-              .init(color: Color(hex: "FF8904").opacity(0.35), location: 0.09),
+              .init(color: Theme.Palette.inset.opacity(0.50), location: 0.00),
+              .init(color: Theme.Palette.accent.opacity(0.50), location: 0.03),
+              .init(color: Theme.Palette.accent.opacity(0.35), location: 0.09),
               .init(color: .white, location: 0.17),
               .init(color: .white.opacity(0.75), location: 0.23),
               .init(color: .white.opacity(0.50), location: 0.25),
               .init(color: .white.opacity(0.50), location: 0.30),
-              .init(color: Color(hex: "FF8904").opacity(0.35), location: 0.52),
-              .init(color: Color(hex: "FFE0A5"), location: 0.58),
+              .init(color: Theme.Palette.accent.opacity(0.35), location: 0.52),
+              .init(color: Theme.Palette.accentTint, location: 0.58),
               .init(color: .white, location: 0.80),
-              .init(color: Color(hex: "FFF1D3").opacity(0.50), location: 0.91),
-              .init(color: Color(hex: "FFF1D3").opacity(0.50), location: 1.00),
+              .init(color: Theme.Palette.inset.opacity(0.50), location: 0.91),
+              .init(color: Theme.Palette.inset.opacity(0.50), location: 1.00),
             ],
             center: .center,
             startAngle: .degrees(0),
@@ -606,19 +606,19 @@ struct CardShadowModifier: ViewModifier {
   func body(content: Content) -> some View {
     content
       .shadow(
-        color: isSelected ? Color(red: 0.47, green: 0.27, blue: 0.09).opacity(0.21) : Color.clear,
+        color: isSelected ? Theme.Palette.ink.opacity(0.21) : Color.clear,
         radius: 5,
         x: 4,
         y: 3
       )
       .shadow(
-        color: isSelected ? Color(red: 0.47, green: 0.27, blue: 0.09).opacity(0.18) : Color.clear,
+        color: isSelected ? Theme.Palette.ink.opacity(0.18) : Color.clear,
         radius: 9.5,
         x: 14,
         y: 12
       )
       .shadow(
-        color: isSelected ? Color(red: 0.48, green: 0.27, blue: 0.1).opacity(0.11) : Color.clear,
+        color: isSelected ? Theme.Palette.ink.opacity(0.11) : Color.clear,
         radius: 12.5,
         x: 32,
         y: 27

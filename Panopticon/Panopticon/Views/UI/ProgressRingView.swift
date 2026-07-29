@@ -20,19 +20,23 @@ private enum K {
   static let counterBounce: CGFloat = 1.05
   static let segStaggerSec: Double = 0.07
 
-  // Colors
-  static let trackColor = Color(red: 1, green: 200.0 / 255, blue: 160.0 / 255).opacity(0.3)
-  static let fillColor = Color(hex: "FF8D40")
-  static let textColor = Color(hex: "FF8D40")
+  // Colors — chrome comes from the theme; only the celebration burst stays
+  // deliberately multi-hue.
+  static let trackColor = Theme.Palette.lineStrong
+  static let fillColor = Theme.Palette.accent
+  static let textColor = Theme.Palette.accent
 
   static let particleColors: [Color] = [
-    Color(hex: "FF8D40"), Color(hex: "FFB69B"), Color(hex: "FFCC66"),
-    Color(hex: "FFA060"), Color(hex: "FFD4A8"),
+    Theme.Palette.accent,
+    Theme.Palette.accent.opacity(0.7),
+    Theme.Palette.accentInk,
+    Theme.Palette.accentTint,
+    Theme.Palette.lineStrong,
   ]
   static let confettiColors: [Color] = [
-    Color(hex: "FF6B6B"), Color(hex: "FFD93D"), Color(hex: "6BCB77"),
-    Color(hex: "4D96FF"), Color(hex: "FF8D40"), Color(hex: "C780FA"),
-    Color(hex: "FF6B9D"), Color(hex: "45B7D1"),
+    Theme.Palette.accent, Theme.Palette.green, Theme.Palette.orange,
+    Theme.Palette.red, Theme.Palette.accentInk, Theme.Palette.greenTint,
+    Theme.Palette.orangeTint, Theme.Palette.accentTint,
   ]
 
   // Dynamic geometry helpers
@@ -99,7 +103,7 @@ struct ProgressRingView: View {
         .rotationEffect(.degrees(ringRotation))
 
       Text("\(displayPercent)%")
-        .font(.custom("Figtree-Bold", size: 16))
+        .font(.system(size: 16, weight: .bold))
         .foregroundColor(K.textColor)
         .scaleEffect(percentScale)
 

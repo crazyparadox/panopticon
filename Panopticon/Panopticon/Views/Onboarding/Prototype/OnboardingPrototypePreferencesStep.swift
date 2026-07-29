@@ -16,8 +16,8 @@ struct OnboardingPrototypePreferencesStep: View {
 
       VStack(spacing: 24) {
         Text("Do you have a paid ChatGPT or Claude account?")
-          .font(.custom("Figtree", size: 20))
-          .foregroundColor(Color(hex: "89380E"))
+          .font(.system(size: 20))
+          .foregroundColor(Theme.Palette.ink2)
           .multilineTextAlignment(.center)
 
         HStack(spacing: 8) {
@@ -26,18 +26,18 @@ struct OnboardingPrototypePreferencesStep: View {
               onContinue(option == "Yes")
             } label: {
               Text(option)
-                .font(.custom("Figtree", size: 16))
-                .foregroundColor(Color(hex: "492304"))
+                .font(.system(size: 16))
+                .foregroundColor(Theme.Palette.ink)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
                 .background(Color.white.opacity(0.4))
                 .clipShape(Capsule())
                 .overlay(
                   Capsule()
-                    .stroke(Color(hex: "E4D3C2"), lineWidth: 1)
+                    .stroke(Theme.Palette.line, lineWidth: 1)
                 )
                 .shadow(
-                  color: Color(hex: "AF7246").opacity(0.15),
+                  color: Theme.Palette.ink3.opacity(0.15),
                   radius: 2, x: 0, y: 0
                 )
             }

@@ -31,7 +31,7 @@ struct CategoryPickerView: View {
           .frame(height: 0)
           .overlay(
             Rectangle()
-              .fill(Color(red: 0.91, green: 0.89, blue: 0.86))
+              .fill(Theme.Palette.line)
               .frame(height: 1)
           )
           .padding(.horizontal, 0)
@@ -44,28 +44,28 @@ struct CategoryPickerView: View {
               Text(
                 "To help Panopticon organize your activities more accurately, try adding more details to the descriptions in your categories "
               )
-              .font(Font.custom("Figtree", size: 10).weight(.medium))
-              .foregroundColor(Color(red: 0.39, green: 0.35, blue: 0.33))  // #635953
+              .font(Font.system(size: 10).weight(.medium))
+              .foregroundColor(Theme.Palette.ink2)  // #635953
 
               Button(action: onNavigateToEditor) {
                 Text("here")
-                  .font(Font.custom("Figtree", size: 10).weight(.medium))
-                  .foregroundColor(Color(red: 1.0, green: 0.4, blue: 0.0))  // #ff6600
+                  .font(Font.system(size: 10).weight(.medium))
+                  .foregroundColor(Theme.Palette.accent)  // #ff6600
                   .underline()
               }
               .buttonStyle(.plain)
               .pointingHandCursor()
 
               Text(".")
-                .font(Font.custom("Figtree", size: 10).weight(.medium))
-                .foregroundColor(Color(red: 0.39, green: 0.35, blue: 0.33))
+                .font(Font.system(size: 10).weight(.medium))
+                .foregroundColor(Theme.Palette.ink2)
             }
             .padding(.leading, 2.188)
 
             // Lightbulb icon overlaid
             Image(systemName: "lightbulb.fill")
               .font(.system(size: 7))
-              .foregroundColor(Color(red: 0.49, green: 0.47, blue: 0.46))  // #7c7875
+              .foregroundColor(Theme.Palette.ink2)  // #7c7875
               .offset(x: 0, y: 2)
           }
         }
@@ -77,7 +77,7 @@ struct CategoryPickerView: View {
     .background(
       ZStack {
         // Backdrop blur effect - rgba(250,244,241,0.86) with blur
-        Color(red: 0.98, green: 0.96, blue: 0.95).opacity(0.86)
+        Theme.Palette.inset.opacity(0.86)
           .background(.ultraThinMaterial)
       }
       .overlay(
@@ -90,7 +90,7 @@ struct CategoryPickerView: View {
             topTrailing: 6
           )
         )
-        .stroke(Color(red: 0.91, green: 0.88, blue: 0.87), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
       )
     )
     .clipShape(
@@ -108,13 +108,13 @@ struct CategoryPickerView: View {
       Button(action: {}) {
         Image(systemName: "checkmark")
           .font(.system(size: 8))
-          .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+          .foregroundColor(Theme.Palette.ink)
           .frame(width: 8, height: 8)
       }
       .buttonStyle(.plain)
       .padding(6)
       .background(
-        Color(red: 0.98, green: 0.98, blue: 0.98).opacity(0.8)
+        Theme.Palette.surface.opacity(0.8)
           .background(.ultraThinMaterial)
       )
       .clipShape(
@@ -136,7 +136,7 @@ struct CategoryPickerView: View {
             topTrailing: 6
           )
         )
-        .stroke(Color(red: 0.89, green: 0.89, blue: 0.89), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
       )
       .offset(x: -8, y: 8)
     }
@@ -166,8 +166,8 @@ struct CategoryPill: View {
 
         // Category name - no line limit, text can wrap if needed
         Text(category.name)
-          .font(Font.custom("Figtree", size: 10).weight(.medium))
-          .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+          .font(Font.system(size: 10).weight(.medium))
+          .foregroundColor(Theme.Palette.ink)
           .fixedSize(horizontal: false, vertical: true)
           .lineLimit(nil)
       }
@@ -208,26 +208,26 @@ struct CategoryPill: View {
         // Gradient for selected state
         LinearGradient(
           colors: [
-            Color(red: 1.0, green: 0.99, blue: 0.97),  // #fffdf8
-            Color(red: 1.0, green: 0.91, blue: 0.83),  // #ffe8d3
+            Theme.Palette.inset,  // #fffdf8
+            Theme.Palette.accentTint,  // #ffe8d3
           ],
           startPoint: .leading,
           endPoint: .trailing
         )
       } else {
-        Color(red: 0.996, green: 0.996, blue: 0.996)  // #fefefe
+        Theme.Palette.surface  // #fefefe
       }
     }
   }
 
   private var pillBorder: Color {
     if isSelected {
-      return Color(red: 0.98, green: 0.73, blue: 0.50)  // #fbbb80
+      return Theme.Palette.accentTint  // #fbbb80
     } else if category.isIdle {
       // Dotted border for Idle category
-      return Color(red: 0.88, green: 0.88, blue: 0.88)  // Will be styled differently
+      return Theme.Palette.line  // Will be styled differently
     } else {
-      return Color(red: 0.88, green: 0.88, blue: 0.88)  // #e1e1e1
+      return Theme.Palette.line  // #e1e1e1
     }
   }
 }

@@ -2,12 +2,12 @@ import SwiftUI
 
 struct SunriseGlassPillToggleStyle: ToggleStyle {
   var onColors: [Color] = [
-    Color(red: 1.00, green: 0.85, blue: 0.72),  // slightly deeper peach
-    Color(hex: "FF7506"),  // darker brand orange
+    Theme.Palette.inset,  // slightly deeper peach
+    Theme.Palette.accent,  // darker brand orange
   ]
   var offColors: [Color] = [
-    Color(hex: "F0E9E6"),
-    Color(hex: "F0E9E6"),
+    Theme.Palette.inset,
+    Theme.Palette.inset,
   ]
   var trackWidth: CGFloat = 64
   var trackHeight: CGFloat = 32
@@ -42,7 +42,7 @@ struct SunriseGlassPillToggleStyle: ToggleStyle {
           )
           .overlay(
             Capsule()
-              .stroke(Color(hex: "E5E5E5"), lineWidth: 1)
+              .stroke(Theme.Palette.line, lineWidth: 1)
               .opacity(0.9)
           )
           .overlay(

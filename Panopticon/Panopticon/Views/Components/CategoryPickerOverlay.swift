@@ -47,7 +47,7 @@ struct CategoryPickerOverlay: View {
       .frame(maxWidth: .infinity, alignment: .leading)
 
       Rectangle()
-        .fill(Color(red: 0.91, green: 0.89, blue: 0.86))
+        .fill(Theme.Palette.line)
         .frame(height: 1)
 
       helperContent
@@ -76,19 +76,19 @@ struct CategoryPickerOverlay: View {
           topTrailing: 6
         )
       )
-      .stroke(Color(red: 0.91, green: 0.88, blue: 0.87), lineWidth: 1)
+      .stroke(Theme.Palette.line, lineWidth: 1)
     )
   }
 
   private var backgroundView: some View {
-    Color(red: 0.98, green: 0.96, blue: 0.95).opacity(0.86)
+    Theme.Palette.inset.opacity(0.86)
       .background(.ultraThinMaterial)
   }
 
   private var helperContent: some View {
-    let baseFont = Font.custom("Figtree", size: 12)
-    let baseColor = Color(red: 0.39, green: 0.35, blue: 0.33)
-    let linkColor = Color(red: 1.0, green: 0.4, blue: 0.0)
+    let baseFont = Font.system(size: 12)
+    let baseColor = Theme.Palette.ink2
+    let linkColor = Theme.Palette.accent
     let linkURL = URL(string: "panopticon://category-editor")!
 
     var intro = AttributedString(
@@ -144,8 +144,8 @@ private struct CategoryPickerPill: View {
       if isSelected {
         LinearGradient(
           colors: [
-            Color(red: 1.0, green: 0.99, blue: 0.97),
-            Color(red: 1.0, green: 0.91, blue: 0.83),
+            Theme.Palette.inset,
+            Theme.Palette.accentTint,
           ],
           startPoint: .leading,
           endPoint: .trailing
@@ -158,9 +158,9 @@ private struct CategoryPickerPill: View {
 
   private var borderColor: Color {
     if isSelected {
-      return Color(red: 0.98, green: 0.73, blue: 0.50)
+      return Theme.Palette.accentTint
     }
-    return Color(red: 0.88, green: 0.88, blue: 0.88)
+    return Theme.Palette.line
   }
 
   var body: some View {
@@ -171,10 +171,10 @@ private struct CategoryPickerPill: View {
 
       Text(category.name)
         .font(
-          Font.custom("Figtree", size: 13)
+          Font.system(size: 13)
             .weight(.medium)
         )
-        .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+        .foregroundColor(Theme.Palette.ink)
         .lineLimit(1)
     }
     .padding(.horizontal, 6)

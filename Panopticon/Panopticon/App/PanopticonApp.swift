@@ -27,7 +27,10 @@ struct PanopticonApp: App {
             .environmentObject(categoryStore)
         }
       }
-      .background(MainWindowRegistrationView())
+      .background {
+        Theme.Palette.canvas.ignoresSafeArea()
+        MainWindowRegistrationView()
+      }
       .frame(minWidth: 900, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
     }
     .windowStyle(.hiddenTitleBar)

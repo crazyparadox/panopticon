@@ -37,7 +37,7 @@ struct EditableCategoryCard: View {
     VStack(alignment: .leading, spacing: 10) {
       HStack(alignment: .center, spacing: 12) {
         TextField("", text: $draftName)
-          .font(Font.custom("Figtree", size: 14).weight(.bold))
+          .font(Font.system(size: 14).weight(.bold))
           .textFieldStyle(.plain)
           .foregroundColor(.black)
           .submitLabel(.next)
@@ -64,14 +64,14 @@ struct EditableCategoryCard: View {
       ZStack(alignment: .topLeading) {
         if draftDetails.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           Text("Professional, school, or career-focused tasks (coding, design, meetings).")
-            .font(Font.custom("Figtree", size: 12).weight(.medium))
+            .font(Font.system(size: 12).weight(.medium))
             .foregroundColor(Color.black.opacity(0.35))
             .padding(.horizontal, 12)
             .padding(.top, 12)
         }
 
         TextEditor(text: $draftDetails)
-          .font(Font.custom("Figtree", size: 12).weight(.medium))
+          .font(Font.system(size: 12).weight(.medium))
           .foregroundColor(.black)
           .padding(.horizontal, 10)
           .padding(.top, 10)
@@ -83,18 +83,18 @@ struct EditableCategoryCard: View {
       }
       .background(
         RoundedRectangle(cornerRadius: 6)
-          .stroke(Color(red: 0.89, green: 0.86, blue: 0.85), lineWidth: 0.5)
+          .stroke(Theme.Palette.line, lineWidth: 0.5)
       )
     }
     .padding(16)
     .frame(alignment: .leading)
     .background(Color.white)
     .cornerRadius(8)
-    .shadow(color: Color(red: 0.86, green: 0.8, blue: 0.76), radius: 3, x: 0, y: 0)
+    .shadow(color: Theme.Palette.accentTint, radius: 3, x: 0, y: 0)
     .overlay(
       RoundedRectangle(cornerRadius: 8)
         .inset(by: 0.25)
-        .stroke(Color(red: 0.89, green: 0.86, blue: 0.85), lineWidth: 0.5)
+        .stroke(Theme.Palette.line, lineWidth: 0.5)
     )
   }
 
@@ -102,7 +102,7 @@ struct EditableCategoryCard: View {
     HStack(alignment: .center, spacing: 12) {
       VStack(alignment: .leading, spacing: 4) {
         Text(category.name)
-          .font(Font.custom("Figtree", size: 12).weight(.bold))
+          .font(Font.system(size: 12).weight(.bold))
           .foregroundColor(.black)
           .frame(maxWidth: .infinity, alignment: .center)
 
@@ -110,8 +110,8 @@ struct EditableCategoryCard: View {
           category.details.isEmpty
             ? "Add a description to help Panopticon understand your workflow." : category.details
         )
-        .font(Font.custom("Figtree", size: 12).weight(.medium))
-        .foregroundColor(Color(red: 0.35, green: 0.35, blue: 0.35))
+        .font(Font.system(size: 12).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
         .frame(maxWidth: .infinity, alignment: .center)
         .lineLimit(2)
       }
@@ -151,7 +151,7 @@ struct EditableCategoryCard: View {
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .inset(by: 0.25)
-        .stroke(Color(red: 0.89, green: 0.89, blue: 0.89), lineWidth: 0.5)
+        .stroke(Theme.Palette.line, lineWidth: 0.5)
     )
     .contentShape(Rectangle())
     .onTapGesture {
@@ -192,15 +192,15 @@ struct ColorAssignmentCard: View {
 
         VStack(alignment: .leading, spacing: 4) {
           Text(category.name)
-            .font(Font.custom("Figtree", size: 12).weight(.bold))
+            .font(Font.system(size: 12).weight(.bold))
             .foregroundColor(.black)
 
           if showDetails
             && !category.details.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
           {
             Text(category.details)
-              .font(Font.custom("Figtree", size: 12).weight(.medium))
-              .foregroundColor(Color(red: 0.35, green: 0.35, blue: 0.35))
+              .font(Font.system(size: 12).weight(.medium))
+              .foregroundColor(Theme.Palette.ink2)
               .lineLimit(2)
           }
         }
@@ -216,7 +216,7 @@ struct ColorAssignmentCard: View {
       RoundedRectangle(cornerRadius: 8)
         .stroke(
           isTargeted
-            ? Color(red: 0.6, green: 0.5, blue: 0.4) : Color(red: 0.89, green: 0.89, blue: 0.89),
+            ? Theme.Palette.accent : Theme.Palette.line,
           lineWidth: isTargeted ? 1.5 : 0.8)
     )
     .cornerRadius(8)

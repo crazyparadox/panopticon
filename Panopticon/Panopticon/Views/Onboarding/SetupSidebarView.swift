@@ -42,21 +42,21 @@ struct SetupSidebarView: View {
             AngularGradient(
               stops: [
                 // Loop closed - same color at 0.0 and 1.0
-                .init(color: Color(hex: "FFF1D3").opacity(0.15), location: 0.00),
+                .init(color: Theme.Palette.inset.opacity(0.15), location: 0.00),
 
-                .init(color: Color(hex: "FF8904").opacity(0.15), location: 0.03),
-                .init(color: Color(hex: "FF8904").opacity(0.10), location: 0.09),
+                .init(color: Theme.Palette.accent.opacity(0.15), location: 0.03),
+                .init(color: Theme.Palette.accent.opacity(0.10), location: 0.09),
                 .init(color: .white.opacity(0.05), location: 0.17),
                 .init(color: .white.opacity(0.03), location: 0.23),
                 .init(color: .white.opacity(0.02), location: 0.25),
                 .init(color: .white.opacity(0.02), location: 0.30),
-                .init(color: Color(hex: "FF8904").opacity(0.10), location: 0.52),
-                .init(color: Color(hex: "FFE0A5").opacity(0.20), location: 0.58),
+                .init(color: Theme.Palette.accent.opacity(0.10), location: 0.52),
+                .init(color: Theme.Palette.accentTint.opacity(0.20), location: 0.58),
                 .init(color: .white.opacity(0.05), location: 0.80),
-                .init(color: Color(hex: "FFF1D3").opacity(0.15), location: 0.91),
+                .init(color: Theme.Palette.inset.opacity(0.15), location: 0.91),
 
                 // Mirror the first stop so 1.0 == 0.0
-                .init(color: Color(hex: "FFF1D3").opacity(0.15), location: 1.00),
+                .init(color: Theme.Palette.inset.opacity(0.15), location: 1.00),
               ],
               center: .center,
               startAngle: .degrees(0),
@@ -97,11 +97,11 @@ struct SetupSidebarItem: View {
           if isCompleted && !isSelected {
             Image(systemName: "checkmark.circle.fill")
               .font(.system(size: 14))
-              .foregroundColor(Color(red: 0.34, green: 1, blue: 0.45))
+              .foregroundColor(Theme.Palette.green)
           } else if isSelected {
             Image(systemName: "chevron.right")
               .font(.system(size: 12, weight: .semibold))
-              .foregroundColor(Color(hex: "492304"))
+              .foregroundColor(Theme.Palette.ink)
           } else {
             Color.clear  // Placeholder for unselected items
           }
@@ -109,7 +109,7 @@ struct SetupSidebarItem: View {
         .frame(width: 20, height: 20)  // Fixed frame for consistent centering
 
         Text(title)
-          .font(.custom("Figtree", size: 15))
+          .font(.system(size: 15))
           .fontWeight(isSelected ? .semibold : .medium)
           .foregroundColor(textColor)
 
@@ -145,8 +145,8 @@ struct SetupSidebarItem: View {
         // Layer 1: Orange gradient
         LinearGradient(
           stops: [
-            Gradient.Stop(color: Color(red: 1, green: 0.77, blue: 0.34), location: 0.00),
-            Gradient.Stop(color: Color(red: 1, green: 0.98, blue: 0.95).opacity(0), location: 1.00),
+            Gradient.Stop(color: Theme.Palette.accent, location: 0.00),
+            Gradient.Stop(color: Theme.Palette.inset.opacity(0), location: 1.00),
           ],
           startPoint: UnitPoint(x: 1.15, y: 3.61),
           endPoint: UnitPoint(x: 0.02, y: 0)
@@ -167,24 +167,24 @@ struct SetupSidebarItem: View {
     if isSelected {
       RoundedRectangle(cornerRadius: 4)
         .inset(by: 0.5)
-        .stroke(Color(red: 1, green: 0.54, blue: 0.02).opacity(0.5), lineWidth: 1)
+        .stroke(Theme.Palette.accent.opacity(0.5), lineWidth: 1)
     }
   }
 
   private var textColor: Color {
     if isSelected {
-      return Color(hex: "492304")  // Dark brown for selected
+      return Theme.Palette.ink  // Dark brown for selected
     } else if isCompleted {
-      return Color(hex: "492304").opacity(0.7)  // Slightly muted for completed
+      return Theme.Palette.ink.opacity(0.7)  // Slightly muted for completed
     } else {
-      return Color(hex: "492304").opacity(0.4)  // More muted for inactive
+      return Theme.Palette.ink.opacity(0.4)  // More muted for inactive
     }
   }
 
   private func shadowColor(at index: Int) -> Color {
     guard isSelected else { return .clear }
 
-    let baseColor = Color(red: 0.57, green: 0.57, blue: 0.57)
+    let baseColor = Theme.Palette.ink3
     let opacities = [0.05, 0.04, 0.03, 0.01, 0]
 
     return baseColor.opacity(opacities[min(index, opacities.count - 1)])

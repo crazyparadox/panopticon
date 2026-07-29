@@ -2,7 +2,10 @@
 //  PanopticonSurfaceButton.swift
 //  Panopticon
 //
-//  Generic content button with unified Emil‑style hover/press interactions
+//  Generic content button. Interaction model follows the reference design
+//  system: a hairline-bordered surface, a hover fill, and a short press
+//  scale. No hover lift, no brightness shifts — depth comes from the layered
+//  hairline + drop shadow, not from motion.
 //
 
 import SwiftUI
@@ -11,88 +14,72 @@ struct PanopticonSurfaceButton<Content: View>: View {
   let action: () -> Void
   @ViewBuilder let content: () -> Content
 
-  var background: Color = .white
-  var foreground: Color = .black
-  var borderColor: Color = .black.opacity(0.15)
-  var cornerRadius: CGFloat = 0
-  var horizontalPadding: CGFloat = 18
-  var verticalPadding: CGFloat = 12
+  var background: Color = Theme.Palette.surface
+  var foreground: Color = Theme.Palette.ink
+  var borderColor: Color = Theme.Palette.line
+  var cornerRadius: CGFloat = Theme.Radius.control
+  var horizontalPadding: CGFloat = 12
+  var verticalPadding: CGFloat = 7
   var minWidth: CGFloat? = nil
   var showShadow: Bool = true
-  var showOverlayStroke: Bool = false  // New parameter for white overlay stroke
-  var isSecondaryStyle: Bool = false  // New parameter for white/secondary buttons
+  /// Filled treatment (accent or ink): the border becomes a subtle light
+  /// inset so the fill reads as raised rather than flat.
+  var isFilledStyle: Bool = false
+  /// Outlined treatment: surface fill with an accent-weight border, for
+  /// secondary actions that still need to draw the eye.
+  var isOutlinedStyle: Bool = false
 
   @State private var isHovered = false
   @State private var isPressed = false
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-  private let hoverAnim = Animation.spring(response: 0.22, dampingFraction: 0.85)
-  private let pressAnim = Animation.spring(response: 0.26, dampingFraction: 0.75)
+  private var resolvedBackground: Color {
+    guard isHovered, !isFilledStyle else { return background }
+    return Theme.Palette.hover
+  }
+
+  private var strokeColor: Color {
+    if isFilledStyle { return Color.white.opacity(0.14) }
+    if isOutlinedStyle { return Theme.Palette.accent }
+    return borderColor
+  }
 
   var body: some View {
     Button(action: {
-      withAnimation(pressAnim) { isPressed = true }
+      withAnimation(Theme.Motion.feedback) { isPressed = true }
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-        withAnimation(pressAnim) { isPressed = false }
+        withAnimation(Theme.Motion.control) { isPressed = false }
         action()
       }
     }) {
-      HStack(spacing: 10) {
+      HStack(spacing: Theme.Metric.gap) {
         content()
-          .foregroundColor(foreground.opacity(0.85))
+          .foregroundColor(foreground)
       }
       .padding(.horizontal, horizontalPadding)
       .padding(.vertical, verticalPadding)
       .frame(minWidth: minWidth)
-      .background(background)
+      .background(
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+          .fill(resolvedBackground)
+      )
       .overlay(
-        Group {
-          if isSecondaryStyle {
-            RoundedRectangle(cornerRadius: cornerRadius)
-              .inset(by: 0.75)
-              .stroke(Color(red: 0.25, green: 0.17, blue: 0), lineWidth: 1.5)
-          } else if showOverlayStroke {
-            RoundedRectangle(cornerRadius: cornerRadius)
-              .inset(by: 0.75)
-              .stroke(.white.opacity(0.17), lineWidth: 1.5)
-          } else {
-            RoundedRectangle(cornerRadius: cornerRadius)
-              .inset(by: 0.5)
-              .stroke(isHovered ? borderColor.opacity(1.0) : borderColor, lineWidth: 1)
-          }
-        }
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+          .strokeBorder(strokeColor, lineWidth: isOutlinedStyle ? 1.5 : Theme.Metric.hairline)
       )
-      .cornerRadius(cornerRadius)
-      .if(isSecondaryStyle) { view in
-        view
-          .shadow(color: .black.opacity(0.25), radius: 0.25, x: 0, y: 0.5)
-          .shadow(color: .black.opacity(0.16), radius: 0.5, x: 0, y: 1)
-          .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 2)
-      }
-      .if(!isSecondaryStyle) { view in
-        view
-          .shadow(
-            color: .black.opacity(showShadow ? (isHovered ? 0.10 : 0.06) : 0),
-            radius: isHovered ? 8 : 4, x: 0, y: isHovered ? 4 : 2
-          )
-          .shadow(
-            color: .black.opacity(showShadow ? (isHovered ? 0.06 : 0.04) : 0),
-            radius: isHovered ? 2 : 1, x: 0, y: 1)
-      }
-      .brightness(isHovered ? 0.02 : 0)
-      .panopticonPressScale(
-        isPressed,
-        enabled: !reduceMotion,
-        pressedScale: 0.985,
-        animation: pressAnim
-      )
-      .scaleEffect(reduceMotion ? 1.0 : (isHovered ? 1.02 : 1.0))
-      .offset(y: reduceMotion ? 0 : (isHovered ? -1 : 0))
+      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+      .elevation(showShadow ? Theme.Shadow.button : [])
+      .scaleEffect(pressScale)
     }
     .buttonStyle(.plain)
     .onHover { hovering in
-      withAnimation(hoverAnim) { isHovered = hovering }
+      withAnimation(Theme.Motion.feedback) { isHovered = hovering }
     }
     .pointingHandCursor()
+  }
+
+  private var pressScale: CGFloat {
+    guard !reduceMotion, isPressed else { return 1 }
+    return Theme.Motion.pressedScale
   }
 }
