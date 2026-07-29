@@ -33,10 +33,6 @@ struct SettingsOtherTabView: View {
           )
         }
 
-        SettingsRow(label: "Share crash reports and anonymous usage data") {
-          SettingsToggle(isOn: $viewModel.analyticsEnabled)
-        }
-
         SettingsRow(
           label: "Show Dock icon",
           subtitle: "When off, Dayflow runs as a menu bar-only app."
@@ -49,14 +45,6 @@ struct SettingsOtherTabView: View {
           subtitle: "When off, timeline cards won't show app or website icons."
         ) {
           SettingsToggle(isOn: $viewModel.showTimelineAppIcons)
-        }
-
-        SettingsRow(
-          label: "Show daily goal popups",
-          subtitle:
-            "When off, Dayflow won't automatically open goal setup or yesterday's review after 4am."
-        ) {
-          SettingsToggle(isOn: $viewModel.showDailyGoalPopups)
         }
 
         SettingsRow(

@@ -258,12 +258,6 @@ struct OnboardingCategoryStepView: View {
       categoryStore.markOnboardingCategoriesCustomized()
       categoryStore.addCategory(name: "New Category")
       addCount += 1
-      AnalyticsService.shared.capture(
-        "onboarding_category_added",
-        [
-          "total_count": categories.count + 1,
-          "surface": "onboarding",
-        ])
       if let newCat = categoryStore.editableCategories.last {
         startEditing(newCat)
       }
@@ -314,15 +308,6 @@ struct OnboardingCategoryStepView: View {
       Button {
         commitPendingEdits()
         categoryStore.persist()
-        AnalyticsService.shared.capture(
-          "onboarding_categories_completed",
-          [
-            "category_count": categories.count,
-            "renamed_count": renameCount,
-            "added_count": addCount,
-            "color_changed_count": colorChangeCount,
-            "deleted_count": deleteCount,
-          ])
         onNext()
       } label: {
         Text("Next")
@@ -355,13 +340,6 @@ struct OnboardingCategoryStepView: View {
       categoryStore.markOnboardingCategoriesCustomized()
       categoryStore.renameCategory(id: category.id, to: trimmedName)
       renameCount += 1
-      AnalyticsService.shared.capture(
-        "onboarding_category_renamed",
-        [
-          "category_name": trimmedName,
-          "previous_name": category.name,
-          "surface": "onboarding",
-        ])
     }
     editingCategoryID = nil
   }
@@ -392,13 +370,6 @@ struct OnboardingCategoryStepView: View {
     categoryStore.removeCategory(id: category.id)
     deleteCount += 1
 
-    AnalyticsService.shared.capture(
-      "onboarding_category_deleted",
-      [
-        "category_name": category.name,
-        "remaining_count": categoryStore.editableCategories.count,
-        "surface": "onboarding",
-      ])
   }
 
   private func cancelEditing() {

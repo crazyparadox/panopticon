@@ -105,18 +105,6 @@ extension ChatCLIProvider {
     }
 
     // Log full raw output to PostHog for debugging decode failures
-    AnalyticsService.shared.capture(
-      "llm_decode_failed",
-      [
-        "provider": "chat_cli",
-        "operation": "parse_segments",
-        "tool": tool.rawValue,
-        "raw_output": output,
-        "output_length": output.count,
-        "stderr": stderr,
-        "stderr_length": stderr.count,
-        "decode_error": lastDecodeError ?? "no JSON found",
-      ])
 
     // Surface CLI error messages to the user if available
     if let cliError = extractCLIError(stdout: output, stderr: stderr) {

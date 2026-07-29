@@ -136,13 +136,6 @@ final class StorageSettingsViewModel: ObservableObject {
     pendingLimit = nil
     showLimitConfirmation = false
 
-    AnalyticsService.shared.capture(
-      "storage_limit_changed",
-      [
-        "category": category.analyticsKey,
-        "previous_limit_bytes": previousBytes,
-        "new_limit_bytes": newBytes,
-      ])
 
     refreshStorageMetrics()
   }

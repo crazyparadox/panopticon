@@ -93,7 +93,6 @@ struct DashboardChatRequest: Sendable {
 
 enum LLMProviderType: Codable {
   case geminiDirect
-  case dayflowBackend(endpoint: String = "")
   case ollamaLocal(endpoint: String = "http://localhost:11434")
   case chatGPTClaude
 
@@ -128,8 +127,6 @@ enum LLMProviderType: Codable {
     switch self {
     case .geminiDirect:
       return "gemini"
-    case .dayflowBackend:
-      return "dayflow"
     case .ollamaLocal:
       return "ollama"
     case .chatGPTClaude:
@@ -150,8 +147,6 @@ enum LLMProviderType: Codable {
     switch rawSelection {
     case "gemini":
       return .geminiDirect
-    case "dayflow":
-      return .dayflowBackend()
     case "ollama":
       let endpoint = defaults.string(forKey: localBaseURLDefaultsKey)?
         .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -179,7 +174,6 @@ enum LLMProviderType: Codable {
 
 enum LLMProviderID: String, Codable, CaseIterable {
   case gemini
-  case dayflow
   case ollama
   case chatGPTClaude = "chatgpt_claude"
 
@@ -187,8 +181,6 @@ enum LLMProviderID: String, Codable, CaseIterable {
     switch self {
     case .gemini:
       return "gemini"
-    case .dayflow:
-      return "dayflow"
     case .ollama:
       return "ollama"
     case .chatGPTClaude:
@@ -200,8 +192,6 @@ enum LLMProviderID: String, Codable, CaseIterable {
     switch providerType {
     case .geminiDirect:
       return .gemini
-    case .dayflowBackend:
-      return .dayflow
     case .ollamaLocal:
       return .ollama
     case .chatGPTClaude:
@@ -213,8 +203,6 @@ enum LLMProviderID: String, Codable, CaseIterable {
     switch self {
     case .gemini:
       return "gemini"
-    case .dayflow:
-      return "dayflow"
     case .ollama:
       return "local"
     case .chatGPTClaude:

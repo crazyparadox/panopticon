@@ -43,13 +43,13 @@ enum RecordingControl {
       }
 
       PauseManager.shared.clearPauseState()
-      AppState.shared.setRecording(true, analyticsReason: reason)
+      AppState.shared.setRecording(true)
     }
   }
 
   static func stop(reason: String) {
     PauseManager.shared.clearPauseState()
-    AppState.shared.setRecording(false, analyticsReason: reason)
+    AppState.shared.setRecording(false)
   }
 
   private static func hasScreenRecordingPermission() async -> Bool {

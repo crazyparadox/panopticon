@@ -3,7 +3,6 @@ import SwiftUI
 
 struct SettingsProvidersTabView: View {
   @ObservedObject var viewModel: ProvidersSettingsViewModel
-  @ObservedObject private var authManager = DayflowAuthManager.shared
 
   var body: some View {
     VStack(alignment: .leading, spacing: SettingsStyle.sectionSpacing) {
@@ -114,10 +113,6 @@ struct SettingsProvidersTabView: View {
       SettingsRow(label: "CLI preference") {
         SettingsMetadata(text: viewModel.chatCLIStatusLabel())
       }
-    case "dayflow":
-      SettingsRow(label: "Status", showsDivider: false) {
-        SettingsMetadata(text: viewModel.statusText(for: "dayflow") ?? "Requires Dayflow Pro")
-      }
     default:
       SettingsRow(label: "Status", showsDivider: false) {
         SettingsMetadata(text: "Coming soon")
@@ -155,12 +150,8 @@ struct SettingsProvidersTabView: View {
             selectedTool: viewModel.preferredCLITool,
             onTestComplete: { _ in }
           )
-        case "dayflow":
-          Text("Hosted cards and transcription run through your Dayflow account.")
-            .font(.custom("Figtree", size: 13))
-            .foregroundColor(SettingsStyle.secondary)
         default:
-          Text("Dayflow Pro diagnostics coming soon")
+          Text("Diagnostics coming soon")
             .font(.custom("Figtree", size: 13))
             .foregroundColor(SettingsStyle.secondary)
         }
@@ -222,51 +213,29 @@ struct SettingsProvidersTabView: View {
         .fixedSize(horizontal: false, vertical: true)
 
       HStack(spacing: 8) {
-        if viewModel.shouldShowDayflowUpgradeAction(for: provider.id) {
-          SettingsPrimaryButton(title: "Upgrade account", systemImage: "sparkles") {
-            viewModel.openDayflowUpgradeAccount(from: provider.id)
+        if !isConfigured {
+          SettingsSecondaryButton(title: "Setup") {
+            viewModel.beginProviderSetup(provider.id, role: .setupOnly)
           }
-        } else if provider.id == "dayflow" {
-          if !isPrimary {
-            SettingsSecondaryButton(title: "Set primary") {
-              viewModel.setPrimaryOrSetup(provider.id)
-            }
-          }
+        }
 
-          if !isSecondary {
-            SettingsSecondaryButton(title: "Set secondary", isDisabled: !canSetSecondary) {
-              viewModel.setSecondaryOrSetup(provider.id)
-            }
-          } else {
-            SettingsSecondaryButton(title: "Unset secondary") {
-              viewModel.clearBackupProvider()
-            }
+        SettingsSecondaryButton(title: "Edit configuration") {
+          viewModel.editProviderConfiguration(provider.id)
+        }
+
+        if !isPrimary {
+          SettingsSecondaryButton(title: "Set primary") {
+            viewModel.setPrimaryOrSetup(provider.id)
+          }
+        }
+
+        if !isSecondary {
+          SettingsSecondaryButton(title: "Set secondary", isDisabled: !canSetSecondary) {
+            viewModel.setSecondaryOrSetup(provider.id)
           }
         } else {
-          if !isConfigured {
-            SettingsSecondaryButton(title: "Setup") {
-              viewModel.beginProviderSetup(provider.id, role: .setupOnly)
-            }
-          }
-
-          SettingsSecondaryButton(title: "Edit configuration") {
-            viewModel.editProviderConfiguration(provider.id)
-          }
-
-          if !isPrimary {
-            SettingsSecondaryButton(title: "Set primary") {
-              viewModel.setPrimaryOrSetup(provider.id)
-            }
-          }
-
-          if !isSecondary {
-            SettingsSecondaryButton(title: "Set secondary", isDisabled: !canSetSecondary) {
-              viewModel.setSecondaryOrSetup(provider.id)
-            }
-          } else {
-            SettingsSecondaryButton(title: "Unset secondary") {
-              viewModel.clearBackupProvider()
-            }
+          SettingsSecondaryButton(title: "Unset secondary") {
+            viewModel.clearBackupProvider()
           }
         }
       }

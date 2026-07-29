@@ -57,7 +57,6 @@ enum LLMLogger {
         if let v = headers["x-usage-output"], let n = Int(v) { props["usage_output_tokens"] = n }
       }
 
-      AnalyticsService.shared.capture("llm_api_call", props)
     }
   }
 
@@ -90,7 +89,6 @@ enum LLMLogger {
         props["response_body"] = bodyStr
       }
 
-      AnalyticsService.shared.capture("llm_api_call", props)
     }
   }
 

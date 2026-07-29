@@ -1,6 +1,5 @@
 import Foundation
 import GRDB
-import Sentry
 
 extension StorageManager {
   private static let maxStoredLLMBodyCharacters = 64 * 1024
@@ -21,10 +20,6 @@ extension StorageManager {
     } catch {
       print("⚠️ [StorageManager] WAL checkpoint failed: \(error)")
       // Log to Sentry for visibility
-      let breadcrumb = Breadcrumb(level: .warning, category: "database")
-      breadcrumb.message = "WAL checkpoint failed"
-      breadcrumb.data = ["mode": "\(mode)", "error": "\(error)"]
-      SentryHelper.addBreadcrumb(breadcrumb)
     }
   }
 
@@ -56,11 +51,6 @@ extension StorageManager {
     } catch {
       print("⚠️ [StorageManager] Failed to open database: \(error)")
 
-      let breadcrumb = Breadcrumb(level: .error, category: "database")
-      breadcrumb.message = "Database open failed, attempting recovery"
-      breadcrumb.data = ["error": "\(error)"]
-      SentryHelper.addBreadcrumb(breadcrumb)
-
       // Attempt 2: Restore from most recent backup
       if let backupURL = findMostRecentBackup(in: backupsDir, fileManager: fileManager) {
         print("🔄 [StorageManager] Attempting recovery from backup: \(backupURL.lastPathComponent)")
@@ -78,11 +68,6 @@ extension StorageManager {
           let pool = try DatabasePool(path: dbURL.path, configuration: config)
           print("✅ [StorageManager] Successfully recovered from backup")
 
-          let recoveryBreadcrumb = Breadcrumb(level: .info, category: "database")
-          recoveryBreadcrumb.message = "Database recovered from backup"
-          recoveryBreadcrumb.data = ["backup": backupURL.lastPathComponent]
-          SentryHelper.addBreadcrumb(recoveryBreadcrumb)
-
           return pool
         } catch {
           print("❌ [StorageManager] Backup recovery failed: \(error)")
@@ -99,10 +84,6 @@ extension StorageManager {
 
       do {
         let pool = try DatabasePool(path: dbURL.path, configuration: config)
-
-        let freshBreadcrumb = Breadcrumb(level: .warning, category: "database")
-        freshBreadcrumb.message = "Started with fresh database after all recovery attempts failed"
-        SentryHelper.addBreadcrumb(freshBreadcrumb)
 
         return pool
       } catch {
@@ -153,18 +134,10 @@ extension StorageManager {
       } else {
         print("⚠️ [StorageManager] Database integrity issues: \(result ?? "unknown")")
 
-        let breadcrumb = Breadcrumb(level: .warning, category: "database")
-        breadcrumb.message = "Database integrity check found issues"
-        breadcrumb.data = ["result": result ?? "unknown"]
-        SentryHelper.addBreadcrumb(breadcrumb)
       }
     } catch {
       print("⚠️ [StorageManager] Integrity check failed: \(error)")
 
-      let breadcrumb = Breadcrumb(level: .error, category: "database")
-      breadcrumb.message = "Database integrity check error"
-      breadcrumb.data = ["error": "\(error)"]
-      SentryHelper.addBreadcrumb(breadcrumb)
     }
   }
 
@@ -191,21 +164,12 @@ extension StorageManager {
 
         print("✅ [StorageManager] Backup created: \(backupName)")
 
-        let breadcrumb = Breadcrumb(level: .info, category: "database")
-        breadcrumb.message = "Database backup created"
-        breadcrumb.data = ["filename": backupName]
-        SentryHelper.addBreadcrumb(breadcrumb)
-
         // Prune old backups, keeping last 3
         self.pruneOldBackups(keeping: 3)
 
       } catch {
         print("❌ [StorageManager] Backup failed: \(error)")
 
-        let breadcrumb = Breadcrumb(level: .error, category: "database")
-        breadcrumb.message = "Database backup failed"
-        breadcrumb.data = ["error": "\(error)"]
-        SentryHelper.addBreadcrumb(breadcrumb)
       }
     }
   }
@@ -287,20 +251,11 @@ extension StorageManager {
         if totalUpdated > 0 {
           print("✅ [StorageManager] Truncated oversized LLM call bodies: \(totalUpdated) fields")
 
-          let breadcrumb = Breadcrumb(level: .info, category: "database")
-          breadcrumb.message = "Truncated oversized LLM call bodies"
-          breadcrumb.data = ["fields_updated": totalUpdated]
-          SentryHelper.addBreadcrumb(breadcrumb)
-
           self.checkpoint(mode: .passive)
         }
       } catch {
         print("⚠️ [StorageManager] Failed to truncate oversized LLM call bodies: \(error)")
 
-        let breadcrumb = Breadcrumb(level: .warning, category: "database")
-        breadcrumb.message = "Failed to truncate oversized LLM call bodies"
-        breadcrumb.data = ["error": "\(error)"]
-        SentryHelper.addBreadcrumb(breadcrumb)
       }
     }
   }

@@ -235,10 +235,6 @@ struct ChatCLITestView: View {
   }
 
   func captureChatCLITestStarted(for tool: CLITool) {
-    AnalyticsService.shared.capture(
-      "chat_cli_test_started",
-      chatCLITestAnalyticsProperties(for: tool)
-    )
   }
 
   func captureChatCLITestSucceeded(
@@ -249,7 +245,6 @@ struct ChatCLITestView: View {
     var props = chatCLITestAnalyticsProperties(for: tool)
     props["duration_ms"] = durationMs
     props["exit_code"] = exitCode
-    AnalyticsService.shared.capture("chat_cli_test_succeeded", props)
   }
 
   func captureChatCLITestFailed(
@@ -272,7 +267,6 @@ struct ChatCLITestView: View {
     if let errorDomain {
       props["error_domain"] = errorDomain
     }
-    AnalyticsService.shared.capture("chat_cli_test_failed", props)
   }
 
   func chatCLITestAnalyticsProperties(for tool: CLITool) -> [String: Any] {

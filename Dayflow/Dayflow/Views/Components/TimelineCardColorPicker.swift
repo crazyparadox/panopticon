@@ -718,7 +718,6 @@ struct ColorOrganizerRoot: View {
     guard trackedStages.contains(stage) == false else { return }
 
     trackedStages.insert(stage)
-    AnalyticsService.shared.screen("onboarding_categories_\(stage.rawValue)")
   }
 
   private func trackDetailsCompletion() {
@@ -763,7 +762,6 @@ struct ColorOrganizerRoot: View {
       payload[key] = value
     }
 
-    AnalyticsService.shared.capture(name, payload)
   }
 
   private func commitPendingEditsIfNeeded() {

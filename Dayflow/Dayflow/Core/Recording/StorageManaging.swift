@@ -51,11 +51,6 @@ protocol StorageManaging: Sendable {
   func hasReviewRatingInRecentTimelineDays(days: Int) -> Bool
   func fetchUnreviewedTimelineCardCount(forDay day: String, coverageThreshold: Double) -> Int
 
-  // Daily goals
-  func fetchDayGoalPlan(forDay day: String) -> DayGoalPlan?
-  func fetchMostRecentDayGoalPlan(beforeOrOn day: String) -> DayGoalPlan?
-  func saveDayGoalPlan(_ plan: DayGoalPlan)
-
   func fetchRecentLLMCallsForDebug(limit: Int) -> [LLMCallDebugEntry]
   func fetchRecentAnalysisBatchesForDebug(limit: Int) -> [AnalysisBatchDebugEntry]
   func fetchLLMCallsForBatches(batchIds: [Int64], limit: Int) -> [LLMCallDebugEntry]

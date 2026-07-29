@@ -1,6 +1,5 @@
 import Foundation
 import GRDB
-import Sentry
 
 extension StorageManager {
   func saveTimelineCardShell(batchId: Int64, card: TimelineCardShell) -> Int64? {

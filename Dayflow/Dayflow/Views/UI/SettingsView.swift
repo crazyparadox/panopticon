@@ -10,7 +10,6 @@ import SwiftUI
 
 struct SettingsView: View {
   private enum SettingsTab: String, CaseIterable, Identifiable {
-    case account
     case storage
     case privacy
     case providers
@@ -21,7 +20,6 @@ struct SettingsView: View {
 
     var title: String {
       switch self {
-      case .account: return "Account"
       case .storage: return "Storage"
       case .privacy: return "Privacy"
       case .providers: return "Providers"
@@ -31,7 +29,7 @@ struct SettingsView: View {
     }
   }
 
-  @State private var selectedTab: SettingsTab = .account
+  @State private var selectedTab: SettingsTab = .storage
 
   @Namespace private var sidebarSelectionNamespace
 
@@ -89,11 +87,8 @@ struct SettingsView: View {
         .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
     }
     .onAppear {
-      DayflowAuthManager.shared.loadStoredSessionIfNeeded()
       providersViewModel.handleOnAppear()
-      otherViewModel.refreshAnalyticsState()
       storageViewModel.refreshStorageIfNeeded(isStorageTab: selectedTab == .storage)
-      AnalyticsService.shared.capture("settings_opened")
       launchAtLoginManager.refreshStatus()
     }
     .onChange(of: selectedTab) { _, newValue in
@@ -107,12 +102,6 @@ struct SettingsView: View {
       guard selectedTab != .providers else { return }
       withAnimation(.easeOut(duration: 0.18)) {
         selectedTab = .providers
-      }
-    }
-    .onReceive(NotificationCenter.default.publisher(for: .openAccountSettings)) { _ in
-      guard selectedTab != .account else { return }
-      withAnimation(.easeOut(duration: 0.18)) {
-        selectedTab = .account
       }
     }
   }
@@ -184,24 +173,9 @@ struct SettingsView: View {
   private var sidebarFooter: some View {
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     return VStack(alignment: .leading, spacing: 8) {
-      Text("Dayflow v\(version)")
+      Text("Panopticon v\(version)")
         .font(.custom("Figtree", size: 11))
         .foregroundColor(.black.opacity(0.4))
-
-      Button {
-        NotificationCenter.default.post(name: .showWhatsNew, object: nil)
-      } label: {
-        HStack(spacing: 4) {
-          Text("Release notes")
-            .font(.custom("Figtree", size: 11))
-            .fontWeight(.semibold)
-          Image(systemName: "arrow.up.right")
-            .font(.system(size: 9, weight: .semibold))
-        }
-        .foregroundColor(Color(red: 0.25, green: 0.17, blue: 0))
-      }
-      .buttonStyle(.plain)
-      .pointingHandCursor()
     }
   }
 
@@ -238,8 +212,6 @@ struct SettingsView: View {
     // actually exist (the sidebar is vertical, not left/right tabs).
     Group {
       switch selectedTab {
-      case .account:
-        SettingsAccountSection()
       case .storage:
         SettingsStorageTabView(viewModel: storageViewModel)
       case .privacy:
@@ -264,7 +236,6 @@ private struct ProviderSetupWrapper: Identifiable {
 struct SettingsView_Previews: PreviewProvider {
   static var previews: some View {
     SettingsView()
-      .environmentObject(UpdaterManager.shared)
       .frame(width: 1400, height: 860)
   }
 }

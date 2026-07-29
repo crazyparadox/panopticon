@@ -13,7 +13,6 @@ import CoreGraphics
 import Foundation
 import ImageIO
 @preconcurrency import ScreenCaptureKit
-import Sentry
 
 // MARK: - Configuration
 
@@ -172,17 +171,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       context.map { "\(oldState.description) → \(newState.description) (\($0))" }
       ?? "\(oldState.description) → \(newState.description)"
     dbg("State: \(message)")
-
-    let breadcrumb = Breadcrumb(level: .info, category: "recorder_state")
-    breadcrumb.message = message
-    breadcrumb.data = [
-      "old_state": oldState.description,
-      "new_state": newState.description,
-    ]
-    if let ctx = context {
-      breadcrumb.data?["context"] = ctx
-    }
-    SentryHelper.addBreadcrumb(breadcrumb)
   }
 
   // MARK: - Start/Stop
@@ -272,9 +260,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
 
       Task { @MainActor in
-        AnalyticsService.shared.withSampling(probability: 0.01) {
-          AnalyticsService.shared.capture("recording_started", ["mode": "screenshot"])
-        }
       }
 
     } catch {
@@ -298,13 +283,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
         q.asyncAfter(deadline: .now() + delay) { [weak self] in self?.start() }
       } else {
         Task { @MainActor in
-          AnalyticsService.shared.capture(
-            "recording_startup_failed",
-            [
-              "attempt": attempt,
-              "error_domain": nsError.domain,
-              "error_code": nsError.code,
-            ])
         }
       }
     }
@@ -509,11 +487,7 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
 
     Task { @MainActor in
       if AppState.shared.isRecording {
-        AppState.shared.setRecording(
-          false,
-          analyticsReason: "permission_missing",
-          persistPreference: false
-        )
+        AppState.shared.setRecording(false, persistPreference: false)
       }
       ScreenRecordingPermissionNotice.post(reason: reason)
     }
@@ -584,9 +558,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
       self.stop()
       Task { @MainActor in
-        AnalyticsService.shared.withSampling(probability: 0.01) {
-          AnalyticsService.shared.capture("recording_stopped", ["stop_reason": "system_sleep"])
-        }
       }
     }
 
@@ -625,9 +596,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
       self.stop()
       Task { @MainActor in
-        AnalyticsService.shared.withSampling(probability: 0.01) {
-          AnalyticsService.shared.capture("recording_stopped", ["stop_reason": "lock"])
-        }
       }
     }
 
@@ -666,9 +634,6 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
       self.stop()
       Task { @MainActor in
-        AnalyticsService.shared.withSampling(probability: 0.01) {
-          AnalyticsService.shared.capture("recording_stopped", ["stop_reason": "screensaver"])
-        }
       }
     }
 

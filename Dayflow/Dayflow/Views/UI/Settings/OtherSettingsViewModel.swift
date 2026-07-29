@@ -5,12 +5,6 @@ import UniformTypeIdentifiers
 
 @MainActor
 final class OtherSettingsViewModel: ObservableObject {
-  @Published var analyticsEnabled: Bool {
-    didSet {
-      guard analyticsEnabled != oldValue else { return }
-      AnalyticsService.shared.setOptIn(analyticsEnabled)
-    }
-  }
   @Published var showDockIcon: Bool {
     didSet {
       guard showDockIcon != oldValue else { return }
@@ -22,12 +16,6 @@ final class OtherSettingsViewModel: ObservableObject {
     didSet {
       guard showTimelineAppIcons != oldValue else { return }
       UserDefaults.standard.set(showTimelineAppIcons, forKey: "showTimelineAppIcons")
-    }
-  }
-  @Published var showDailyGoalPopups: Bool {
-    didSet {
-      guard showDailyGoalPopups != oldValue else { return }
-      DayGoalPreferences.showDailyGoalPopups = showDailyGoalPopups
     }
   }
   @Published var saveAllTimelapsesToDisk: Bool {
@@ -51,11 +39,9 @@ final class OtherSettingsViewModel: ObservableObject {
   @Published var showReprocessDayConfirm = false
 
   init() {
-    analyticsEnabled = AnalyticsService.shared.isOptedIn
     showDockIcon = UserDefaults.standard.object(forKey: "showDockIcon") as? Bool ?? true
     showTimelineAppIcons =
       UserDefaults.standard.object(forKey: "showTimelineAppIcons") as? Bool ?? true
-    showDailyGoalPopups = DayGoalPreferences.showDailyGoalPopups
     saveAllTimelapsesToDisk = TimelapsePreferences.saveAllTimelapsesToDisk
     outputLanguageOverride = LLMOutputLanguagePreferences.override
     exportStartDate = timelineDisplayDate(from: Date())
@@ -80,10 +66,6 @@ final class OtherSettingsViewModel: ObservableObject {
     outputLanguageOverride = ""
     LLMOutputLanguagePreferences.override = ""
     isOutputLanguageOverrideSaved = true
-  }
-
-  func refreshAnalyticsState() {
-    analyticsEnabled = AnalyticsService.shared.isOptedIn
   }
 
   func exportTimelineRange() {
@@ -209,16 +191,6 @@ final class OtherSettingsViewModel: ObservableObject {
       exportStatusMessage =
         "Saved \(activityCount) activit\(activityCount == 1 ? "y" : "ies") across \(dayCount) day\(dayCount == 1 ? "" : "s") to \(url.lastPathComponent)"
 
-      AnalyticsService.shared.capture(
-        "timeline_exported",
-        [
-          "start_day": dayFormatter.string(from: startDate),
-          "end_day": dayFormatter.string(from: endDate),
-          "day_count": dayCount,
-          "activity_count": activityCount,
-          "format": "markdown",
-          "file_extension": url.pathExtension.lowercased(),
-        ])
     } catch {
       exportStatusMessage = nil
       exportErrorMessage = "Couldn't save file: \(error.localizedDescription)"

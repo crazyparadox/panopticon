@@ -6,7 +6,6 @@ struct StatusMenuView: View {
   let dismissMenu: () -> Void
   @ObservedObject private var appState = AppState.shared
   @ObservedObject private var pauseManager = PauseManager.shared
-  private let updaterManager = UpdaterManager.shared
 
   private var controlMode: RecordingControlMode {
     RecordingControl.currentMode(appState: appState, pauseManager: pauseManager)
@@ -25,11 +24,10 @@ struct StatusMenuView: View {
 
       MenuRow(title: "Open Dayflow", assetImage: "DayflowLogo", action: openDayflow)
       MenuRow(title: "Open Recordings", action: openRecordingsFolder)
-      MenuRow(title: "Check for Updates", action: checkForUpdates)
 
       MenuDivider()
 
-      MenuRow(title: "Quit Completely", systemImage: "power", accent: .red, action: quitDayflow)
+      MenuRow(title: "Quit Completely", systemImage: "power", accent: .red, action: quitPanopticon)
     }
     .padding(.vertical, 9)
     .padding(.horizontal, 9)
@@ -70,14 +68,7 @@ struct StatusMenuView: View {
     }
   }
 
-  private func checkForUpdates() {
-    performAfterMenuDismiss {
-      updaterManager.checkForUpdates(showUI: true)
-      NSApp.activate(ignoringOtherApps: true)
-    }
-  }
-
-  private func quitDayflow() {
+  private func quitPanopticon() {
     performAfterMenuDismiss {
       AppDelegate.allowTermination = true
       NSApp.terminate(nil)

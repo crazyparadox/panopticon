@@ -144,7 +144,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
   }
 
   func handleOnAppear() {
-    DayflowAuthManager.shared.loadStoredSessionIfNeeded()
     loadCurrentProvider()
     loadBackupProvider()
     reloadLocalProviderSettings()
@@ -224,12 +223,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
     LocalModelPreferences.markUpgradeDismissed(true)
     refreshUpgradeBannerState()
     upgradeStatusMessage = "Upgraded to \(LocalModelPreset.recommended.displayName)"
-    AnalyticsService.shared.capture(
-      "local_model_upgraded",
-      [
-        "engine": engine.rawValue,
-        "model": modelId,
-      ])
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
       self?.upgradeStatusMessage = nil
@@ -255,8 +248,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
       let preference = GeminiModelPreference.load()
       selectedGeminiModel = preference.primary
       savedGeminiModel = preference.primary
-    case .dayflowBackend:
-      currentProvider = "dayflow"
     case .ollamaLocal:
       currentProvider = "ollama"
     case .chatGPTClaude:
@@ -282,7 +273,7 @@ final class ProvidersSettingsViewModel: ObservableObject {
       return
     }
 
-    guard canUseProviderForRouting(raw) else {
+    if false {
       backupProvider = nil
       backupChatCLITool = nil
       LLMProviderRoutingPreferences.saveBackupProvider(nil)
@@ -306,11 +297,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
 
   func beginProviderSetup(_ providerId: String, role: ProviderRoutingRole) {
     guard providerCatalog.contains(where: { $0.id == providerId }) else { return }
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     pendingSetupRole = role
     pendingSetupDisplayProviderId = providerId
     setupModalProvider = canonicalProviderId(for: providerId)
@@ -318,16 +304,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
 
   func editProviderConfiguration(_ providerId: String) {
     guard providerCatalog.contains(where: { $0.id == providerId }) else { return }
-    if canonicalProviderId(for: providerId) == "dayflow" {
-      openAccountForDayflowProvider(providerId)
-      return
-    }
-
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     pendingSetupRole = .setupOnly
     pendingSetupDisplayProviderId = providerId
     setupModalProvider = canonicalProviderId(for: providerId)
@@ -361,11 +337,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
   }
 
   func setPrimaryOrSetup(_ providerId: String) {
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     if isProviderConfigured(providerId) {
       assignPrimaryProvider(providerId)
     } else {
@@ -374,11 +345,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
   }
 
   func setSecondaryOrSetup(_ providerId: String) {
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     if isProviderConfigured(providerId) {
       assignSecondaryProvider(providerId)
     } else {
@@ -399,16 +365,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
   }
 
   func assignPrimaryProvider(_ providerId: String) {
-    print(
-      "🧭 [ProvidersSettings] assign primary requested provider=\(providerId) "
-        + "current=\(primaryRoutingProviderId) signed_in=\(DayflowAuthManager.shared.isSignedIn) "
-        + "pro_active=\(isDayflowProActive)"
-    )
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     guard canAssignPrimary(providerId) else { return }
 
     let previousPrimaryDisplay = primaryRoutingProviderId
@@ -421,22 +377,9 @@ final class ProvidersSettingsViewModel: ObservableObject {
       persistBackupSelection(displayProviderId: previousPrimaryDisplay, emitAnalytics: true)
     }
 
-    AnalyticsService.shared.capture(
-      "provider_primary_updated",
-      [
-        "from_provider": previousPrimaryDisplay,
-        "to_provider": providerId,
-        "underlying_provider": canonicalId,
-        "swapped_with_secondary": shouldSwapWithSecondary,
-      ])
   }
 
   func assignSecondaryProvider(_ providerId: String) {
-    guard canUseProviderForRouting(providerId) else {
-      openAccountForDayflowPro(providerId)
-      return
-    }
-
     guard canAssignSecondary(providerId) else { return }
 
     let currentPrimaryProviderId = primaryRoutingProviderId
@@ -450,23 +393,10 @@ final class ProvidersSettingsViewModel: ObservableObject {
       )
       persistBackupSelection(displayProviderId: previousPrimary, emitAnalytics: true)
 
-      AnalyticsService.shared.capture(
-        "provider_secondary_updated",
-        [
-          "secondary_provider": previousPrimary,
-          "mode": "swap_with_primary",
-        ])
       return
     }
 
     persistBackupSelection(displayProviderId: providerId, emitAnalytics: true)
-    AnalyticsService.shared.capture(
-      "provider_secondary_updated",
-      [
-        "secondary_provider": providerId,
-        "underlying_provider": canonicalProviderId(for: providerId),
-        "mode": "set",
-      ])
   }
 
   func canAssignPrimary(_ providerId: String) -> Bool {
@@ -517,8 +447,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
       let preferredTool = (UserDefaults.standard.string(forKey: "chatCLIPreferredTool") ?? "")
         .trimmingCharacters(in: .whitespacesAndNewlines)
       return !preferredTool.isEmpty
-    case "dayflow":
-      return isDayflowProActive
     default:
       return false
     }
@@ -530,12 +458,7 @@ final class ProvidersSettingsViewModel: ObservableObject {
       return
     }
 
-    guard canAssignSecondary(providerId) else {
-      if !canUseProviderForRouting(providerId) {
-        openAccountForDayflowPro(providerId)
-      }
-      return
-    }
+    guard canAssignSecondary(providerId) else { return }
 
     persistBackupSelection(displayProviderId: providerId, emitAnalytics: true)
   }
@@ -551,45 +474,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
   var backupProviderDisplayName: String {
     guard let backupProvider = secondaryRoutingProviderId else { return "Not configured" }
     return providerDisplayName(backupProvider)
-  }
-
-  var isDayflowProActive: Bool {
-    let entitlement = DayflowAuthManager.shared.entitlements
-    return entitlement.plan == "pro" && entitlement.status == "active"
-  }
-
-  func shouldShowDayflowUpgradeAction(for providerId: String) -> Bool {
-    canonicalProviderId(for: providerId) == "dayflow" && !isDayflowProActive
-  }
-
-  func openDayflowUpgradeAccount(from providerId: String) {
-    openAccountForDayflowPro(providerId)
-  }
-
-  private func canUseProviderForRouting(_ providerId: String) -> Bool {
-    canonicalProviderId(for: providerId) != "dayflow" || isDayflowProActive
-  }
-
-  private func openAccountForDayflowPro(_ providerId: String) {
-    guard canonicalProviderId(for: providerId) == "dayflow" else { return }
-    upgradeStatusMessage = "Dayflow Pro is required for hosted cards and transcription."
-    openAccountForDayflowProvider(providerId)
-  }
-
-  private func openAccountForDayflowProvider(_ providerId: String) {
-    guard canonicalProviderId(for: providerId) == "dayflow" else { return }
-    if isDayflowProActive {
-      upgradeStatusMessage = "Manage Dayflow Pro from Account."
-    }
-    NotificationCenter.default.post(name: .openAccountSettings, object: nil)
-    AnalyticsService.shared.capture(
-      "dayflow_backend_provider_paywall_opened",
-      [
-        "provider": providerId,
-        "is_signed_in": DayflowAuthManager.shared.isSignedIn,
-        "entitlement_plan": DayflowAuthManager.shared.entitlements.plan,
-        "entitlement_status": DayflowAuthManager.shared.entitlements.status,
-      ])
   }
 
   private func ensureBackupProviderIsValid(primaryProvider: String) {
@@ -608,8 +492,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
       providerType = .ollamaLocal(endpoint: endpoint)
     case "gemini":
       providerType = .geminiDirect
-    case "dayflow":
-      providerType = .dayflowBackend()
     case "chatgpt_claude":
       providerType = .chatGPTClaude
     default:
@@ -638,7 +520,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
       savedGeminiModel = preference.primary
     }
 
-    AnalyticsService.shared.setPersonProperties(["current_llm_provider": providerId])
   }
 
   private func persistBackupSelection(displayProviderId: String?, emitAnalytics: Bool) {
@@ -648,20 +529,13 @@ final class ProvidersSettingsViewModel: ObservableObject {
       LLMProviderRoutingPreferences.saveBackupProvider(nil)
       LLMProviderRoutingPreferences.saveBackupChatCLITool(nil)
       if emitAnalytics {
-        AnalyticsService.shared.capture(
-          "provider_backup_updated",
-          [
-            "backup_provider": "none",
-            "primary_provider": currentProvider,
-          ])
       }
       return
     }
 
     let providerId = canonicalProviderId(for: displayProviderId)
     guard providerId != currentProvider,
-      let provider = LLMProviderID(rawValue: providerId),
-      canUseProviderForRouting(displayProviderId)
+      let provider = LLMProviderID(rawValue: providerId)
     else {
       return
     }
@@ -673,13 +547,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
     let routingTool = backupTool.flatMap { ChatCLITool(rawValue: $0.rawValue) }
     LLMProviderRoutingPreferences.saveBackupChatCLITool(routingTool)
     if emitAnalytics {
-      AnalyticsService.shared.capture(
-        "provider_backup_updated",
-        [
-          "backup_provider": displayProviderId,
-          "underlying_provider": providerId,
-          "primary_provider": currentProvider,
-        ])
     }
   }
 
@@ -699,7 +566,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
       props["chat_cli_tool"] =
         UserDefaults.standard.string(forKey: "chatCLIPreferredTool") ?? "unknown"
     }
-    AnalyticsService.shared.capture("provider_setup_completed", props)
   }
 
   func persistGeminiModelSelection(_ model: GeminiModel, source: String) {
@@ -708,25 +574,11 @@ final class ProvidersSettingsViewModel: ObservableObject {
     GeminiModelPreference(primary: model).save()
 
     Task { @MainActor in
-      AnalyticsService.shared.capture(
-        "gemini_model_selected",
-        [
-          "source": source,
-          "model": model.rawValue,
-        ])
     }
   }
 
   private var providerCatalog: [CompactProviderInfo] {
     [
-      CompactProviderInfo(
-        id: "dayflow",
-        title: "Dayflow Pro",
-        summary: "Hosted cards & transcription • no API keys • requires Pro",
-        badgeText: "PRO",
-        badgeType: .blue,
-        icon: "sparkles"
-      ),
       CompactProviderInfo(
         id: "claude",
         title: "Claude",
@@ -788,8 +640,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
         return "Claude Code CLI"
       }
       return chatCLIStatusLabel()
-    case "dayflow":
-      return isDayflowProActive ? "Dayflow Pro active" : "Requires Dayflow Pro"
     default:
       return nil
     }
@@ -818,8 +668,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
         return "\(tool.shortName) CLI"
       }
       return "ChatGPT / Claude CLI"
-    case "dayflow":
-      return "Dayflow Backend"
     default:
       return "Diagnostics"
     }
@@ -836,7 +684,6 @@ final class ProvidersSettingsViewModel: ObservableObject {
         return preferredCLITool == .codex ? "ChatGPT" : "Claude"
       }
       return "ChatGPT or Claude"
-    case "dayflow": return "Dayflow Pro"
     default: return id.capitalized
     }
   }

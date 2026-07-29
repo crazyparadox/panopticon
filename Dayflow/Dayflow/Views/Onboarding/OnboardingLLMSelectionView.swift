@@ -269,8 +269,6 @@ struct OnboardingLLMSelectionView: View {
       providerType = .ollamaLocal()
     case "gemini":
       providerType = .geminiDirect
-    case "dayflow":
-      providerType = .dayflowBackend()
     case "chatgpt_claude":
       providerType = .chatGPTClaude
     default:

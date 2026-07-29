@@ -56,21 +56,9 @@ struct OnboardingPrototypeChooseProviderStep: View {
   let flowVariant: String
   let onSelect: (String) -> Void
 
-  @ObservedObject private var authManager = DayflowAuthManager.shared
-  @State private var isShowingDayflowProSignIn = false
-  @State private var dayflowProInitialReferralCode = ""
   @State private var isChatCLIInstalled = false
 
   private static let providers: [ComparisonProvider] = [
-    ComparisonProvider(
-      id: "dayflow",
-      title: "Dayflow Pro",
-      selectionName: "Dayflow Pro",
-      accuracy: RatedValue(text: "Best", rating: .best),
-      subscription: "30 day free trial",
-      ease: RatedValue(text: "Sign in and go", rating: .best),
-      notes: "Sync across devices"
-    ),
     ComparisonProvider(
       id: "chatgpt_claude",
       title: "ChatGPT or Claude",
@@ -102,7 +90,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      Text("Choose a way to run Dayflow")
+      Text("Choose a way to run Panopticon")
         .font(.custom("InstrumentSerif-Regular", size: 40))
         .tracking(-1.2)
         .multilineTextAlignment(.center)
@@ -111,30 +99,9 @@ struct OnboardingPrototypeChooseProviderStep: View {
         .padding(.top, 20)
         .padding(.bottom, 45)
 
-      if isShowingDayflowProSignIn {
-        DayflowProOnboardingSignInPanel(
-          hasPaidAI: hasPaidAI,
-          flowID: flowID,
-          flowVariant: flowVariant,
-          layoutScale: 0.8,
-          textScale: 1.1,
-          initialReferralCode: dayflowProInitialReferralCode,
-          onBack: {
-            withAnimation(.easeInOut(duration: 0.25)) {
-              isShowingDayflowProSignIn = false
-            }
-          },
-          onComplete: {
-            onSelect("Dayflow Pro")
-          }
-        )
-        .padding(.horizontal, 112)
+      comparisonTable
+        .padding(.horizontal, 40)
         .transition(.opacity)
-      } else {
-        comparisonTable
-          .padding(.horizontal, 40)
-          .transition(.opacity)
-      }
 
       Spacer(minLength: 20)
     }
@@ -145,24 +112,6 @@ struct OnboardingPrototypeChooseProviderStep: View {
       }.value
       guard !Task.isCancelled else { return }
       isChatCLIInstalled = installed
-    }
-  }
-
-  private func startDayflowProSignIn() {
-    OnboardingPrototypeAnalytics.trackDayflowProSelected(
-      flowID: flowID,
-      flowVariant: flowVariant,
-      hasPaidAI: hasPaidAI,
-      selectionStage: "started_sign_in"
-    )
-    dayflowProInitialReferralCode = authManager.pendingReferralCode ?? ""
-
-    withAnimation(.easeInOut(duration: 0.25)) {
-      isShowingDayflowProSignIn = true
-    }
-
-    Task {
-      await authManager.signOut()
     }
   }
 
@@ -257,14 +206,6 @@ struct OnboardingPrototypeChooseProviderStep: View {
   @ViewBuilder
   private func headerIcon(for id: String) -> some View {
     switch id {
-    case "dayflow":
-      Image("DayflowLogo")
-        .resizable()
-        .renderingMode(.original)
-        .interpolation(.high)
-        .antialiased(true)
-        .scaledToFit()
-        .frame(width: 36, height: 36)
     case "chatgpt_claude":
       HStack(spacing: 9) {
         iconCircle(imageName: "ChatGPTLogo")
@@ -341,13 +282,7 @@ struct OnboardingPrototypeChooseProviderStep: View {
 
   private func selectButton(for provider: ComparisonProvider) -> some View {
     DayflowSurfaceButton(
-      action: {
-        if provider.id == "dayflow" {
-          startDayflowProSignIn()
-        } else {
-          onSelect(provider.selectionName)
-        }
-      },
+      action: { onSelect(provider.selectionName) },
       content: {
         Text("Select")
           .font(.custom("Nunito", size: 14))

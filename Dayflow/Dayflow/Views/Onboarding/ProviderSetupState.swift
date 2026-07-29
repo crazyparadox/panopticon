@@ -169,11 +169,10 @@ class ProviderSetupState: ObservableObject {
       if currentStep.contentType.isApiKeyInput && stepId != currentStep.id {
         guard persistGeminiAPIKey(source: "onboarding_sidebar") else { return }
       }
-      // Reset test state when navigating to test step
-      if stepId == "verify" || stepId == "test" {
-        hasTestedConnection = false
-        testSuccessful = false
-      }
+      // Note: test state is intentionally NOT reset here. It is already
+      // invalidated whenever the underlying config changes (API key/model),
+      // so wiping it on plain navigation would force an unnecessary re-test
+      // when the user revisits an already-passing test step via the sidebar.
       // Allow free navigation between all steps
       currentStepIndex = index
     }
@@ -191,12 +190,6 @@ class ProviderSetupState: ObservableObject {
     GeminiModelPreference(primary: geminiModel).save()
 
     Task { @MainActor in
-      AnalyticsService.shared.capture(
-        "gemini_model_selected",
-        [
-          "source": source,
-          "model": geminiModel.rawValue,
-        ])
     }
 
     // Changing models should prompt the user to re-run the connection test
@@ -304,6 +297,11 @@ class ProviderSetupState: ObservableObject {
 
   func selectPreferredCLITool(_ tool: CLITool) {
     guard isToolAvailable(tool) else { return }
+    // Switching tools invalidates any prior connection test.
+    if preferredCLITool != tool {
+      hasTestedConnection = false
+      testSuccessful = false
+    }
     preferredCLITool = tool
     persistPreferredCLITool()
     captureChatCLIToolSelected(tool)
@@ -332,23 +330,9 @@ class ProviderSetupState: ObservableObject {
   }
 
   func captureChatCLIDetectionChecked(source: String) {
-    AnalyticsService.shared.capture(
-      "chat_cli_detection_checked",
-      chatCLIDetectionAnalyticsProperties(
-        source: source,
-        selectedTool: preferredCLITool
-      )
-    )
   }
 
   func captureChatCLIToolSelected(_ tool: CLITool) {
-    AnalyticsService.shared.capture(
-      "chat_cli_tool_selected",
-      chatCLIDetectionAnalyticsProperties(
-        source: "detection_step",
-        selectedTool: tool
-      )
-    )
   }
 
   func chatCLIDetectionAnalyticsProperties(
@@ -460,14 +444,6 @@ extension ProviderSetupState {
     LocalModelPreferences.syncPreset(for: engine, modelId: defaultModel)
 
     // Track local engine selection for analytics
-    AnalyticsService.shared.capture(
-      "local_engine_selected",
-      [
-        "engine": engine.rawValue,
-        "base_url": localBaseURL,
-        "default_model": defaultModel,
-        "has_api_key": !localAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-      ])
   }
 
   var localCurlCommand: String {
