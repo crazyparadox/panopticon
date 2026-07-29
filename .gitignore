@@ -1,18 +1,18 @@
 *.dmg
 *.DS_Store
 .DS_Store
-Dayflow/build*
+Panopticon/build*
 *.xcuserstate
 xcuserdata/
 LLMEvalScript.swift
-Dayflow/eval/
+Panopticon/eval/
 evals/
 build/
 build_tmp/
 build_universal/
 .claude/
 scripts/release.env
-Dayflow/Config/LocalSecrets.xcconfig
+Panopticon/Config/LocalSecrets.xcconfig
 signed/
 
 # Ignore Claude prompt notes
@@ -20,7 +20,7 @@ CLAUDE.md
 claude.md
 
 # Tauri migration (WIP)
-dayflow-tauri/
+panopticon-tauri/
 agents.md
 
 # Internal tools
