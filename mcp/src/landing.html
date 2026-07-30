@@ -108,58 +108,79 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   }
 
-  /* app mock — a day timeline with an inspector, like the real window */
-  .app-mock {
-    max-width: 880px; margin: 0 auto;
-    background: #fbfbfa; border-radius: 10px;
-    border: 1px solid #e2e2e0;
-    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.10);
-    display: flex; flex-direction: column; overflow: hidden;
-    font-size: 11px; color: #101828; text-align: left;
+  /* ── phone showcase ──────────────────────────── */
+  .phones {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 32px; max-width: 960px; margin: 0 auto;
+    align-items: start;
   }
-  .app-mock .titlebar { display: flex; align-items: center; gap: 6px; padding: 10px 13px; background: #fff; border-bottom: 1px solid #eaecf0; }
-  .app-mock .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .app-mock .toolbar { display: flex; align-items: center; gap: 12px; padding: 11px 16px 4px; font-weight: 600; font-size: 13px; }
-  .app-mock .seg { display: inline-flex; background: #f4f5f7; border: 1px solid #eaecf0; border-radius: 7px; padding: 2px; font-size: 10.5px; font-weight: 500; color: #475467; }
-  .app-mock .seg b { background: #fff; border: 1px solid #eaecf0; border-radius: 5px; padding: 1px 9px; color: #101828; font-weight: 500; }
-  .app-mock .seg span { padding: 1px 9px; }
-  .app-mock .pause { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 500; color: #2f6fec; background: #eff4ff; border-radius: 6px; padding: 3px 9px; }
-  .app-mock .chips { display: flex; gap: 6px; padding: 6px 16px 10px; flex-wrap: wrap; }
-  .app-mock .chip { display: inline-flex; align-items: center; gap: 5px; background: #f4f5f7; border-radius: 5px; padding: 2px 8px; font-size: 10px; font-weight: 500; color: #475467; }
-  .app-mock .chip i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-  .app-mock .split { display: grid; grid-template-columns: 3fr 2fr; border-top: 1px solid #eaecf0; background: #fff; }
-  /* timeline canvas: hour gutter + duration-sized blocks */
-  .tl { position: relative; padding: 12px 14px 16px 0; border-right: 1px solid #eaecf0; }
-  .tl .hour { display: flex; gap: 10px; }
-  .tl .hour + .hour { margin-top: 2px; }
-  .tl .gutter {
-    width: 52px; flex-shrink: 0; text-align: right;
-    font-family: var(--mono); font-size: 8.5px; color: #98a2b3;
-    padding-top: 1px; user-select: none;
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .phone {
+    width: 100%; max-width: 250px; aspect-ratio: 9 / 18.6;
+    background: #16171a; border-radius: 38px; padding: 9px;
+    box-shadow: 0 18px 44px rgba(17, 24, 39, 0.18), inset 0 0 0 1.5px #3a3b3f;
+    position: relative;
   }
-  .tl .lane { flex: 1; position: relative; border-left: 1px solid #f2f4f7; padding: 0 12px 0 10px; }
-  .tl .block {
-    border-radius: 6px; padding: 5px 9px; margin-bottom: 3px;
-    display: flex; flex-direction: column; justify-content: center; gap: 1px;
-    border: 1px solid transparent;
+  .phone .screen {
+    width: 100%; height: 100%; border-radius: 30px; overflow: hidden;
+    display: flex; flex-direction: column; text-align: left;
   }
-  .tl .block .bt { font-weight: 600; font-size: 10.5px; line-height: 1.3; }
-  .tl .block .bm { font-size: 9px; color: rgba(16, 24, 40, 0.55); }
-  .tl .block.sel { outline: 2px solid #2f6fec; outline-offset: -1px; }
-  .tl .nowline { position: absolute; left: 62px; right: 0; height: 1px; background: #2f6fec; }
-  .tl .nowline::before { content: ""; position: absolute; left: -3px; top: -2.5px; width: 6px; height: 6px; border-radius: 50%; background: #2f6fec; }
-  /* inspector */
-  .insp { padding: 14px 16px; display: flex; flex-direction: column; gap: 7px; }
-  .insp .cat { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 500; color: #475467; background: #f4f5f7; border-radius: 999px; padding: 2px 8px; width: fit-content; }
-  .insp .cat i { width: 6px; height: 6px; border-radius: 50%; background: #6172f3; }
-  .insp h5 { font-size: 12.5px; font-weight: 600; }
-  .insp .time { font-family: var(--mono); font-size: 9.5px; color: #98a2b3; }
-  .insp p { font-size: 10.5px; color: #475467; line-height: 1.55; }
-  .insp .apps { display: flex; gap: 5px; margin-top: 2px; }
-  .insp .apps span { font-size: 9.5px; color: #475467; background: #f4f5f7; border: 1px solid #eaecf0; border-radius: 5px; padding: 2px 7px; }
-  @media (max-width: 640px) {
-    .app-mock .split { grid-template-columns: 1fr; }
-    .insp { border-top: 1px solid #eaecf0; }
+  .phone .island {
+    position: absolute; top: 17px; left: 50%; transform: translateX(-50%);
+    width: 26%; height: 12px; border-radius: 999px; background: #16171a; z-index: 5;
+  }
+  .phone-cap { max-width: 260px; text-align: center; }
+  .phone-cap h4 { font-size: 14.5px; font-weight: 600; }
+  .phone-cap p { font-size: 13px; color: var(--stone-500); line-height: 1.5; margin-top: 2px; }
+
+  /* chat chrome shared */
+  .chat-head {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 30px 12px 8px; flex-shrink: 0;
+  }
+  .chat-head .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #fff;
+  }
+  .chat-head .cname { font-size: 9.5px; font-weight: 500; }
+  .chat-body {
+    flex: 1; display: flex; flex-direction: column; gap: 5px;
+    padding: 10px 10px 14px; font-size: 10px; line-height: 1.45;
+  }
+  .bubble { max-width: 82%; padding: 6px 9px; border-radius: 14px; }
+  .bubble.in { align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.out { align-self: flex-end; border-bottom-right-radius: 4px; }
+  .chat-ts { font-size: 8px; text-align: center; margin: 2px 0; }
+
+  /* iMessage */
+  .imsg .screen { background: #fff; }
+  .imsg .chat-head { border-bottom: 0.5px solid #e5e5ea; background: rgba(249,249,249,0.94); }
+  .imsg .chat-head .cname { color: #1c1c1e; }
+  .imsg .chat-ts { color: #8e8e93; }
+  .imsg .bubble.in { background: #e9e9eb; color: #111; }
+  .imsg .bubble.out { background: #0a7cff; color: #fff; }
+
+  /* folk (neutral messenger) */
+  .folkc .screen { background: #faf9f7; }
+  .folkc .chat-head { border-bottom: 0.5px solid #e9e6e1; background: #fff; }
+  .folkc .chat-head .cname { color: #17150f; }
+  .folkc .chat-ts { color: #a39e93; }
+  .folkc .bubble.in { background: #fff; color: #17150f; border: 1px solid #e9e6e1; }
+  .folkc .bubble.out { background: #17150f; color: #fff; }
+
+  /* telegram */
+  .tg .screen { background: linear-gradient(180deg, #dbe7f0, #cfdde9); }
+  .tg .chat-head { background: #527da3; }
+  .tg .chat-head .cname { color: #fff; }
+  .tg .chat-head .sub { font-size: 8px; color: #cfe0ee; }
+  .tg .chat-ts { color: #6d8ba6; }
+  .tg .bubble.in { background: #fff; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,0.06); }
+  .tg .bubble.out { background: #effdde; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,0.06); }
+  .tg .check { font-size: 8px; color: #56a352; float: right; margin: 4px 0 0 6px; }
+
+  @media (max-width: 760px) {
+    .phones { grid-template-columns: 1fr; gap: 28px; }
   }
 
   /* ── prose sections ──────────────────────────── */
@@ -220,7 +241,7 @@
   <p class="sub">Panopticon records your Mac in the background, turns the footage into a structured timeline with an LLM, and serves it to your agents over MCP — so they know what you're up to without being told.</p>
 
   <div class="cta-row">
-    <a class="btn" href="#selfhost">Download &amp; self-host</a>
+    <a class="btn" href="#selfhost"><svg width="13" height="15" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true"><path d="M788 341c-6 4-107 61-107 187 0 146 128 198 132 199-1 3-20 70-67 138-42 60-86 120-153 120s-84-39-161-39c-75 0-102 40-163 40s-104-56-153-124C60 782 14 664 14 552c0-180 117-275 232-275 61 0 112 41 150 41 36 0 93-43 162-43 26 0 120 2 182 92zM554 187c31-36 52-87 52-137 0-7-1-14-2-20-50 2-109 33-145 74-28 32-54 83-54 134 0 8 1 15 2 18 3 1 8 1 13 1 45 0 101-30 134-70z"/></svg>Download for Mac</a>
     <span class="cmd">
       <code id="cmd0">claude mcp add --transport http panopticon https://&lt;your-server&gt;/mcp</code>
       <button type="button" aria-label="Copy" onclick="cp(this,'cmd0')">⧉</button>
@@ -228,72 +249,76 @@
   </div>
   <p class="muted" style="font-size:14px">macOS 14+ · runs on your own LLM · your own database</p>
 
-  <!-- full-bleed showcase -->
+  <!-- full-bleed showcase: three phones, three assistants -->
   <div class="showcase">
     <div class="showcase-card">
-      <div class="app-mock" role="img" aria-label="Panopticon — a recorded day as a timeline with an inspector">
-        <div class="titlebar">
-          <span class="dot" style="background:#f26b5e"></span>
-          <span class="dot" style="background:#f5bf4f"></span>
-          <span class="dot" style="background:#58c655"></span>
-        </div>
-        <div class="toolbar">
-          <span class="seg"><b>Day</b><span>Week</span></span>
-          <span>Today, Jul 30</span>
-          <span class="pause">❚❚ Pause</span>
-        </div>
-        <div class="chips">
-          <span class="chip"><i style="background:#6172f3"></i>Coding / Debugging</span>
-          <span class="chip"><i style="background:#53b1fd"></i>Code Review</span>
-          <span class="chip"><i style="background:#b692f6"></i>Research</span>
-          <span class="chip"><i style="background:#f7b27a"></i>Communication</span>
-        </div>
-        <div class="split">
-          <div class="tl">
-            <div class="hour">
-              <span class="gutter">9 AM</span>
-              <div class="lane">
-                <div class="block sel" style="background:#eef0fe;border-color:#dfe3fc;min-height:56px">
-                  <span class="bt">Rebuilt the sync pipeline</span>
-                  <span class="bm">1h 25m · Xcode, GitHub</span>
-                </div>
+      <div class="phones">
+        <div class="phone-col">
+          <div class="phone"><span class="island"></span>
+            <div class="screen imsg">
+              <div class="chat-head">
+                <span class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">P</span>
+                <span class="cname">Poke</span>
               </div>
-            </div>
-            <div class="hour">
-              <span class="gutter">11 AM</span>
-              <div class="lane">
-                <div class="block" style="background:#f5effe;border-color:#ece0fc;min-height:34px">
-                  <span class="bt">Read Neon &amp; MCP docs</span>
-                  <span class="bm">45m · Arc</span>
-                </div>
-              </div>
-            </div>
-            <div class="hour">
-              <span class="gutter">12 PM</span>
-              <div class="lane">
-                <div class="block" style="background:#ebf5ff;border-color:#d9ebfe;min-height:30px">
-                  <span class="bt">Reviewed teammate's PR</span>
-                  <span class="bm">35m · GitHub</span>
-                </div>
-              </div>
-            </div>
-            <div class="hour">
-              <span class="gutter">1 PM</span>
-              <div class="lane">
-                <div class="block" style="background:#fff3e8;border-color:#fde4cc;min-height:26px">
-                  <span class="bt">Slack + standup notes</span>
-                  <span class="bm">25m · Slack</span>
-                </div>
-                <div class="nowline" style="position:relative;left:0;margin:6px 0 2px"></div>
+              <div class="chat-body">
+                <span class="chat-ts">Today 2:04 PM</span>
+                <span class="bubble in">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
+                <span class="bubble out">wait. how do you know that??</span>
+                <span class="bubble in">panopticon 🙂 your timeline synced at 12:30</span>
+                <span class="bubble in">want me to draft the PR description from it?</span>
+                <span class="bubble out">ok that's actually sick. yes</span>
               </div>
             </div>
           </div>
-          <div class="insp">
-            <span class="cat"><i></i>Coding / Debugging</span>
-            <h5>Rebuilt the sync pipeline</h5>
-            <span class="time">9:40 – 11:05 AM · 1h 25m</span>
-            <p>Refactored CloudSyncManager to push whole-day snapshots, wired the ingest endpoint, and ran the test suite twice. Two short detours into Slack.</p>
-            <div class="apps"><span>Xcode</span><span>GitHub</span><span>Terminal</span></div>
+          <div class="phone-cap">
+            <h4>Poke already knows</h4>
+            <p>Your assistant mentions the refactor before you do — it read the day over MCP.</p>
+          </div>
+        </div>
+
+        <div class="phone-col">
+          <div class="phone"><span class="island"></span>
+            <div class="screen folkc">
+              <div class="chat-head">
+                <span class="avatar" style="background:#17150f">f</span>
+                <span class="cname">folk</span>
+              </div>
+              <div class="chat-body">
+                <span class="chat-ts">Today 5:31 PM</span>
+                <span class="bubble in">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack</span>
+                <span class="bubble in">log both as touchpoints + follow-up with Sarah on Friday?</span>
+                <span class="bubble out">yes please</span>
+                <span class="bubble out">…you got that from my timeline didn't you</span>
+                <span class="bubble in">where else. done ✓</span>
+              </div>
+            </div>
+          </div>
+          <div class="phone-cap">
+            <h4>folk keeps the thread</h4>
+            <p>Touchpoints logged from what actually happened — not what you remembered to enter.</p>
+          </div>
+        </div>
+
+        <div class="phone-col">
+          <div class="phone"><span class="island"></span>
+            <div class="screen tg">
+              <div class="chat-head">
+                <span class="avatar" style="background:linear-gradient(135deg,#54a9eb,#2d7cc4)">H</span>
+                <span class="cname">Hermes</span>
+                <span class="sub">bot</span>
+              </div>
+              <div class="chat-body">
+                <span class="chat-ts">TODAY</span>
+                <span class="bubble out">/standup<span class="check">✓✓</span></span>
+                <span class="bubble in">Pulled your day from Panopticon: 4.1h coding (sync pipeline), 35m review, 25m comms.</span>
+                <span class="bubble in">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?</span>
+                <span class="bubble out">ship it<span class="check">✓✓</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="phone-cap">
+            <h4>Hermes writes the standup</h4>
+            <p>One command in Telegram; the day's timeline becomes the update.</p>
           </div>
         </div>
       </div>
@@ -333,6 +358,9 @@
 
     <p class="step"><span class="n">03</span><span class="strong">Deploy the server.</span> Ship the <code style="font-family:var(--mono);font-size:13px">mcp/</code> directory to Vercel with two env vars: <code style="font-family:var(--mono);font-size:13px">DATABASE_URL</code> and a <code style="font-family:var(--mono);font-size:13px">PANOPTICON_TOKEN</code> you generate.</p>
     <div class="codeline"><code id="c3">cd mcp &amp;&amp; npm i &amp;&amp; vercel deploy --prod</code><button type="button" aria-label="Copy" onclick="cp(this,'c3')">⧉</button></div>
+    <p class="muted" style="font-size:14px">Or one click:
+      <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdecentparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN&envDescription=Neon%20connection%20string%20%2B%20a%20bearer%20token%20you%20generate" target="_blank" rel="noreferrer" style="vertical-align:middle;display:inline-block;margin-left:4px"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="28" style="height:28px;display:block"/></a>
+    </p>
 
     <p class="step"><span class="n">04</span><span class="strong">Point the app at it.</span> Settings → Export → Cloud sync: paste your deployment URL and token, toggle sync on. The first push backfills every recorded day.</p>
 
