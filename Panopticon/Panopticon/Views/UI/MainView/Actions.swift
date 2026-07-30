@@ -20,61 +20,6 @@ extension MainView {
     }
   }
 
-  func handleTimelineRating(_ direction: TimelineRatingDirection) {
-    guard let activity = selectedActivity else { return }
-
-    feedbackActivitySnapshot = activity
-    feedbackDirection = direction
-    feedbackMessage = ""
-    feedbackShareLogs = true
-    feedbackMode = .form
-
-    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-      feedbackModalVisible = true
-    }
-
-    let props = timelineFeedbackAnalyticsPayload(for: activity, direction: direction)
-  }
-
-  func handleFeedbackSubmit() {
-    let trimmed = feedbackMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard let activity = feedbackActivitySnapshot,
-      let direction = feedbackDirection
-    else { return }
-
-    var props = timelineFeedbackAnalyticsPayload(for: activity, direction: direction)
-    props["feedback_message_length"] = trimmed.count
-    props["share_logs_enabled"] = feedbackShareLogs
-    if !trimmed.isEmpty {
-      props["feedback_message"] = trimmed
-    }
-
-    feedbackMessage = ""
-    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-      feedbackMode = .thanks
-    }
-  }
-
-  func dismissFeedbackModal(animated: Bool = true) {
-    guard feedbackModalVisible else { return }
-
-    let reset = {
-      feedbackModalVisible = false
-      feedbackDirection = nil
-      feedbackActivitySnapshot = nil
-      feedbackMessage = ""
-      feedbackMode = .form
-    }
-
-    if animated {
-      withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
-        reset()
-      }
-    } else {
-      reset()
-    }
-  }
-
   func loadWeeklyTrackedMinutes(trigger: String = "unspecified") {
     let requestedWeekRange = timelineWeekRange
     let requestedWeekStartDay = dayString(requestedWeekRange.weekStart)
@@ -105,46 +50,6 @@ extension MainView {
         let commitMs = Int((CFAbsoluteTimeGetCurrent() - commitStart) * 1000)
         timelinePerfLog(
           "weeklyTrackedMinutes.complete trigger=\(trigger) week=\(requestedWeekStartDay) minutes=\(Int(minutes.rounded())) fetch_ms=\(fetchMs) commit_ms=\(commitMs)"
-        )
-      }
-    }
-  }
-
-  func updateCardsToReviewCount(trigger: String = "unspecified") {
-    reviewCountTask?.cancel()
-    let timelineDate = timelineDisplayDate(from: selectedDate, now: Date())
-    let dayString = DateFormatter.yyyyMMdd.string(from: timelineDate)
-
-    timelinePerfLog("reviewCount.schedule trigger=\(trigger) day=\(dayString)")
-
-    reviewCountTask = Task.detached(priority: .userInitiated) {
-      let fetchStart = CFAbsoluteTimeGetCurrent()
-      let count = StorageManager.shared.fetchUnreviewedTimelineCardCount(
-        forDay: dayString, coverageThreshold: 0.8)
-      let hasAnyReviewRating = StorageManager.shared.hasAnyTimelineReviewRating()
-      let hasRecentReviewRating = StorageManager.shared.hasReviewRatingInRecentTimelineDays(days: 7)
-      let fetchMs = Int((CFAbsoluteTimeGetCurrent() - fetchStart) * 1000)
-
-      guard !Task.isCancelled else { return }
-
-      await MainActor.run {
-        let currentDayString = DateFormatter.yyyyMMdd.string(
-          from: timelineDisplayDate(from: selectedDate, now: Date())
-        )
-        guard currentDayString == dayString else {
-          timelinePerfLog(
-            "reviewCount.discardStale trigger=\(trigger) requestedDay=\(dayString) currentDay=\(currentDayString) fetch_ms=\(fetchMs)"
-          )
-          return
-        }
-
-        let commitStart = CFAbsoluteTimeGetCurrent()
-        cardsToReviewCount = count
-        hasAnyTimelineReviewRating = hasAnyReviewRating
-        hasRecentTimelineReviewRating = hasRecentReviewRating
-        let commitMs = Int((CFAbsoluteTimeGetCurrent() - commitStart) * 1000)
-        timelinePerfLog(
-          "reviewCount.complete trigger=\(trigger) day=\(dayString) count=\(count) hasAnyReviewRating=\(hasAnyReviewRating) hasRecentReviewRating=\(hasRecentReviewRating) fetch_ms=\(fetchMs) commit_ms=\(commitMs)"
         )
       }
     }
@@ -287,55 +192,4 @@ extension MainView {
     }
   }
 
-  func timelineFeedbackAnalyticsPayload(
-    for activity: TimelineActivity, direction: TimelineRatingDirection
-  ) -> [String: Any] {
-    var props: [String: Any] = [
-      "thumb_direction": direction.rawValue,
-      "timeline_selected_day": dayString(selectedDate),
-      "activity_title": activity.title,
-      "activity_summary": activity.summary,
-      "activity_detailed_summary": activity.detailedSummary,
-      "activity_category": activity.category,
-      "activity_subcategory": activity.subcategory,
-      "activity_start_ts": iso8601Formatter.string(from: activity.startTime),
-      "activity_end_ts": iso8601Formatter.string(from: activity.endTime),
-      "activity_duration_seconds": Int(activity.endTime.timeIntervalSince(activity.startTime)),
-      "activity_day_bucket": dayString(activity.startTime),
-      "activity_has_screenshot": activity.screenshot != nil,
-      "activity_has_video_summary": activity.videoSummaryURL != nil,
-      "timeline_share_logs_default": true,
-    ]
-
-    if let recordId = activity.recordId {
-      props["activity_record_id"] = Int(recordId)
-    }
-    if let batchId = activity.batchId {
-      props["activity_batch_id"] = Int(batchId)
-    }
-    if let videoURL = activity.videoSummaryURL {
-      props["activity_video_summary_url"] = videoURL
-    }
-    if let appSites = activity.appSites {
-      if let primary = appSites.primary {
-        props["activity_primary_site"] = primary
-      }
-      if let secondary = appSites.secondary {
-        props["activity_secondary_site"] = secondary
-      }
-    }
-    if let distractions = activity.distractions, !distractions.isEmpty {
-      props["activity_distractions_count"] = distractions.count
-      let preview = distractions.prefix(3).map { "\($0.title):\($0.summary)" }.joined(
-        separator: " || ")
-      props["activity_distractions_preview"] = preview
-    } else {
-      props["activity_distractions_count"] = 0
-    }
-
-    props["activity_summary_length"] = activity.summary.count
-    props["activity_detailed_summary_length"] = activity.detailedSummary.count
-
-    return props
-  }
 }

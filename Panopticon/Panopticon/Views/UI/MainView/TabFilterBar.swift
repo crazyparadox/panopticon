@@ -50,29 +50,22 @@ struct TabFilterBar: View {
     let isIdle: Bool
 
     var body: some View {
-      HStack(spacing: 10) {
+      HStack(spacing: 6) {
         Circle()
           .fill(Color(hex: category.colorHex))
-          .frame(width: 10, height: 10)
+          .frame(width: 8, height: 8)
 
         Text(category.name)
-          .font(
-            Font.system(size: 13)
-              .weight(.medium)
-          )
-          .foregroundColor(Theme.Palette.ink)
+          .font(.system(size: 12, weight: .medium))
+          .foregroundColor(Theme.Palette.ink2)
           .lineLimit(1)
           .fixedSize()
       }
       .padding(.horizontal, 8)
-      .padding(.vertical, 5)
-      .frame(height: 26)
-      .background(.white.opacity(0.76))
-      .cornerRadius(6)
-      .overlay(
-        RoundedRectangle(cornerRadius: 6)
-          .inset(by: 0.25)
-          .stroke(Theme.Palette.line, lineWidth: 0.5)
+      .frame(height: 24)
+      .background(
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+          .fill(Theme.Palette.inset)
       )
     }
   }

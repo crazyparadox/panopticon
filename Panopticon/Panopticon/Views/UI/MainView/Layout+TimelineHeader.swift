@@ -49,10 +49,8 @@ private struct TimelineHeaderVisibility {
 }
 
 private struct TimelineNavigationButton: View {
-  let assetName: String
+  let systemName: String
   var isEnabled = true
-  var arrowSize: CGFloat = TimelineNavigationLayout.arrowSize
-  var hoverCircleSize: CGFloat = TimelineNavigationLayout.hoverCircleSize
   let action: () -> Void
 
   @State private var isHovering = false
@@ -62,25 +60,22 @@ private struct TimelineNavigationButton: View {
       guard isEnabled else { return }
       action()
     }) {
-      ZStack {
-        Circle()
-          .fill(Theme.Palette.inset.opacity(0.79))
-          .frame(width: hoverCircleSize, height: hoverCircleSize)
-          .opacity(isHovering && isEnabled ? 1 : 0)
-
-        Image(assetName)
-          .resizable()
-          .scaledToFit()
-          .frame(width: arrowSize, height: arrowSize)
-          .opacity(isEnabled ? 1 : 0.35)
-      }
-      .frame(width: max(arrowSize, hoverCircleSize), height: max(arrowSize, hoverCircleSize))
-      .contentShape(Circle())
+      Image(systemName: systemName)
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundColor(isEnabled ? Theme.Palette.ink : Theme.Palette.ink3)
+        .frame(width: Theme.Metric.control, height: Theme.Metric.control)
+        .background(
+          RoundedRectangle(cornerRadius: Theme.Radius.control, style: .continuous)
+            .fill(isHovering && isEnabled ? Theme.Palette.hover : Theme.Palette.surface)
+        )
+        .hairlineBorder()
+        .elevation(isEnabled ? Theme.Shadow.button : [])
+        .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.control, style: .continuous))
     }
     .buttonStyle(PanopticonPressScaleButtonStyle(enabled: isEnabled))
     .disabled(!isEnabled)
     .onHover { hovering in
-      withAnimation(.easeOut(duration: 0.12)) {
+      withAnimation(Theme.Motion.feedback) {
         isHovering = isEnabled && hovering
       }
     }
@@ -135,9 +130,7 @@ extension MainView {
   // either over- or under-reserves. This matches the measurement pattern
   // used in `DateNavigationControls.swift:calculateOptimalPillWidth()`.
   private var measuredDateLabelWidth: CGFloat {
-    let font =
-      NSFont(name: "InstrumentSerif-Regular", size: 26)
-      ?? NSFont.systemFont(ofSize: 26)
+    let font = NSFont.systemFont(ofSize: 17, weight: .semibold)
     return timelineTitleText.size(withAttributes: [.font: font]).width
   }
 
@@ -152,9 +145,9 @@ extension MainView {
     let usable = max(0, availableWidth - reservation)
 
     // Matches the pinned widths of each control (Figma-spec accurate).
-    let chevronsWidth = (TimelineNavigationLayout.arrowSize * 2) + 2
-    let calendarWidth: CGFloat = 36
-    let dayWeekWidth: CGFloat = 104
+    let chevronsWidth = (Theme.Metric.control * 2) + 4
+    let calendarWidth: CGFloat = Theme.Metric.control
+    let dayWeekWidth: CGFloat = 108
     let todayWidth: CGFloat = 56
     let gap = TimelineNavigationLayout.calendarGap
     let datePad: CGFloat = 10
@@ -219,7 +212,7 @@ extension MainView {
           .padding(.leading, 10)
       }
     }
-    .frame(height: 30)
+    .frame(height: Theme.Metric.control)
     .offset(x: timelineOffset + TimelineAlignment.pickerRowOffset)
     .opacity(timelineOpacity)
   }
@@ -234,20 +227,14 @@ extension MainView {
   }
 
   private var timelineNavigationButtons: some View {
-    HStack(spacing: 2) {
-      TimelineNavigationButton(
-        assetName: "LeftArrow",
-        arrowSize: TimelineNavigationLayout.arrowSize,
-        hoverCircleSize: TimelineNavigationLayout.hoverCircleSize
-      ) {
+    HStack(spacing: 4) {
+      TimelineNavigationButton(systemName: "chevron.left") {
         navigateTimeline(to: previousTimelineDate(), method: "prev")
       }
 
       TimelineNavigationButton(
-        assetName: "RightArrow",
-        isEnabled: canNavigateTimelineForward,
-        arrowSize: TimelineNavigationLayout.arrowSize,
-        hoverCircleSize: TimelineNavigationLayout.hoverCircleSize
+        systemName: "chevron.right",
+        isEnabled: canNavigateTimelineForward
       ) {
         navigateTimeline(to: nextTimelineDate(), method: "next")
       }
@@ -266,27 +253,17 @@ extension MainView {
         openTimelineCalendarPopover()
       }
     }) {
-      ZStack {
-        Capsule(style: .continuous)
-          .fill(timelineCalendarButtonFillColor)
-          .overlay(
-            Capsule(style: .continuous)
-              .stroke(timelineCalendarButtonBorderColor, lineWidth: 1)
-          )
-          .shadow(
-            color: timelineCalendarButtonShadowColor,
-            radius: showTimelineCalendarPopover ? 8 : 0,
-            x: 0,
-            y: showTimelineCalendarPopover ? 2 : 0
-          )
-
-        Image("CalendarIcon")
-          .resizable()
-          .scaledToFit()
-          .frame(width: 16, height: 16)
-      }
-      .frame(width: 36, height: 30)
-      .contentShape(Capsule(style: .continuous))
+      Image(systemName: "calendar")
+        .font(.system(size: 12, weight: .medium))
+        .foregroundColor(showTimelineCalendarPopover ? Theme.Palette.accentInk : Theme.Palette.ink)
+        .frame(width: Theme.Metric.control, height: Theme.Metric.control)
+        .background(
+          RoundedRectangle(cornerRadius: Theme.Radius.control, style: .continuous)
+            .fill(showTimelineCalendarPopover ? Theme.Palette.accentTint : Theme.Palette.surface)
+        )
+        .hairlineBorder()
+        .elevation(Theme.Shadow.button)
+        .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.control, style: .continuous))
     }
     .buttonStyle(
       PanopticonPressScaleButtonStyle(
@@ -299,17 +276,8 @@ extension MainView {
     .trackTimelineCalendarButtonFrame()
   }
 
-  private var timelineCalendarButtonFillColor: Color {
-    showTimelineCalendarPopover ? Theme.Palette.accentTint : Theme.Palette.accentTint
-  }
 
-  private var timelineCalendarButtonBorderColor: Color {
-    showTimelineCalendarPopover ? Theme.Palette.accentTint : Theme.Palette.line
-  }
 
-  private var timelineCalendarButtonShadowColor: Color {
-    showTimelineCalendarPopover ? .black.opacity(0.10) : .clear
-  }
 
   private var timelineCalendarButtonStateAnimation: Animation {
     reduceMotion ? .linear(duration: 0.01) : .easeOut(duration: 0.14)
@@ -412,19 +380,13 @@ extension MainView {
         }) {
           ZStack {
             if isSelected {
-              Capsule(style: .continuous)
-                .fill(
-                  LinearGradient(
-                    colors: [
-                      Theme.Palette.accentTint.opacity(0.6),
-                      Theme.Palette.accent,
-                      Theme.Palette.accentTint,
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                  )
+              RoundedRectangle(cornerRadius: Theme.Radius.chip, style: .continuous)
+                .fill(Theme.Palette.surface)
+                .overlay(
+                  RoundedRectangle(cornerRadius: Theme.Radius.chip, style: .continuous)
+                    .strokeBorder(Theme.Palette.line, lineWidth: 1)
                 )
-                .shadow(color: Theme.Palette.accent.opacity(0.18), radius: 4, x: 0, y: 1)
+                .shadow(color: Color(hex: "101828").opacity(0.08), radius: 1, x: 0, y: 1)
                 .matchedGeometryEffect(
                   id: "timeline_mode_highlight",
                   in: timelineModeSwitchNamespace
@@ -433,7 +395,7 @@ extension MainView {
 
             Text(mode.title)
               .font(.system(size: 12).weight(.medium))
-              .foregroundColor(isSelected ? .white : Theme.Palette.ink2)
+              .foregroundColor(isSelected ? Theme.Palette.ink : Theme.Palette.ink2)
               // Concrete width (52pt × 2 = 104pt container) instead of
               // `.frame(maxWidth: .infinity)`. The infinity was being fought
               // by the `.fixedSize(horizontal: true)` ancestor on
@@ -441,9 +403,9 @@ extension MainView {
               // ideal width as ~0 and collapsed the cream background +
               // "Day" label. Three independent parallel investigations
               // converged on this exact change.
-              .frame(width: 52, height: 30)
+              .frame(width: 52, height: 24)
           }
-          .contentShape(Capsule(style: .continuous))
+          .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.chip, style: .continuous))
         }
         // Reverted to PlainButtonStyle: PanopticonPressScaleButtonStyle — even
         // with `enabled: false` — still wraps the label in `.animation(...)`,
@@ -455,13 +417,13 @@ extension MainView {
         .pointingHandCursorOnHover(reassertOnPressEnd: true)
       }
     }
-    .frame(width: 104, height: 30)
-    .background(Theme.Palette.inset)
-    .clipShape(Capsule(style: .continuous))
-    .overlay(
-      Capsule(style: .continuous)
-        .stroke(Theme.Palette.line, lineWidth: 1)
+    .padding(2)
+    .frame(width: 108, height: Theme.Metric.control)
+    .background(
+      RoundedRectangle(cornerRadius: Theme.Radius.control, style: .continuous)
+        .fill(Theme.Palette.inset)
     )
+    .hairlineBorder()
     .animation(timelineModeSwitchAnimation, value: timelineMode)
   }
 
@@ -470,21 +432,10 @@ extension MainView {
       navigateTimeline(to: timelineDisplayDate(from: Date()), method: "today")
     }) {
       Text("Today")
-        .font(.system(size: 12).weight(.medium))
-        .foregroundColor(Theme.Palette.ink2)
-        .padding(.horizontal, 10)
-        // Explicit width pinned (natural ~52pt + 4pt safety margin). Same
-        // rationale as the calendar pill: under the ancestor's `.fixedSize`
-        // inside a `ViewThatFits`, implicit widths can resolve to unstable
-        // values mid-transition, nudging the Day/Week toggle's position and
-        // desyncing its `matchedGeometryEffect` anchors during a mode flip.
-        .frame(width: 56, height: 30)
-        .background(Theme.Palette.inset)
-        .clipShape(Capsule(style: .continuous))
-        .overlay(
-          Capsule(style: .continuous)
-            .stroke(Theme.Palette.line, lineWidth: 1)
-        )
+        .font(.system(size: 12.5).weight(.medium))
+        .foregroundColor(Theme.Palette.accent)
+        // Width pinned for layout stability (see computeHeaderVisibility).
+        .frame(width: 56, height: Theme.Metric.control)
     }
     .buttonStyle(PanopticonPressScaleButtonStyle(pressedScale: 0.97))
     .hoverScaleEffect(scale: 1.02)
@@ -493,8 +444,9 @@ extension MainView {
 
   private var timelineHeaderDateLabel: some View {
     Text(timelineTitleText)
-      .font(.system(size: 26, weight: .semibold))
-      .foregroundColor(Color.black)
+      .font(.system(size: 17, weight: .semibold))
+      .foregroundColor(Theme.Palette.ink)
+      .tracking(-0.2)
       .lineLimit(1)
       .fixedSize(horizontal: true, vertical: false)
       .onTapGesture {

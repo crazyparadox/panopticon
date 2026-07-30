@@ -522,10 +522,7 @@ struct CanvasTimelineDataView: View {
 
   private var generatingStatusText: some View {
     HStack(spacing: 8) {
-      TimelineThinkingSpinner(
-        config: timelineSpinnerConfig,
-        visualScale: 0.5
-      )
+      PixelGridLoader(tint: .white)
       Text("Generating your next card")
     }
     .font(
@@ -587,15 +584,6 @@ struct CanvasTimelineDataView: View {
     guard selectedCardId != nil || selectedActivity != nil else { return }
     selectedCardId = nil
     selectedActivity = nil
-  }
-
-  private var timelineSpinnerConfig: TimelineSpinnerConfig {
-    var config = TimelineSpinnerConfig.reference
-    config.gap = 1.0
-    config.colorDim = .init(0.263, 0.365, 0.592)  // #435D97
-    config.colorMid = .init(0.722, 0.518, 0.737)  // #B884BC
-    config.colorHot = .init(0.965, 0.745, 0.455)  // #F6BE74
-    return config
   }
 
   private func loadActivities(animate: Bool = true) {

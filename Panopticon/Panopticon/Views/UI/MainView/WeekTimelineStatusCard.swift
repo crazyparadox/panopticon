@@ -99,7 +99,7 @@ struct WeekRecordingStatusCard: View {
     switch mode {
     case .active:
       HStack(spacing: 6) {
-        TimelineThinkingSpinner(config: spinnerConfig, visualScale: 0.4)
+        PixelGridLoader(tint: .white, cellSize: 3, gap: 1)
         if !compact {
           Text("Next card...")
             .font(.system(size: 10).weight(.semibold))
@@ -118,12 +118,4 @@ struct WeekRecordingStatusCard: View {
     }
   }
 
-  private var spinnerConfig: TimelineSpinnerConfig {
-    var config = TimelineSpinnerConfig.reference
-    config.gap = 1.0
-    config.colorDim = .init(0.263, 0.365, 0.592)
-    config.colorMid = .init(0.722, 0.518, 0.737)
-    config.colorHot = .init(0.965, 0.745, 0.455)
-    return config
-  }
 }

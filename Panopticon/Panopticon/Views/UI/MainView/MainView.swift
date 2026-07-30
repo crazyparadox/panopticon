@@ -58,23 +58,11 @@ struct MainView: View {
   @State var lastObservedTimelineDay: String = cachedDayStringFormatter.string(
     from: timelineDisplayDate(from: Date()))
   @State var showCategoryEditor = false
-  @State var feedbackModalVisible = false
-  @State var feedbackMessage: String = ""
-  @State var feedbackShareLogs = true
-  @State var feedbackDirection: TimelineRatingDirection? = nil
-  @State var feedbackActivitySnapshot: TimelineActivity? = nil
-  @State var feedbackMode: TimelineFeedbackMode = .form
   @State var copyTimelineState: TimelineCopyState = .idle
   @State var copyTimelineTask: Task<Void, Never>? = nil
   @State var deleteTimelineTask: Task<Void, Never>? = nil
   @State var timelineHeaderTrailingWidth: CGFloat = 120
   @State var weeklyTrackedMinutes: Double = 0
-  @State var cardsToReviewCount: Int = 0
-  @State var hasAnyTimelineReviewRating = false
-  @State var hasRecentTimelineReviewRating = false
-  @State var showTimelineReview = false
-  @State var reviewCountTask: Task<Void, Never>? = nil
-  @State var reviewSummaryRefreshToken: Int = 0
   @StateObject var retryCoordinator = RetryCoordinator()
   @State var weeklyHoursFrame: CGRect = .zero
   @State var timelineTimeLabelFrames: [CGRect] = []
@@ -84,11 +72,7 @@ struct MainView: View {
   @State var didDismissScreenRecordingPermissionNoticeThisSession = false
   @State var pendingGoalPromptDay: String?
 
-  let rateSummaryFooterHeight: CGFloat = 28
   let weeklyHoursFadeDistance: CGFloat = 12
-  var rateSummaryFooterInset: CGFloat {
-    selectedActivity == nil ? 0 : rateSummaryFooterHeight
-  }
   let iso8601Formatter: ISO8601DateFormatter = {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

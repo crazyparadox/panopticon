@@ -211,18 +211,9 @@ extension MainView {
     .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
   }
 
-  private var cardsToReviewPromptCount: Int {
-    guard cardsToReviewCount > 0 else { return 0 }
-    if hasRecentTimelineReviewRating || hasAnyTimelineReviewRating == false {
-      return cardsToReviewCount
-    }
-    return 0
-  }
-
   private var timelineFooter: some View {
     let weeklyHoursOpacity =
       weeklyHoursFadeOpacity * (weeklyHoursIntersectsCard ? 0 : 1)
-    let reviewPromptCount = cardsToReviewPromptCount
 
     return ZStack(alignment: .bottom) {
       HStack(alignment: .bottom) {
@@ -236,14 +227,6 @@ extension MainView {
       }
       .padding(.horizontal, 24)
 
-      if timelineMode == .day, reviewPromptCount > 0 {
-        CardsToReviewButton(count: reviewPromptCount) {
-          withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-            showTimelineReview = true
-          }
-        }
-        .opacity(contentOpacity)
-      }
     }
     .padding(.bottom, 17)
     .allowsHitTesting(true)
@@ -286,8 +269,6 @@ extension MainView {
 
   @ViewBuilder
   private func dayTimelineInspectorContent(geo: GeometryProxy) -> some View {
-    let reviewPromptCount = cardsToReviewPromptCount
-
     if let activity = selectedActivity {
       timelineActivityInspector(activity: activity, geo: geo)
         .transition(.opacity.combined(with: .scale(scale: 0.98)))
@@ -342,36 +323,8 @@ extension MainView {
         }
       )
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .allowsHitTesting(!feedbackModalVisible)
-      .padding(.bottom, rateSummaryFooterHeight)
-
-      if !feedbackModalVisible {
-        TimelineRateSummaryView(
-          activityID: activity.id,
-          onRate: handleTimelineRating,
-          onDelete: handleTimelineDelete
-        )
-        .frame(maxWidth: .infinity)
-        .allowsHitTesting(!feedbackModalVisible)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-      }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .overlay(alignment: .bottomLeading) {
-      if let direction = feedbackDirection, feedbackModalVisible {
-        TimelineFeedbackModal(
-          message: $feedbackMessage,
-          shareLogs: $feedbackShareLogs,
-          direction: direction,
-          mode: feedbackMode,
-          content: .timeline,
-          onSubmit: handleFeedbackSubmit,
-          onClose: { dismissFeedbackModal() }
-        )
-        .padding(.leading, 24)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-      }
-    }
   }
 
   private var weeklyHoursFadeOpacity: Double {

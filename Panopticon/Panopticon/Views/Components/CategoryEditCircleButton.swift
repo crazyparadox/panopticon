@@ -10,16 +10,13 @@ struct CategoryEditCircleButton: View {
     let resolvedIconSize = iconSize ?? diameter * 0.48
 
     Button(action: action) {
-      Image("CategoryEditButton")
-        .resizable()
-        .scaledToFit()
-        .frame(width: resolvedIconSize, height: resolvedIconSize)
+      Image(systemName: "pencil")
+        .font(.system(size: resolvedIconSize * 0.75, weight: .medium))
+        .foregroundColor(Theme.Palette.ink2)
         .frame(width: diameter, height: diameter)
-        .background(Theme.Palette.accentTint)
-        .clipShape(Circle())
-        .overlay(
-          Circle()
-            .stroke(Theme.Palette.line, lineWidth: 1)
+        .background(
+          RoundedRectangle(cornerRadius: 6, style: .continuous)
+            .fill(Theme.Palette.inset)
         )
     }
     .buttonStyle(PanopticonPressScaleButtonStyle(pressedScale: 0.97))
