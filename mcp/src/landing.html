@@ -111,76 +111,153 @@
   /* ── phone showcase ──────────────────────────── */
   .phones {
     display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 32px; max-width: 960px; margin: 0 auto;
-    align-items: start;
+    gap: 36px; max-width: 980px; margin: 0 auto; align-items: start;
   }
-  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-  .phone {
-    width: 100%; max-width: 250px; aspect-ratio: 9 / 18.6;
-    background: #16171a; border-radius: 38px; padding: 9px;
-    box-shadow: 0 18px 44px rgba(17, 24, 39, 0.18), inset 0 0 0 1.5px #3a3b3f;
-    position: relative;
-  }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  /* Device shell is a PNG with a transparent screen cutout: the mock sits
+     BEHIND it and the bezel (incl. Dynamic Island) draws on top. Cutout
+     geometry measured from the asset's alpha channel (see neumann). */
+  .phone { position: relative; aspect-ratio: 1670 / 3397; width: 100%; max-width: 260px; }
   .phone .screen {
-    width: 100%; height: 100%; border-radius: 30px; overflow: hidden;
+    position: absolute; left: 4.6%; top: 1.6%; width: 90.8%; height: 96.7%;
+    overflow: hidden; border-radius: 12%/5.9%; background: #141517;
     display: flex; flex-direction: column; text-align: left;
   }
-  .phone .island {
-    position: absolute; top: 17px; left: 50%; transform: translateX(-50%);
-    width: 26%; height: 12px; border-radius: 999px; background: #16171a; z-index: 5;
+  .phone .frame-img {
+    pointer-events: none; position: absolute; inset: 0;
+    width: 100%; height: 100%; user-select: none;
   }
-  .phone-cap { max-width: 260px; text-align: center; }
+  .phone-cap { max-width: 270px; text-align: center; }
   .phone-cap h4 { font-size: 14.5px; font-weight: 600; }
   .phone-cap p { font-size: 13px; color: var(--stone-500); line-height: 1.5; margin-top: 2px; }
 
-  /* chat chrome shared */
-  .chat-head {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 30px 12px 8px; flex-shrink: 0;
-  }
-  .chat-head .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600; color: #fff;
-  }
-  .chat-head .cname { font-size: 9.5px; font-weight: 500; }
+  /* shared chat plumbing */
   .chat-body {
-    flex: 1; display: flex; flex-direction: column; gap: 5px;
-    padding: 10px 10px 14px; font-size: 10px; line-height: 1.45;
+    flex: 1; display: flex; flex-direction: column; gap: 4px;
+    padding: 8px 9px; font-size: 9.5px; line-height: 1.45; overflow: hidden;
   }
-  .bubble { max-width: 82%; padding: 6px 9px; border-radius: 14px; }
-  .bubble.in { align-self: flex-start; border-bottom-left-radius: 4px; }
-  .bubble.out { align-self: flex-end; border-bottom-right-radius: 4px; }
-  .chat-ts { font-size: 8px; text-align: center; margin: 2px 0; }
+  .bubble { max-width: 84%; padding: 5px 8px; border-radius: 12px; position: relative; }
+  .bubble.in { align-self: flex-start; border-bottom-left-radius: 4px; transform-origin: bottom left; }
+  .bubble.out { align-self: flex-end; border-bottom-right-radius: 4px; transform-origin: bottom right; }
+  .chat-ts { font-size: 7.5px; text-align: center; margin: 2px 0; }
+  .meta { display: inline-block; font-size: 7px; margin-left: 6px; float: right; margin-top: 5px; }
+  .inputbar {
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+    padding: 7px 9px 26px; font-size: 9px;
+  }
+  .inputbar .field {
+    flex: 1; border-radius: 999px; padding: 4px 10px; color: #8e8e93;
+    background: #fff; border: 1px solid rgba(0,0,0,0.08);
+  }
+  .inputbar .ic { font-size: 11px; opacity: 0.65; }
 
-  /* iMessage */
-  .imsg .screen { background: #fff; }
-  .imsg .chat-head { border-bottom: 0.5px solid #e5e5ea; background: rgba(249,249,249,0.94); }
-  .imsg .chat-head .cname { color: #1c1c1e; }
+  /* bubble entrance animation, staggered via --i; armed by .play (IO) */
+  .bubble, .dlv { opacity: 0; }
+  .play .bubble, .play .dlv {
+    animation: bubble-in 0.5s cubic-bezier(0.2, 1.1, 0.3, 1) both;
+    animation-delay: calc(var(--i) * 0.65s);
+  }
+  @keyframes bubble-in {
+    from { opacity: 0; transform: translateY(9px) scale(0.86); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bubble, .dlv { opacity: 1; }
+    .play .bubble, .play .dlv { animation: none; }
+  }
+
+  /* — iMessage — */
+  .imsg { background: #fff; }
+  .imsg .chat-head {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 34px 10px 6px; background: rgba(249,249,249,0.96);
+    border-bottom: 0.5px solid #d8d8dc; position: relative;
+  }
+  .imsg .chat-head .back { position: absolute; left: 9px; bottom: 10px; color: #0a7cff; font-size: 13px; }
+  .imsg .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff;
+  }
+  .imsg .cname { font-size: 8px; color: #1c1c1e; }
+  .imsg .cname .chev { color: #b6b6bb; }
   .imsg .chat-ts { color: #8e8e93; }
   .imsg .bubble.in { background: #e9e9eb; color: #111; }
   .imsg .bubble.out { background: #0a7cff; color: #fff; }
+  .imsg .dlv { align-self: flex-end; font-size: 7.5px; color: #8e8e93; margin-top: -1px; }
+  .imsg .inputbar { background: #fff; }
+  .imsg .inputbar .plus {
+    width: 18px; height: 18px; border-radius: 50%; background: #e9e9eb;
+    display: flex; align-items: center; justify-content: center; color: #7c7c82; font-size: 11px;
+  }
+  .imsg .inputbar .field { border-color: #d8d8dc; }
 
-  /* folk (neutral messenger) */
-  .folkc .screen { background: #faf9f7; }
-  .folkc .chat-head { border-bottom: 0.5px solid #e9e6e1; background: #fff; }
-  .folkc .chat-head .cname { color: #17150f; }
-  .folkc .chat-ts { color: #a39e93; }
-  .folkc .bubble.in { background: #fff; color: #17150f; border: 1px solid #e9e6e1; }
-  .folkc .bubble.out { background: #17150f; color: #fff; }
+  /* — WhatsApp — */
+  .wa { background: #efeae2; }
+  .wa::before { content: ""; }
+  .wa .chat-head {
+    display: flex; align-items: center; gap: 7px;
+    padding: 32px 10px 8px; background: #075e54; color: #fff;
+  }
+  .wa .chat-head .back { font-size: 12px; }
+  .wa .avatar {
+    width: 22px; height: 22px; border-radius: 50%; background: #17150f;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .wa .names { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
+  .wa .cname { font-size: 9.5px; font-weight: 600; }
+  .wa .sub { font-size: 7px; color: #b7d4cf; }
+  .wa .icons { display: flex; gap: 9px; font-size: 10px; opacity: 0.95; }
+  .wa .chat-body {
+    background-image: radial-gradient(rgba(7, 94, 84, 0.045) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+  }
+  .wa .chat-ts {
+    color: #54656f; background: #fff; border-radius: 6px;
+    align-self: center; padding: 1px 7px; box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  }
+  .wa .bubble { border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.08); }
+  .wa .bubble.in { background: #fff; color: #111; border-top-left-radius: 2px; }
+  .wa .bubble.out { background: #d9fdd3; color: #111; border-top-right-radius: 2px; }
+  .wa .meta { color: #9aa8a4; }
+  .wa .meta .tick { color: #53bdeb; }
+  .wa .inputbar { background: #f0f2f5; }
+  .wa .inputbar .send {
+    width: 20px; height: 20px; border-radius: 50%; background: #00a884; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0;
+  }
 
-  /* telegram */
-  .tg .screen { background: linear-gradient(180deg, #dbe7f0, #cfdde9); }
-  .tg .chat-head { background: #527da3; }
-  .tg .chat-head .cname { color: #fff; }
-  .tg .chat-head .sub { font-size: 8px; color: #cfe0ee; }
-  .tg .chat-ts { color: #6d8ba6; }
-  .tg .bubble.in { background: #fff; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,0.06); }
-  .tg .bubble.out { background: #effdde; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,0.06); }
-  .tg .check { font-size: 8px; color: #56a352; float: right; margin: 4px 0 0 6px; }
+  /* — Telegram — */
+  .tg { background: linear-gradient(180deg, #d9e7f2, #cbdcea); }
+  .tg .chat-head {
+    display: flex; align-items: center; gap: 7px;
+    padding: 32px 10px 8px; background: #527da3; color: #fff;
+  }
+  .tg .chat-head .back { font-size: 12px; }
+  .tg .avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #54a9eb, #2d7cc4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .tg .names { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
+  .tg .cname { font-size: 9.5px; font-weight: 600; }
+  .tg .sub { font-size: 7px; color: #cfe0ee; }
+  .tg .chat-ts {
+    color: #fff; background: rgba(93, 129, 158, 0.55); border-radius: 999px;
+    align-self: center; padding: 1px 8px;
+  }
+  .tg .bubble { box-shadow: 0 1px 1px rgba(0,0,0,0.07); }
+  .tg .bubble.in { background: #fff; color: #111; }
+  .tg .bubble.out { background: #effdde; color: #111; }
+  .tg .meta { color: #a0b3a4; }
+  .tg .meta .tick { color: #4fae4e; }
+  .tg .inputbar { background: #fff; color: #9aa4ad; }
+  .tg .inputbar .field { border: none; padding-left: 2px; }
 
   @media (max-width: 760px) {
-    .phones { grid-template-columns: 1fr; gap: 28px; }
+    .phones { grid-template-columns: 1fr; gap: 30px; }
   }
 
   /* ── prose sections ──────────────────────────── */
@@ -253,22 +330,30 @@
   <div class="showcase">
     <div class="showcase-card">
       <div class="phones">
+
         <div class="phone-col">
-          <div class="phone"><span class="island"></span>
+          <div class="phone">
             <div class="screen imsg">
               <div class="chat-head">
+                <span class="back">‹</span>
                 <span class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">P</span>
-                <span class="cname">Poke</span>
+                <span class="cname">Poke <span class="chev">›</span></span>
               </div>
               <div class="chat-body">
                 <span class="chat-ts">Today 2:04 PM</span>
-                <span class="bubble in">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
-                <span class="bubble out">wait. how do you know that??</span>
-                <span class="bubble in">panopticon 🙂 your timeline synced at 12:30</span>
-                <span class="bubble in">want me to draft the PR description from it?</span>
-                <span class="bubble out">ok that's actually sick. yes</span>
+                <span class="bubble in" style="--i:0">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
+                <span class="bubble out" style="--i:1">wait. how do you know that??</span>
+                <span class="bubble in" style="--i:2">panopticon 🙂 your timeline synced at 12:30</span>
+                <span class="bubble in" style="--i:3">want me to draft the PR description from it?</span>
+                <span class="bubble out" style="--i:4">ok that's actually sick. yes</span>
+                <span class="dlv" style="--i:5">Delivered</span>
+              </div>
+              <div class="inputbar">
+                <span class="plus">+</span>
+                <span class="field">iMessage</span>
               </div>
             </div>
+            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
           </div>
           <div class="phone-cap">
             <h4>Poke already knows</h4>
@@ -277,21 +362,28 @@
         </div>
 
         <div class="phone-col">
-          <div class="phone"><span class="island"></span>
-            <div class="screen folkc">
+          <div class="phone">
+            <div class="screen wa">
               <div class="chat-head">
-                <span class="avatar" style="background:#17150f">f</span>
-                <span class="cname">folk</span>
+                <span class="back">‹</span>
+                <span class="avatar">f</span>
+                <span class="names"><span class="cname">folk</span><span class="sub">online</span></span>
+                <span class="icons">▨ ✆</span>
               </div>
               <div class="chat-body">
-                <span class="chat-ts">Today 5:31 PM</span>
-                <span class="bubble in">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack</span>
-                <span class="bubble in">log both as touchpoints + follow-up with Sarah on Friday?</span>
-                <span class="bubble out">yes please</span>
-                <span class="bubble out">…you got that from my timeline didn't you</span>
-                <span class="bubble in">where else. done ✓</span>
+                <span class="chat-ts">TODAY</span>
+                <span class="bubble in" style="--i:0">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
+                <span class="bubble in" style="--i:1">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
+                <span class="bubble out" style="--i:2">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+                <span class="bubble out" style="--i:3">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+                <span class="bubble in" style="--i:4">where else 🙂 done.<span class="meta">5:34 PM</span></span>
+              </div>
+              <div class="inputbar">
+                <span class="field">Message</span>
+                <span class="send">🎤</span>
               </div>
             </div>
+            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
           </div>
           <div class="phone-cap">
             <h4>folk keeps the thread</h4>
@@ -300,27 +392,34 @@
         </div>
 
         <div class="phone-col">
-          <div class="phone"><span class="island"></span>
+          <div class="phone">
             <div class="screen tg">
               <div class="chat-head">
-                <span class="avatar" style="background:linear-gradient(135deg,#54a9eb,#2d7cc4)">H</span>
-                <span class="cname">Hermes</span>
-                <span class="sub">bot</span>
+                <span class="back">‹</span>
+                <span class="avatar">H</span>
+                <span class="names"><span class="cname">Hermes</span><span class="sub">bot</span></span>
               </div>
               <div class="chat-body">
-                <span class="chat-ts">TODAY</span>
-                <span class="bubble out">/standup<span class="check">✓✓</span></span>
-                <span class="bubble in">Pulled your day from Panopticon: 4.1h coding (sync pipeline), 35m review, 25m comms.</span>
-                <span class="bubble in">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?</span>
-                <span class="bubble out">ship it<span class="check">✓✓</span></span>
+                <span class="chat-ts">July 30</span>
+                <span class="bubble out" style="--i:0">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
+                <span class="bubble in" style="--i:1">Pulled your day from Panopticon: 4.1h coding (sync pipeline), 35m review, 25m comms.<span class="meta">6:02 PM</span></span>
+                <span class="bubble in" style="--i:2">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
+                <span class="bubble out" style="--i:3">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
+              </div>
+              <div class="inputbar">
+                <span class="ic">📎</span>
+                <span class="field">Message</span>
+                <span class="ic">🎤</span>
               </div>
             </div>
+            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
           </div>
           <div class="phone-cap">
             <h4>Hermes writes the standup</h4>
             <p>One command in Telegram; the day's timeline becomes the update.</p>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -403,6 +502,17 @@
 </footer>
 
 <script>
+  // Replay-once bubble animation when each phone scrolls into view.
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add("play");
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.45 });
+  document.querySelectorAll(".phone .screen").forEach((s) => io.observe(s));
+
   function cp(btn, id) {
     navigator.clipboard.writeText(document.getElementById(id).textContent);
     btn.textContent = "✓";

@@ -47,6 +47,7 @@ app.get("/health", (_req, res) => {
 // app.js (see the build script), so resolve it relative to this module —
 // a pattern Vercel's file tracer follows when bundling the function.
 const landingHtml = readFileSync(new URL("./landing.html", import.meta.url), "utf8");
+const iphoneFramePng = readFileSync(new URL("./assets/iphone-frame.png", import.meta.url));
 const serveLanding = (_req: Request, res: Response) => {
   res.header("Content-Type", "text/html; charset=utf-8");
   res.header("Cache-Control", "public, max-age=300");
@@ -54,6 +55,11 @@ const serveLanding = (_req: Request, res: Response) => {
 };
 app.get("/", serveLanding);
 app.get("/landing", serveLanding);
+app.get("/assets/iphone-frame.png", (_req: Request, res: Response) => {
+  res.header("Content-Type", "image/png");
+  res.header("Cache-Control", "public, max-age=86400, immutable");
+  res.send(iphoneFramePng);
+});
 
 function requireBearer(req: Request, res: Response, next: NextFunction): void {
   const header = req.headers.authorization ?? "";

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=.env --env-file-if-exists=.env.local src/index.ts",
-    "build": "tsc -p tsconfig.json && cp src/landing.html dist/landing.html",
+    "build": "tsc -p tsconfig.json && cp src/landing.html dist/landing.html && mkdir -p dist/assets && cp src/assets/* dist/assets/",
     "start": "node --env-file-if-exists=.env --env-file-if-exists=.env.local dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
