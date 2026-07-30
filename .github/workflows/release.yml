@@ -174,6 +174,8 @@ jobs:
       - name: Package
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          IDENTITY: ${{ steps.signing.outputs.identity }}
         run: |
           APP=build/Build/Products/Release/Panopticon.app
           ditto -c -k --keepParent "$APP" "Panopticon-$VERSION.zip"
@@ -184,6 +186,13 @@ jobs:
           hdiutil create -volname "Panopticon" -srcfolder "$STAGE" \
             -ov -format UDZO Panopticon.dmg
           rm -rf "$STAGE"
+
+          # The disk image needs its own signature, not just the app's. An
+          # unsigned image still notarizes and staples, but Gatekeeper reports
+          # "no usable signature" when assessing the container itself.
+          if [ "$SIGNED" = "true" ]; then
+            codesign --force --timestamp --sign "$IDENTITY" Panopticon.dmg
+          fi
 
           shasum -a 256 "Panopticon-$VERSION.zip" Panopticon.dmg | tee checksums.txt
 
