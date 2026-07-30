@@ -44,11 +44,7 @@
     padding: 16px 20px;
   }
   .brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; text-decoration: none; }
-  .brand .mark {
-    width: 16px; height: 16px; border-radius: 4px; position: relative;
-    background: var(--ink);
-  }
-  .brand .mark::after { content: ""; position: absolute; inset: 4.5px; border-radius: 50%; background: #fff; }
+  .brand .mark { display: block; flex-shrink: 0; }
   .nav-links { display: flex; align-items: center; gap: 16px; font-size: 14.5px; }
   .u {
     text-decoration: underline;
@@ -57,13 +53,28 @@
   }
   .u:hover { text-decoration-color: var(--ink); }
   @media (min-width: 1024px) { nav { padding: 18px 40px; } .nav-links { gap: 32px; } }
+  /* Mobile: brand keeps the top row, links wrap onto their own line so four
+     of them never squeeze against the logo. */
+  @media (max-width: 640px) {
+    nav {
+      flex-wrap: wrap; align-items: baseline;
+      gap: 10px 16px; padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--stone-200);
+    }
+    .brand { font-size: 15px; }
+    .nav-links {
+      width: 100%; gap: 16px; font-size: 13.5px; flex-wrap: wrap;
+      color: var(--stone-600);
+    }
+  }
 
   /* ── main column ─────────────────────────────── */
   main {
     max-width: 600px; margin: 0 auto;
-    padding: 112px 20px 80px;
+    padding: 72px 20px 80px;
     display: flex; flex-direction: column; gap: 16px;
   }
+  @media (min-width: 768px) { main { padding: 112px 20px 96px; } }
   @media (min-width: 1024px) { main { padding: 128px 0 128px; } }
 
   .lead { font-size: 18px; font-weight: 500; color: var(--ink); }
@@ -132,7 +143,8 @@
   /* shared chat plumbing */
   .chat-body {
     flex: 1; display: flex; flex-direction: column; gap: 4px;
-    justify-content: flex-end;   /* real chats hug the input bar */
+    /* Fills the screen top-to-bottom rather than hugging the input bar. */
+    justify-content: flex-start;
     padding: 8px 9px 4px; overflow: hidden; position: relative; z-index: 1;
   }
   .homebar {
@@ -167,10 +179,18 @@
   }
 
   /* — iMessage, dark — */
-  .imsg { background: radial-gradient(130% 90% at 80% 10%, #16324a, #0a1622 55%, #060c13); }
+  .imsg {
+    background: #0a1622 url("/assets/wall-imessage.jpg") center/cover no-repeat;
+  }
+  /* Scrim keeps bubble text legible over the illustration. */
+  .imsg::after {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    background: linear-gradient(180deg, rgba(6,12,19,0.55), rgba(6,12,19,0.35) 40%, rgba(6,12,19,0.6));
+    pointer-events: none;
+  }
   .imsg .pills {
     display: flex; align-items: flex-start; justify-content: space-between;
-    padding: 6px 10px 2px; position: relative; z-index: 2;
+    padding: 6px 10px 2px; position: relative; z-index: 3;
   }
   .imsg .pill {
     background: rgba(30, 32, 36, 0.82); border-radius: 999px;
@@ -219,10 +239,7 @@
   .wa .cname { font-size: 10px; font-weight: 600; color: #fff; flex: 1; }
   .wa .icons { display: inline-flex; align-items: center; gap: 12px; color: #fff; opacity: 0.92; }
   .wa .chat-body {
-    background:
-      radial-gradient(100% 80% at 30% 20%, rgba(21, 66, 46, 0.55), transparent 70%),
-      radial-gradient(90% 70% at 75% 75%, rgba(14, 46, 36, 0.6), transparent 70%),
-      #0d1f18;
+    background: #0b141a url("/assets/wall-whatsapp.jpg") center/cover no-repeat;
   }
   .wa .datechip {
     align-self: center; background: rgba(24, 26, 28, 0.9); color: #cfd4d8;
@@ -246,12 +263,7 @@
 
   /* — Telegram, dark — */
   .tg {
-    background:
-      radial-gradient(circle at 20% 15%, rgba(90, 60, 130, 0.28) 0 8%, transparent 9%),
-      radial-gradient(circle at 75% 35%, rgba(90, 60, 130, 0.22) 0 6%, transparent 7%),
-      radial-gradient(circle at 40% 70%, rgba(90, 60, 130, 0.22) 0 7%, transparent 8%),
-      radial-gradient(circle at 85% 85%, rgba(90, 60, 130, 0.25) 0 6%, transparent 7%),
-      #0e0c12;
+    background: #0e0c12 url("/assets/wall-telegram.jpg") center/cover no-repeat;
   }
   .tg .pills {
     display: flex; align-items: center; justify-content: space-between;
@@ -267,17 +279,11 @@
   .tg .pill.center .cname { font-size: 9.5px; font-weight: 600; }
   .tg .pill.center .sub { font-size: 7px; color: #9b98a5; }
   .tg .avatar-img { width: 26px; height: 26px; }
-  .tg .pinned {
-    margin: 2px 8px; background: rgba(32, 30, 38, 0.86); border-radius: 10px;
-    padding: 4px 9px; font-size: 7.5px; color: #cfccda;
-    border-left: 2px solid #8774e1; position: relative; z-index: 2;
-  }
-  .tg .pinned b { display: block; color: #fff; font-size: 7.5px; }
   .tg .bubble.in { background: rgba(38, 36, 44, 0.92); color: #f0eef6; }
-  .tg .bubble.out { background: linear-gradient(135deg, #5a54d6, #7048c9); color: #fff; }
-  .tg .bubble code { font-family: var(--mono); font-size: 8.5px; color: #d3cdf0; }
+  .tg .bubble.out { background: #2b5278; color: #fff; }
+  .tg .bubble code { font-family: var(--mono); font-size: 8.5px; color: #9fd0f0; }
   .tg .meta { color: rgba(255,255,255,0.5); }
-  .tg .meta .tick { color: #9c8df2; }
+  .tg .meta .tick { color: #7cc0f5; }
   .tg .inputbar {
     display: flex; align-items: center; gap: 6px; padding: 6px 9px 22px;
     position: relative; z-index: 2;
@@ -347,7 +353,7 @@
 <body>
 
 <nav>
-  <a class="brand" href="/"><span class="mark"></span>Panopticon</a>
+  <a class="brand" href="/"><svg class="mark" width="17" height="17" viewBox="0 0 100 99" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 49C100 76.6142 77.6142 99 50 99C22.3858 99 0 76.6142 0 49H100Z" fill="#2645E3"/><rect y="23" width="100" height="23" fill="#2645E3"/><path d="M0 23C0 10.2975 10.2975 0 23 0H77C89.7025 0 100 10.2975 100 23V23H0V23Z" fill="#2645E3"/></svg>Panopticon</a>
   <div class="nav-links">
     <a class="u" href="#how">How it works</a>
     <a class="u" href="#selfhost">Self-host</a>
@@ -389,13 +395,15 @@
               <span class="pill"><svg viewBox="0 0 20 13" width="13" height="9" aria-hidden="true"><rect x="0" y="0.5" width="13" height="12" rx="3.2" fill="currentColor"/><path d="M14.4 4.6L19.5 1.3v10.4l-5.1-3.3z" fill="currentColor"/></svg></span>
             </div>
             <div class="chat-body">
-              <span class="bubble in" style="--i:0">i can see today's timeline btw. 107 minutes of coding across 7 activity cards</span>
-              <span class="bubble in" style="--i:1">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
-              <span class="bubble out" style="--i:2">wait. how do you know that??</span>
-              <span class="bubble in" style="--i:3">panopticon 🙂 your timeline synced at 12:30</span>
-              <span class="bubble in" style="--i:4">want me to draft the PR description from it?</span>
-              <span class="bubble out" style="--i:5">ok that's actually sick. yes</span>
-              <span class="dlv" style="--i:6"><b>Read</b> 3:11 PM</span>
+              <span class="bubble in" style="--i:0">morning. you're 40 min into a focus block already</span>
+              <span class="bubble out" style="--i:1">how are you like this before coffee</span>
+              <span class="bubble in" style="--i:2">i can see today's timeline btw. 107 minutes of coding across 7 activity cards</span>
+              <span class="bubble in" style="--i:7">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
+              <span class="bubble out" style="--i:4">wait. how do you know that??</span>
+              <span class="bubble in" style="--i:5">panopticon 🙂 your timeline synced at 12:30</span>
+              <span class="bubble in" style="--i:6">want me to draft the PR description from it?</span>
+              <span class="bubble out" style="--i:7">ok that's actually sick. yes</span>
+              <span class="dlv" style="--i:8"><b>Read</b> 3:11 PM</span>
             </div>
             <div class="inputbar">
               <span class="plus"><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
@@ -419,12 +427,14 @@
             </div>
             <div class="chat-body">
               <span class="datechip">TODAY</span>
-              <span class="bubble in" style="--i:0">daily digest ready — 6 people touched today<span class="meta">5:30 PM</span></span>
-              <span class="bubble in" style="--i:1">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
-              <span class="bubble in" style="--i:2">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
-              <span class="bubble out" style="--i:3">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-              <span class="bubble out" style="--i:4">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-              <span class="bubble in" style="--i:5">where else 🙂 done.<span class="meta">5:34 PM</span></span>
+              <span class="bubble in" style="--i:0">wrapped your day — want the digest?<span class="meta">5:29 PM</span></span>
+              <span class="bubble out" style="--i:1">go on<span class="meta">5:30 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:2">daily digest ready — 6 people touched today<span class="meta">5:30 PM</span></span>
+              <span class="bubble in" style="--i:3">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
+              <span class="bubble in" style="--i:4">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
+              <span class="bubble out" style="--i:5">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble out" style="--i:6">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:7">where else 🙂 done.<span class="meta">5:34 PM</span></span>
             </div>
             <div class="inputbar">
               <span><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
@@ -446,13 +456,15 @@
               <span class="pill center"><span class="cname">Hermes</span><span class="sub">bot</span></span>
               <img class="avatar-img" src="/assets/hermes-logo.png" alt="Hermes" />
             </div>
-            <div class="pinned"><b>Pinned Message</b>panopticon mcp connected · 5 tools</div>
             <div class="chat-body">
-              <span class="bubble out" style="--i:0">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
-              <span class="bubble in" style="--i:1">Pulled your day from Panopticon: <code>4.1h</code> coding (sync pipeline), <code>35m</code> review, <code>25m</code> comms.<span class="meta">6:02 PM</span></span>
-              <span class="bubble in" style="--i:2">Longest focus block: <code>9:40–11:05</code> in Xcode. Two Slack detours, both under 4 minutes.<span class="meta">6:02 PM</span></span>
-              <span class="bubble in" style="--i:3">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
-              <span class="bubble out" style="--i:4">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
+              <span class="chat-ts">July 30</span>
+              <span class="bubble in" style="--i:0">Timeline synced. 7 cards since 09:40.<span class="meta">6:01 PM</span></span>
+              <span class="bubble out" style="--i:1">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:2">Pulled your day from Panopticon: <code>4.1h</code> coding (sync pipeline), <code>35m</code> review, <code>25m</code> comms.<span class="meta">6:02 PM</span></span>
+              <span class="bubble in" style="--i:3">Longest focus block: <code>9:40–11:05</code> in Xcode. Two Slack detours, both under 4 minutes.<span class="meta">6:02 PM</span></span>
+              <span class="bubble in" style="--i:4">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
+              <span class="bubble out" style="--i:5">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:6">Posted to #eng-standup.<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
             </div>
             <div class="inputbar">
               <span class="menu"><svg viewBox="0 0 10 8" width="8" height="7" aria-hidden="true"><path d="M0.8 1h8.4M0.8 4h8.4M0.8 7h8.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Menu</span>

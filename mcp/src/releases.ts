@@ -176,9 +176,9 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#fff; color:var(--ink); font-family:"Inter",system-ui,sans-serif; font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased; }
   nav { max-width:72rem; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:16px 20px; }
+  @media (max-width:640px){ nav{ flex-wrap:wrap; gap:8px 16px; padding:14px 18px 12px; border-bottom:1px solid var(--stone-200); } main{ padding:40px 20px 72px; } }
   .brand { display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:15px; text-decoration:none; color:inherit; }
-  .brand .mark { width:16px; height:16px; border-radius:4px; position:relative; background:var(--ink); }
-  .brand .mark::after { content:""; position:absolute; inset:4.5px; border-radius:50%; background:#fff; }
+  .brand .mark { display:block; flex-shrink:0; }
   .u { color:inherit; text-decoration:underline; text-decoration-color:var(--stone-500); text-underline-offset:2.5px; }
   .u:hover { text-decoration-color:var(--ink); }
   main { max-width:600px; margin:0 auto; padding:64px 20px 96px; display:flex; flex-direction:column; gap:36px; }
@@ -198,7 +198,7 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
 </head>
 <body>
 <nav>
-  <a class="brand" href="/"><span class="mark"></span>Panopticon</a>
+  <a class="brand" href="/"><svg class="mark" width="17" height="17" viewBox="0 0 100 99" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M100 49C100 76.6142 77.6142 99 50 99C22.3858 99 0 76.6142 0 49H100Z" fill="#2645E3"/><rect y="23" width="100" height="23" fill="#2645E3"/><path d="M0 23C0 10.2975 10.2975 0 23 0H77C89.7025 0 100 10.2975 100 23V23H0V23Z" fill="#2645E3"/></svg>Panopticon</a>
   <a class="u" href="https://github.com/${REPO}" target="_blank" rel="noreferrer" style="font-size:14.5px">GitHub</a>
 </nav>
 <main>

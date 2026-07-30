@@ -53,6 +53,9 @@ const staticAssets: Record<string, Buffer> = {
   "poke-logo.png": readFileSync(new URL("./assets/poke-logo.png", import.meta.url)),
   "folk-logo.png": readFileSync(new URL("./assets/folk-logo.png", import.meta.url)),
   "hermes-logo.png": readFileSync(new URL("./assets/hermes-logo.png", import.meta.url)),
+  "wall-imessage.jpg": readFileSync(new URL("./assets/wall-imessage.jpg", import.meta.url)),
+  "wall-telegram.jpg": readFileSync(new URL("./assets/wall-telegram.jpg", import.meta.url)),
+  "wall-whatsapp.jpg": readFileSync(new URL("./assets/wall-whatsapp.jpg", import.meta.url)),
 };
 const serveLanding = (_req: Request, res: Response) => {
   res.header("Content-Type", "text/html; charset=utf-8");
@@ -65,12 +68,13 @@ app.get("/appcast.xml", serveAppcast);
 app.get("/changelog", serveChangelog);
 
 app.get("/assets/:name", (req: Request, res: Response) => {
-  const asset = staticAssets[String(req.params.name ?? "")];
+  const name = String(req.params.name ?? "");
+  const asset = staticAssets[name];
   if (!asset) {
     res.status(404).send("not found");
     return;
   }
-  res.header("Content-Type", "image/png");
+  res.header("Content-Type", name.endsWith(".jpg") ? "image/jpeg" : "image/png");
   res.header("Cache-Control", "public, max-age=86400, immutable");
   res.send(asset);
 });
