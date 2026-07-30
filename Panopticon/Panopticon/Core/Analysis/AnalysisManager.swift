@@ -470,6 +470,11 @@ final class AnalysisManager: AnalysisManaging {
           "LLM succeeded for Batch \(batchId). Processing \(activityCards.count) activity cards for day \(currentLogicalDayString)."
         )
 
+        // Let the timeline view (and anything else showing cards) refresh.
+        DispatchQueue.main.async {
+          NotificationCenter.default.post(name: .timelineDataUpdated, object: nil)
+        }
+
 
         // Debug: Check for duplicate cards from LLM
         print("\n🔍 DEBUG: Checking for duplicate cards from LLM:")

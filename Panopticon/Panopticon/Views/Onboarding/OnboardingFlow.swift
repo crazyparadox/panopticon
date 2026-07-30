@@ -21,21 +21,19 @@ struct OnboardingFlow: View {
 
   private var onboardingFilledSegments: Int {
     switch step {
-    case .introVideo: return 0
     case .roleSelection: return 0
-    case .downloadReason: return 1
-    case .preferences: return 2
-    case .llmSelection: return 3
-    case .llmSetup: return 4
-    case .categories: return 5
-    case .categoryColors: return 6
-    case .screen: return 7
-    case .completion: return 8
+    case .preferences: return 1
+    case .llmSelection: return 2
+    case .llmSetup: return 3
+    case .categories: return 4
+    case .categoryColors: return 5
+    case .screen: return 6
+    case .completion: return 7
     }
   }
 
   private var showsProgressRing: Bool {
-    step != .introVideo && step != .llmSelection && step != .categoryColors
+    step != .llmSelection && step != .categoryColors
   }
 
   @ViewBuilder
@@ -43,23 +41,6 @@ struct OnboardingFlow: View {
     ZStack(alignment: .bottomLeading) {
       // NO NESTING! Just render the appropriate view directly - NO GROUP!
       switch step {
-      case .introVideo:
-        OnboardingPrototypeVideoIntroStep(
-          videoName: "PanopticonOnboarding",
-          onPlaybackStarted: {
-          },
-          onPlaybackCompleted: { reason in
-            advance()
-          }
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .transition(.opacity)
-        .onAppear {
-          if !UserDefaults.standard.bool(forKey: "onboardingStarted") {
-            UserDefaults.standard.set(true, forKey: "onboardingStarted")
-          }
-        }
-
       case .roleSelection:
         OnboardingPrototypeRoleSelectionStep(
           onContinue: { selectedRole in
@@ -69,25 +50,6 @@ struct OnboardingFlow: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.opacity)
-        .onAppear {
-        }
-
-      case .downloadReason:
-        OnboardingPrototypeDownloadReasonStep(
-          onContinue: { reasons, otherDetail in
-            var payload: [String: Any] = [
-              "reasons": reasons.map(\.analyticsValue),
-              "surface": "onboarding_download_reason",
-            ]
-
-            if let otherDetail, !otherDetail.isEmpty {
-              payload["other_detail"] = otherDetail
-            }
-
-            advance(extraProps: payload)
-          }
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
         }
 
@@ -200,7 +162,7 @@ struct OnboardingFlow: View {
       }
 
       // Progress ring — bottom-left, always in tree (opacity toggle preserves @State)
-      ProgressRingView(totalSegments: 9, filledSegments: onboardingFilledSegments)
+      ProgressRingView(totalSegments: 8, filledSegments: onboardingFilledSegments)
         .opacity(showsProgressRing ? 1 : 0)
         .animation(.easeInOut(duration: 0.3), value: showsProgressRing)
         .padding(.leading, 0)
@@ -261,16 +223,8 @@ struct OnboardingFlow: View {
 
   private func advance(selectedRole: String? = nil, extraProps: [String: Any] = [:]) {
     switch step {
-    case .introVideo:
-      markStepCompleted(step)
-      step.next()
-      savedStepRawValue = step.rawValue
     case .roleSelection:
       let extraProps = selectedRole.map { ["role": $0] } ?? [:]
-      markStepCompleted(step, extraProps: extraProps)
-      step.next()
-      savedStepRawValue = step.rawValue
-    case .downloadReason:
       markStepCompleted(step, extraProps: extraProps)
       step.next()
       savedStepRawValue = step.rawValue
@@ -340,17 +294,13 @@ struct OnboardingFlow: View {
 
 /// Wizard step order
 enum OnboardingStep: Int, CaseIterable {
-  case introVideo, roleSelection, downloadReason, preferences, llmSelection, llmSetup,
+  case roleSelection, preferences, llmSelection, llmSetup,
     categories, categoryColors, screen, completion
 
   var analyticsName: String {
     switch self {
-    case .introVideo:
-      return "intro_video"
     case .roleSelection:
       return "role_selection"
-    case .downloadReason:
-      return "download_reason"
     case .preferences:
       return "preferences"
     case .llmSelection:
@@ -391,7 +341,7 @@ enum OnboardingStepMigration {
   }
 
   static func restoredStep(defaults: UserDefaults = .standard) -> OnboardingStep {
-    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .introVideo
+    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .roleSelection
   }
 }
 
@@ -406,11 +356,10 @@ struct WelcomeView: View {
       // Text and button container
       VStack {
         VStack(spacing: 20) {
-          Image("PanopticonLogoMainApp")
-            .resizable()
-            .renderingMode(.original)
-            .scaledToFit()
-            .frame(height: 64)
+          Text("Panopticon")
+            .font(.system(size: 28, weight: .semibold))
+            .foregroundColor(Theme.Palette.ink)
+            .tracking(-0.5)
             .opacity(textOpacity)
 
           Text(fullText)
@@ -495,220 +444,7 @@ struct OnboardingCategoryColorStepView: View {
   }
 }
 
-struct OnboardingPrototypeDownloadReasonStep: View {
-  let onContinue: ([DownloadReasonOption], String?) -> Void
 
-  @State private var shuffledReasons = DownloadReasonOption.randomizedConcreteOptions()
-  @State private var selectedReasons: Set<DownloadReasonOption> = []
-  @State private var otherText = ""
-
-  private var options: [DownloadReasonOption] {
-    shuffledReasons + [.other]
-  }
-
-  private var trimmedOtherText: String {
-    otherText.trimmingCharacters(in: .whitespacesAndNewlines)
-  }
-
-  private var canContinue: Bool {
-    guard !selectedReasons.isEmpty else { return false }
-    if selectedReasons.contains(.other) {
-      return !trimmedOtherText.isEmpty
-    }
-    return true
-  }
-
-  var body: some View {
-    VStack(spacing: 0) {
-      Spacer()
-        .frame(height: 126)
-
-      VStack(spacing: 22) {
-        VStack(spacing: 4) {
-          Text("What are you hoping to get out of Panopticon?")
-            .font(.system(size: 20))
-            .foregroundColor(Theme.Palette.ink2)
-
-          Text("This helps personalize the experience for you.")
-            .font(.system(size: 16))
-            .foregroundColor(Theme.Palette.ink2.opacity(0.78))
-        }
-        .multilineTextAlignment(.center)
-
-        VStack(spacing: 8) {
-          ForEach(options) { option in
-            downloadReasonRow(option)
-          }
-        }
-
-        otherField
-      }
-      .frame(maxWidth: 760)
-      .padding(.horizontal, 24)
-
-      Spacer()
-
-      PanopticonSurfaceButton(
-        action: {
-          let selectedInDisplayOrder = options.filter { selectedReasons.contains($0) }
-          let detail = selectedReasons.contains(.other) ? trimmedOtherText : nil
-          onContinue(selectedInDisplayOrder, detail)
-        },
-        content: {
-          Text("Continue")
-            .font(.system(size: 14))
-            .fontWeight(.semibold)
-        },
-        background: Theme.Palette.ink,
-        foreground: .white,
-        borderColor: .clear,
-        cornerRadius: 8,
-        horizontalPadding: 59,
-        verticalPadding: 12,
-        minWidth: 234,
-        isFilledStyle: true
-      )
-      .opacity(canContinue ? 1.0 : 0.4)
-      .allowsHitTesting(canContinue)
-      .animation(.easeInOut(duration: 0.2), value: canContinue)
-
-      Spacer()
-        .frame(height: 60)
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .animation(.easeInOut(duration: 0.2), value: selectedReasons)
-  }
-
-  private func downloadReasonRow(_ option: DownloadReasonOption) -> some View {
-    let isSelected = selectedReasons.contains(option)
-
-    return Button {
-      toggle(option)
-    } label: {
-      HStack(spacing: 10) {
-        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-          .font(.system(size: 17, weight: .semibold))
-          .foregroundColor(Theme.Palette.ink)
-
-        Text(option.displayName)
-          .font(.system(size: 15))
-          .foregroundColor(Theme.Palette.ink)
-          .fixedSize(horizontal: false, vertical: true)
-
-        Spacer(minLength: 0)
-      }
-      .padding(.horizontal, 14)
-      .padding(.vertical, 10)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .fill(isSelected ? Theme.Palette.accentTint.opacity(0.48) : Color.white.opacity(0.42))
-      )
-      .overlay(
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-          .stroke(isSelected ? Theme.Palette.accentTint : Theme.Palette.line, lineWidth: 1)
-      )
-      .shadow(
-        color: isSelected
-          ? Theme.Palette.accent.opacity(0.22)
-          : Theme.Palette.ink3.opacity(0.12),
-        radius: isSelected ? 3 : 2,
-        x: 0,
-        y: 0
-      )
-    }
-    .buttonStyle(.plain)
-    .pointingHandCursor()
-  }
-
-  private var otherField: some View {
-    TextField("Tell me more", text: $otherText)
-      .font(.system(size: 16))
-      .foregroundColor(Theme.Palette.ink)
-      .textFieldStyle(.plain)
-      .padding(.horizontal, 12)
-      .frame(height: 36)
-      .background(Color.white.opacity(0.42))
-      .cornerRadius(5)
-      .overlay(
-        RoundedRectangle(cornerRadius: 5)
-          .stroke(Theme.Palette.line, lineWidth: 1)
-      )
-      .shadow(
-        color: Theme.Palette.ink3.opacity(0.15),
-        radius: 2, x: 0, y: 0
-      )
-      .opacity(selectedReasons.contains(.other) ? 1 : 0)
-      .disabled(!selectedReasons.contains(.other))
-      .allowsHitTesting(selectedReasons.contains(.other))
-      .frame(maxWidth: .infinity)
-  }
-
-  private func toggle(_ option: DownloadReasonOption) {
-    if selectedReasons.contains(option) {
-      selectedReasons.remove(option)
-      if option == .other {
-        otherText = ""
-      }
-    } else {
-      selectedReasons.insert(option)
-    }
-  }
-}
-
-enum DownloadReasonOption: CaseIterable, Identifiable, Hashable {
-  case automaticLog
-  case proofOfWork
-  case cutDistractions
-  case productiveFocused
-  case automatedManualTracking
-  case openSourcePrivate
-  case other
-
-  var id: String { analyticsValue }
-
-  static func randomizedConcreteOptions() -> [DownloadReasonOption] {
-    allCases.filter { $0 != .other }.shuffled()
-  }
-
-  var displayName: String {
-    switch self {
-    case .automaticLog:
-      return "To keep an automatic log of what I worked on"
-    case .proofOfWork:
-      return "To make my work more visible for standups, reviews, or promotions"
-    case .cutDistractions:
-      return "To find and cut distractions"
-    case .productiveFocused:
-      return "To be more productive or focused"
-    case .automatedManualTracking:
-      return "I was already tracking this manually and wanted it automated"
-    case .openSourcePrivate:
-      return "I wanted a tracker that's open source and keeps my data private"
-    case .other:
-      return "Other"
-    }
-  }
-
-  var analyticsValue: String {
-    switch self {
-    case .automaticLog:
-      return "automatic_log"
-    case .proofOfWork:
-      return "proof_of_work"
-    case .cutDistractions:
-      return "cut_distractions"
-    case .productiveFocused:
-      return "productive_focused"
-    case .automatedManualTracking:
-      return "automated_manual_tracking"
-    case .openSourcePrivate:
-      return "open_source_private"
-    case .other:
-      return "other"
-    }
-  }
-}
 
 
 struct CompletionView: View {
@@ -716,11 +452,10 @@ struct CompletionView: View {
 
   var body: some View {
     VStack(spacing: 16) {
-      Image("PanopticonLogoMainApp")
-        .resizable()
-        .renderingMode(.original)
-        .scaledToFit()
-        .frame(height: 64)
+      Text("Panopticon")
+        .font(.system(size: 28, weight: .semibold))
+        .foregroundColor(Theme.Palette.ink)
+        .tracking(-0.5)
 
       // Title section
       VStack(spacing: 8) {

@@ -22,7 +22,7 @@ struct StatusMenuView: View {
 
       MenuDivider()
 
-      MenuRow(title: "Open Panopticon", assetImage: "PanopticonLogo", action: openPanopticon)
+      MenuRow(title: "Open Panopticon", systemImage: "macwindow", action: openPanopticon)
       MenuRow(title: "Open Recordings", action: openRecordingsFolder)
 
       MenuDivider()

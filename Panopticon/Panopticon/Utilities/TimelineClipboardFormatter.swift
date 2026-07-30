@@ -21,6 +21,37 @@ struct TimelineClipboardFormatter {
     return ([header, ""] + entries).joined(separator: "\n\n")
   }
 
+  static func makeClipboardText(
+    for weekRange: TimelineWeekRange,
+    cards: [TimelineCard],
+    now: Date = Date()
+  ) -> String {
+    let header = "Panopticon timeline · \(weekRange.title)"
+
+    guard !cards.isEmpty else {
+      return """
+        \(header)
+
+        No timeline activities were recorded for this week.
+        """
+    }
+
+    let cardsByDay = Dictionary(grouping: cards, by: \.day)
+    let sections = weekRange.days.compactMap { day -> String? in
+      guard let dayCards = cardsByDay[day.dayString], !dayCards.isEmpty else { return nil }
+
+      let sortedCards = dayCards.sorted(by: cardSort)
+      let heading = formattedTimelineDay(day.date, now: now)
+      let entries = sortedCards.enumerated().map { index, card in
+        textEntry(for: card, index: index)
+      }
+
+      return ([heading, ""] + entries).joined(separator: "\n\n")
+    }
+
+    return ([header, ""] + sections).joined(separator: "\n\n")
+  }
+
   static func makeMarkdown(for date: Date, cards: [TimelineCard], now: Date = Date()) -> String {
     let timelineDate = timelineDisplayDate(from: date, now: now)
     let header = "## Panopticon timeline · \(formattedTimelineDay(timelineDate, now: now))"

@@ -153,6 +153,11 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   private var activeDisplaySub: AnyCancellable?
   private var state: RecorderState = .idle
   private var wantsRecording = false
+  /// Consecutive `captureScreenshot` failures. When the TCC grant is stale
+  /// (preflight passes but captures are denied) this is what breaks the
+  /// otherwise-infinite prompt loop.
+  private var consecutiveCaptureFailures = 0
+  private static let maxConsecutiveCaptureFailures = 3
   private var tracker: ActiveDisplayTracker!
   private var currentDisplayID: CGDirectDisplayID?
   private var requestedDisplayID: CGDirectDisplayID?
@@ -396,11 +401,25 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
 
       dbg("📸 Screenshot saved: \(fileURL.lastPathComponent) (\(jpegData.count / 1024)KB)")
 
+      consecutiveCaptureFailures = 0
+
     } catch {
       dbg("❌ Screenshot capture failed: \(error.localizedDescription)")
 
       if !ScreenRecordingPermissionNotice.isGranted {
         handleMissingScreenRecordingPermission(reason: "captureScreenshot_failed_permission")
+        return
+      }
+
+      // CGPreflightScreenCaptureAccess can keep returning true when the TCC
+      // grant belongs to a differently-signed build of this app. In that
+      // state every capture fails and every SCShareableContent call re-shows
+      // the system permission prompt — so repeated failures must stop the
+      // recorder rather than keep poking ScreenCaptureKit each tick.
+      consecutiveCaptureFailures += 1
+      if consecutiveCaptureFailures >= Self.maxConsecutiveCaptureFailures {
+        dbg("stopping capture after \(consecutiveCaptureFailures) consecutive failures (stale permission?)")
+        handleMissingScreenRecordingPermission(reason: "captureScreenshot_repeated_failures")
         return
       }
 
