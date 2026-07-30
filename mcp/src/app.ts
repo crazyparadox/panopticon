@@ -47,7 +47,12 @@ app.get("/health", (_req, res) => {
 // app.js (see the build script), so resolve it relative to this module —
 // a pattern Vercel's file tracer follows when bundling the function.
 const landingHtml = readFileSync(new URL("./landing.html", import.meta.url), "utf8");
-const iphoneFramePng = readFileSync(new URL("./assets/iphone-frame.png", import.meta.url));
+const staticAssets: Record<string, Buffer> = {
+  "iphone-frame.png": readFileSync(new URL("./assets/iphone-frame.png", import.meta.url)),
+  "poke-logo.png": readFileSync(new URL("./assets/poke-logo.png", import.meta.url)),
+  "folk-logo.png": readFileSync(new URL("./assets/folk-logo.png", import.meta.url)),
+  "hermes-logo.png": readFileSync(new URL("./assets/hermes-logo.png", import.meta.url)),
+};
 const serveLanding = (_req: Request, res: Response) => {
   res.header("Content-Type", "text/html; charset=utf-8");
   res.header("Cache-Control", "public, max-age=300");
@@ -55,10 +60,15 @@ const serveLanding = (_req: Request, res: Response) => {
 };
 app.get("/", serveLanding);
 app.get("/landing", serveLanding);
-app.get("/assets/iphone-frame.png", (_req: Request, res: Response) => {
+app.get("/assets/:name", (req: Request, res: Response) => {
+  const asset = staticAssets[String(req.params.name ?? "")];
+  if (!asset) {
+    res.status(404).send("not found");
+    return;
+  }
   res.header("Content-Type", "image/png");
   res.header("Cache-Control", "public, max-age=86400, immutable");
-  res.send(iphoneFramePng);
+  res.send(asset);
 });
 
 function requireBearer(req: Request, res: Response, next: NextFunction): void {

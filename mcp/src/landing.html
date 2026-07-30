@@ -100,58 +100,45 @@
     width: 100vw; display: flex; justify-content: center;
     padding: 0 20px;
   }
-  .showcase-card {
-    width: 100%; max-width: 64rem;
-    border: 1px solid var(--stone-200); border-radius: 16px;
-    background: linear-gradient(180deg, #fafaf9, #f3f2f1);
-    padding: clamp(14px, 4vw, 40px);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  }
 
   /* ── phone showcase ──────────────────────────── */
   .phones {
     display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 36px; max-width: 980px; margin: 0 auto; align-items: start;
+    gap: 40px; max-width: 1000px; margin: 0 auto; align-items: start;
+    width: 100%;
   }
-  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  /* Device shell is a PNG with a transparent screen cutout: the mock sits
-     BEHIND it and the bezel (incl. Dynamic Island) draws on top. Cutout
-     geometry measured from the asset's alpha channel (see neumann). */
-  .phone { position: relative; aspect-ratio: 1670 / 3397; width: 100%; max-width: 260px; }
+  .phone-col { display: flex; justify-content: center; }
+  /* Device shell PNG with transparent cutout: mock renders behind, bezel on top. */
+  .phone { position: relative; aspect-ratio: 1670 / 3397; width: 100%; max-width: 270px; }
   .phone .screen {
     position: absolute; left: 4.6%; top: 1.6%; width: 90.8%; height: 96.7%;
-    overflow: hidden; border-radius: 12%/5.9%; background: #141517;
+    overflow: hidden; border-radius: 12%/5.9%; background: #000;
     display: flex; flex-direction: column; text-align: left;
+    font-size: 9.5px; line-height: 1.45; color: #fff;
   }
-  .phone .frame-img {
-    pointer-events: none; position: absolute; inset: 0;
-    width: 100%; height: 100%; user-select: none;
+  .phone .frame-img { pointer-events: none; position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; }
+
+  /* iOS status bar */
+  .statusbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 4px; font-size: 9px; font-weight: 600; flex-shrink: 0;
+    position: relative; z-index: 3;
   }
-  .phone-cap { max-width: 270px; text-align: center; }
-  .phone-cap h4 { font-size: 14.5px; font-weight: 600; }
-  .phone-cap p { font-size: 13px; color: var(--stone-500); line-height: 1.5; margin-top: 2px; }
+  .statusbar .sicons { display: flex; align-items: center; gap: 3px; }
+  .statusbar svg { display: block; }
 
   /* shared chat plumbing */
   .chat-body {
     flex: 1; display: flex; flex-direction: column; gap: 4px;
-    padding: 8px 9px; font-size: 9.5px; line-height: 1.45; overflow: hidden;
+    padding: 8px 9px; overflow: hidden; position: relative; z-index: 1;
   }
   .bubble { max-width: 84%; padding: 5px 8px; border-radius: 12px; position: relative; }
   .bubble.in { align-self: flex-start; border-bottom-left-radius: 4px; transform-origin: bottom left; }
   .bubble.out { align-self: flex-end; border-bottom-right-radius: 4px; transform-origin: bottom right; }
-  .chat-ts { font-size: 7.5px; text-align: center; margin: 2px 0; }
-  .meta { display: inline-block; font-size: 7px; margin-left: 6px; float: right; margin-top: 5px; }
-  .inputbar {
-    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
-    padding: 7px 9px 26px; font-size: 9px;
-  }
-  .inputbar .field {
-    flex: 1; border-radius: 999px; padding: 4px 10px; color: #8e8e93;
-    background: #fff; border: 1px solid rgba(0,0,0,0.08);
-  }
-  .inputbar .ic { font-size: 11px; opacity: 0.65; }
+  .meta { display: inline-block; font-size: 6.5px; margin-left: 6px; float: right; margin-top: 6px; }
+  .avatar-img { border-radius: 50%; object-fit: cover; display: block; }
 
-  /* bubble entrance animation, staggered via --i; armed by .play (IO) */
+  /* entrance animation */
   .bubble, .dlv { opacity: 0; }
   .play .bubble, .play .dlv {
     animation: bubble-in 0.5s cubic-bezier(0.2, 1.1, 0.3, 1) both;
@@ -166,95 +153,134 @@
     .play .bubble, .play .dlv { animation: none; }
   }
 
-  /* — iMessage — */
-  .imsg { background: #fff; }
-  .imsg .chat-head {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    padding: 34px 10px 6px; background: rgba(249,249,249,0.96);
-    border-bottom: 0.5px solid #d8d8dc; position: relative;
+  /* — iMessage, dark — */
+  .imsg { background: radial-gradient(130% 90% at 80% 10%, #16324a, #0a1622 55%, #060c13); }
+  .imsg .pills {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 6px 10px 2px; position: relative; z-index: 2;
   }
-  .imsg .chat-head .back { position: absolute; left: 9px; bottom: 10px; color: #0a7cff; font-size: 13px; }
-  .imsg .avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; color: #fff;
+  .imsg .pill {
+    background: rgba(30, 32, 36, 0.82); border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 9px; font-size: 9px; color: #fff;
+    backdrop-filter: blur(6px);
   }
-  .imsg .cname { font-size: 8px; color: #1c1c1e; }
-  .imsg .cname .chev { color: #b6b6bb; }
-  .imsg .chat-ts { color: #8e8e93; }
-  .imsg .bubble.in { background: #e9e9eb; color: #111; }
-  .imsg .bubble.out { background: #0a7cff; color: #fff; }
-  .imsg .dlv { align-self: flex-end; font-size: 7.5px; color: #8e8e93; margin-top: -1px; }
-  .imsg .inputbar { background: #fff; }
-  .imsg .inputbar .plus {
-    width: 18px; height: 18px; border-radius: 50%; background: #e9e9eb;
-    display: flex; align-items: center; justify-content: center; color: #7c7c82; font-size: 11px;
+  .imsg .pill .cnt { background: #3a3a3c; border-radius: 999px; padding: 0 6px; font-size: 8px; }
+  .imsg .center-id { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: -8px; }
+  .imsg .center-id .avatar-img { width: 34px; height: 34px; }
+  .imsg .center-id .namepill {
+    background: rgba(30, 32, 36, 0.82); border-radius: 999px;
+    padding: 3px 10px; font-size: 8.5px; font-weight: 600; color: #fff;
   }
-  .imsg .inputbar .field { border-color: #d8d8dc; }
+  .imsg .namepill .chev { color: #8e8e93; font-weight: 400; }
+  .imsg .bubble.in { background: rgba(58, 58, 60, 0.88); color: #fff; }
+  .imsg .bubble.out { background: #0a84ff; color: #fff; }
+  .imsg .dlv { align-self: flex-end; font-size: 7px; color: #8e8e93; margin-top: -1px; }
+  .imsg .dlv b { font-weight: 600; }
+  .imsg .inputbar {
+    display: flex; align-items: center; gap: 6px; padding: 6px 9px 22px;
+    position: relative; z-index: 2;
+  }
+  .imsg .plus {
+    width: 20px; height: 20px; border-radius: 50%; background: rgba(44, 46, 50, 0.9);
+    display: flex; align-items: center; justify-content: center; color: #dcdcdc; font-size: 12px; flex-shrink: 0;
+  }
+  .imsg .field {
+    flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
+    background: rgba(28, 30, 34, 0.9); border: 1px solid rgba(255,255,255,0.14); color: #8e8e93;
+    display: flex; justify-content: space-between; align-items: center;
+  }
 
-  /* — WhatsApp — */
-  .wa { background: #efeae2; }
-  .wa::before { content: ""; }
+  /* — WhatsApp, dark — */
+  .wa { background: #0b141a; }
   .wa .chat-head {
-    display: flex; align-items: center; gap: 7px;
-    padding: 32px 10px 8px; background: #075e54; color: #fff;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px 8px; background: rgba(16, 18, 20, 0.96);
+    position: relative; z-index: 2;
   }
-  .wa .chat-head .back { font-size: 12px; }
-  .wa .avatar {
-    width: 22px; height: 22px; border-radius: 50%; background: #17150f;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
-  }
-  .wa .names { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
-  .wa .cname { font-size: 9.5px; font-weight: 600; }
-  .wa .sub { font-size: 7px; color: #b7d4cf; }
-  .wa .icons { display: flex; gap: 9px; font-size: 10px; opacity: 0.95; }
+  .wa .chat-head .back { font-size: 12px; color: #fff; display: inline-flex; align-items: center; gap: 2px; }
+  .wa .chat-head .back .cnt { font-size: 8.5px; }
+  .wa .chat-head .avatar-img { width: 24px; height: 24px; }
+  .wa .cname { font-size: 10px; font-weight: 600; color: #fff; flex: 1; }
+  .wa .icons { display: flex; gap: 11px; font-size: 11px; color: #fff; opacity: 0.92; }
   .wa .chat-body {
-    background-image: radial-gradient(rgba(7, 94, 84, 0.045) 1.5px, transparent 1.5px);
-    background-size: 14px 14px;
+    background:
+      radial-gradient(100% 80% at 30% 20%, rgba(21, 66, 46, 0.55), transparent 70%),
+      radial-gradient(90% 70% at 75% 75%, rgba(14, 46, 36, 0.6), transparent 70%),
+      #0d1f18;
   }
-  .wa .chat-ts {
-    color: #54656f; background: #fff; border-radius: 6px;
-    align-self: center; padding: 1px 7px; box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  .wa .datechip {
+    align-self: center; background: rgba(24, 26, 28, 0.9); color: #cfd4d8;
+    border-radius: 8px; padding: 2px 9px; font-size: 7.5px; font-weight: 600; margin: 2px 0;
   }
-  .wa .bubble { border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.08); }
-  .wa .bubble.in { background: #fff; color: #111; border-top-left-radius: 2px; }
-  .wa .bubble.out { background: #d9fdd3; color: #111; border-top-right-radius: 2px; }
-  .wa .meta { color: #9aa8a4; }
+  .wa .bubble { border-radius: 9px; }
+  .wa .bubble.in { background: #202c33; color: #f1f1f2; border-top-left-radius: 2px; }
+  .wa .bubble.out { background: #144d37; color: #f1f1f2; border-top-right-radius: 2px; }
+  .wa .meta { color: rgba(255,255,255,0.55); }
   .wa .meta .tick { color: #53bdeb; }
-  .wa .inputbar { background: #f0f2f5; }
-  .wa .inputbar .send {
-    width: 20px; height: 20px; border-radius: 50%; background: #00a884; color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0;
+  .wa .inputbar {
+    display: flex; align-items: center; gap: 7px; padding: 7px 10px 22px;
+    background: rgba(16, 18, 20, 0.96); color: #aebac1; font-size: 12px;
+    position: relative; z-index: 2;
+  }
+  .wa .field {
+    flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
+    background: #1f2427; color: #6f7a80;
   }
 
-  /* — Telegram — */
-  .tg { background: linear-gradient(180deg, #d9e7f2, #cbdcea); }
-  .tg .chat-head {
-    display: flex; align-items: center; gap: 7px;
-    padding: 32px 10px 8px; background: #527da3; color: #fff;
+  /* — Telegram, dark — */
+  .tg {
+    background:
+      radial-gradient(circle at 20% 15%, rgba(90, 60, 130, 0.28) 0 8%, transparent 9%),
+      radial-gradient(circle at 75% 35%, rgba(90, 60, 130, 0.22) 0 6%, transparent 7%),
+      radial-gradient(circle at 40% 70%, rgba(90, 60, 130, 0.22) 0 7%, transparent 8%),
+      radial-gradient(circle at 85% 85%, rgba(90, 60, 130, 0.25) 0 6%, transparent 7%),
+      #0e0c12;
   }
-  .tg .chat-head .back { font-size: 12px; }
-  .tg .avatar {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: linear-gradient(135deg, #54a9eb, #2d7cc4);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+  .tg .pills {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px 4px; position: relative; z-index: 2;
   }
-  .tg .names { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
-  .tg .cname { font-size: 9.5px; font-weight: 600; }
-  .tg .sub { font-size: 7px; color: #cfe0ee; }
-  .tg .chat-ts {
-    color: #fff; background: rgba(93, 129, 158, 0.55); border-radius: 999px;
-    align-self: center; padding: 1px 8px;
+  .tg .pill {
+    background: rgba(32, 30, 38, 0.86); border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 9px; font-size: 9px; color: #fff;
   }
-  .tg .bubble { box-shadow: 0 1px 1px rgba(0,0,0,0.07); }
-  .tg .bubble.in { background: #fff; color: #111; }
-  .tg .bubble.out { background: #effdde; color: #111; }
-  .tg .meta { color: #a0b3a4; }
-  .tg .meta .tick { color: #4fae4e; }
-  .tg .inputbar { background: #fff; color: #9aa4ad; }
-  .tg .inputbar .field { border: none; padding-left: 2px; }
+  .tg .pill .cnt { background: #fff; color: #111; border-radius: 999px; padding: 0 6px; font-size: 8px; font-weight: 600; }
+  .tg .pill.center { flex-direction: column; gap: 0; padding: 3px 14px; line-height: 1.25; }
+  .tg .pill.center .cname { font-size: 9.5px; font-weight: 600; }
+  .tg .pill.center .sub { font-size: 7px; color: #9b98a5; }
+  .tg .avatar-img { width: 26px; height: 26px; }
+  .tg .pinned {
+    margin: 2px 8px; background: rgba(32, 30, 38, 0.86); border-radius: 10px;
+    padding: 4px 9px; font-size: 7.5px; color: #cfccda;
+    border-left: 2px solid #8774e1; position: relative; z-index: 2;
+  }
+  .tg .pinned b { display: block; color: #fff; font-size: 7.5px; }
+  .tg .bubble.in { background: rgba(38, 36, 44, 0.92); color: #f0eef6; }
+  .tg .bubble.out { background: linear-gradient(135deg, #5a54d6, #7048c9); color: #fff; }
+  .tg .bubble code { font-family: var(--mono); font-size: 8.5px; color: #d3cdf0; }
+  .tg .meta { color: rgba(255,255,255,0.5); }
+  .tg .meta .tick { color: #9c8df2; }
+  .tg .inputbar {
+    display: flex; align-items: center; gap: 6px; padding: 6px 9px 22px;
+    position: relative; z-index: 2;
+  }
+  .tg .menu {
+    background: #2f7cf6; color: #fff; border-radius: 999px;
+    padding: 4px 9px; font-size: 8.5px; font-weight: 600;
+  }
+  .tg .field {
+    flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
+    background: rgba(32, 30, 38, 0.9); color: #8d8a99;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tg .ic { font-size: 11px; color: #8d8a99; }
+  .tg .rec {
+    width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #8d8a99;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tg .rec::after { content: ""; width: 8px; height: 8px; border-radius: 2px; background: #8d8a99; }
 
   @media (max-width: 760px) {
     .phones { grid-template-columns: 1fr; gap: 30px; }
@@ -328,99 +354,92 @@
 
   <!-- full-bleed showcase: three phones, three assistants -->
   <div class="showcase">
-    <div class="showcase-card">
-      <div class="phones">
+    <div class="phones">
 
-        <div class="phone-col">
-          <div class="phone">
-            <div class="screen imsg">
-              <div class="chat-head">
-                <span class="back">‹</span>
-                <span class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">P</span>
-                <span class="cname">Poke <span class="chev">›</span></span>
-              </div>
-              <div class="chat-body">
-                <span class="chat-ts">Today 2:04 PM</span>
-                <span class="bubble in" style="--i:0">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
-                <span class="bubble out" style="--i:1">wait. how do you know that??</span>
-                <span class="bubble in" style="--i:2">panopticon 🙂 your timeline synced at 12:30</span>
-                <span class="bubble in" style="--i:3">want me to draft the PR description from it?</span>
-                <span class="bubble out" style="--i:4">ok that's actually sick. yes</span>
-                <span class="dlv" style="--i:5">Delivered</span>
-              </div>
-              <div class="inputbar">
-                <span class="plus">+</span>
-                <span class="field">iMessage</span>
-              </div>
+      <div class="phone-col">
+        <div class="phone">
+          <div class="screen imsg">
+            <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
+            <div class="pills">
+              <span class="pill">‹ <span class="cnt">39</span></span>
+              <span class="center-id">
+                <img class="avatar-img" src="/assets/poke-logo.png" alt="Poke" />
+                <span class="namepill">Poke <span class="chev">›</span></span>
+              </span>
+              <span class="pill">▣</span>
             </div>
-            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
-          </div>
-          <div class="phone-cap">
-            <h4>Poke already knows</h4>
-            <p>Your assistant mentions the refactor before you do — it read the day over MCP.</p>
-          </div>
-        </div>
-
-        <div class="phone-col">
-          <div class="phone">
-            <div class="screen wa">
-              <div class="chat-head">
-                <span class="back">‹</span>
-                <span class="avatar">f</span>
-                <span class="names"><span class="cname">folk</span><span class="sub">online</span></span>
-                <span class="icons">▨ ✆</span>
-              </div>
-              <div class="chat-body">
-                <span class="chat-ts">TODAY</span>
-                <span class="bubble in" style="--i:0">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
-                <span class="bubble in" style="--i:1">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
-                <span class="bubble out" style="--i:2">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-                <span class="bubble out" style="--i:3">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-                <span class="bubble in" style="--i:4">where else 🙂 done.<span class="meta">5:34 PM</span></span>
-              </div>
-              <div class="inputbar">
-                <span class="field">Message</span>
-                <span class="send">🎤</span>
-              </div>
+            <div class="chat-body">
+              <span class="bubble in" style="--i:0">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
+              <span class="bubble out" style="--i:1">wait. how do you know that??</span>
+              <span class="bubble in" style="--i:2">panopticon 🙂 your timeline synced at 12:30</span>
+              <span class="bubble in" style="--i:3">want me to draft the PR description from it?</span>
+              <span class="bubble out" style="--i:4">ok that's actually sick. yes</span>
+              <span class="dlv" style="--i:5"><b>Read</b> 3:11 PM</span>
             </div>
-            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
-          </div>
-          <div class="phone-cap">
-            <h4>folk keeps the thread</h4>
-            <p>Touchpoints logged from what actually happened — not what you remembered to enter.</p>
-          </div>
-        </div>
-
-        <div class="phone-col">
-          <div class="phone">
-            <div class="screen tg">
-              <div class="chat-head">
-                <span class="back">‹</span>
-                <span class="avatar">H</span>
-                <span class="names"><span class="cname">Hermes</span><span class="sub">bot</span></span>
-              </div>
-              <div class="chat-body">
-                <span class="chat-ts">July 30</span>
-                <span class="bubble out" style="--i:0">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
-                <span class="bubble in" style="--i:1">Pulled your day from Panopticon: 4.1h coding (sync pipeline), 35m review, 25m comms.<span class="meta">6:02 PM</span></span>
-                <span class="bubble in" style="--i:2">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
-                <span class="bubble out" style="--i:3">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
-              </div>
-              <div class="inputbar">
-                <span class="ic">📎</span>
-                <span class="field">Message</span>
-                <span class="ic">🎤</span>
-              </div>
+            <div class="inputbar">
+              <span class="plus">+</span>
+              <span class="field"><span>iMessage</span><span>🎤</span></span>
             </div>
-            <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
           </div>
-          <div class="phone-cap">
-            <h4>Hermes writes the standup</h4>
-            <p>One command in Telegram; the day's timeline becomes the update.</p>
-          </div>
+          <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
         </div>
-
       </div>
+
+      <div class="phone-col">
+        <div class="phone">
+          <div class="screen wa">
+            <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
+            <div class="chat-head">
+              <span class="back">‹ <span class="cnt">236</span></span>
+              <img class="avatar-img" src="/assets/folk-logo.png" alt="folk" />
+              <span class="cname">folk</span>
+              <span class="icons">▣ ✆</span>
+            </div>
+            <div class="chat-body">
+              <span class="datechip">TODAY</span>
+              <span class="bubble in" style="--i:0">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
+              <span class="bubble in" style="--i:1">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
+              <span class="bubble out" style="--i:2">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble out" style="--i:3">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:4">where else 🙂 done.<span class="meta">5:34 PM</span></span>
+            </div>
+            <div class="inputbar">
+              <span>+</span>
+              <span class="field">Message</span>
+              <span>📷</span><span>🎤</span>
+            </div>
+          </div>
+          <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
+        </div>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone">
+          <div class="screen tg">
+            <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
+            <div class="pills">
+              <span class="pill">‹ <span class="cnt">17471</span></span>
+              <span class="pill center"><span class="cname">Hermes</span><span class="sub">bot</span></span>
+              <img class="avatar-img" src="/assets/hermes-logo.png" alt="Hermes" />
+            </div>
+            <div class="pinned"><b>Pinned Message</b>panopticon mcp connected · 5 tools</div>
+            <div class="chat-body">
+              <span class="bubble out" style="--i:0">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:1">Pulled your day from Panopticon: <code>4.1h</code> coding (sync pipeline), <code>35m</code> review, <code>25m</code> comms.<span class="meta">6:02 PM</span></span>
+              <span class="bubble in" style="--i:2">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
+              <span class="bubble out" style="--i:3">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
+            </div>
+            <div class="inputbar">
+              <span class="menu">≡ Menu</span>
+              <span class="ic">📎</span>
+              <span class="field"><span>Message</span><span>🕐</span></span>
+              <span class="rec"></span>
+            </div>
+          </div>
+          <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
+        </div>
+      </div>
+
     </div>
   </div>
 
