@@ -67,8 +67,12 @@ jobs:
         run: |
           SIGN_ARGS=(CODE_SIGNING_ALLOWED=NO)
           if [ "$SIGNED" = "true" ]; then
+            # CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from adding
+            # com.apple.security.get-task-allow, a debug entitlement that
+            # notarization rejects outright.
             SIGN_ARGS=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$IDENTITY" \
-              OTHER_CODE_SIGN_FLAGS=--timestamp ENABLE_HARDENED_RUNTIME=YES)
+              OTHER_CODE_SIGN_FLAGS=--timestamp ENABLE_HARDENED_RUNTIME=YES \
+              CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO)
           fi
           xcodebuild -project Panopticon/Panopticon.xcodeproj \
             -scheme Panopticon -configuration Release \
@@ -78,6 +82,51 @@ jobs:
             CURRENT_PROJECT_VERSION="$VERSION" \
             "${SIGN_ARGS[@]}" \
             build
+
+      # Xcode does not re-sign the helpers nested inside Sparkle.framework, so
+      # Autoupdate, Updater.app and the XPC services ship with Sparkle's own
+      # signature and no secure timestamp. `codesign --verify --deep` accepts
+      # that (they are validly signed, just not by us) which is why v0.1.1
+      # looked fine locally and still failed notarization. Sign inside-out:
+      # every nested binary first, then the framework, then the app.
+      - name: Re-sign nested components
+        if: steps.signing.outputs.signed == 'true'
+        env:
+          IDENTITY: ${{ steps.signing.outputs.identity }}
+        run: |
+          set -euo pipefail
+          APP=build/Build/Products/Release/Panopticon.app
+          SP="$APP/Contents/Frameworks/Sparkle.framework"
+          sign() { codesign --force --options runtime --timestamp \
+                     --sign "$IDENTITY" "$@"; }
+
+          if [ -d "$SP" ]; then
+            V="$SP/Versions/B"
+            [ -d "$V" ] || V="$SP/Versions/Current"
+            for xpc in "$V"/XPCServices/*.xpc; do
+              [ -e "$xpc" ] && sign "$xpc"
+            done
+            [ -e "$V/Autoupdate" ] && sign "$V/Autoupdate"
+            [ -e "$V/Updater.app" ] && sign "$V/Updater.app"
+            sign "$SP"
+          fi
+
+          # Re-sign the app with the entitlements it was built with, minus the
+          # debug one. Reading them back off the binary keeps build-setting
+          # substitutions (like $(PRODUCT_BUNDLE_IDENTIFIER)) already resolved.
+          codesign -d --entitlements ent.plist --xml "$APP" 2>/dev/null || true
+          if [ -s ent.plist ]; then
+            /usr/libexec/PlistBuddy -c \
+              "Delete :com.apple.security.get-task-allow" ent.plist 2>/dev/null || true
+            codesign --force --options runtime --timestamp \
+              --entitlements ent.plist --sign "$IDENTITY" "$APP"
+          else
+            codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP"
+          fi
+
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          echo "Entitlements on the signed app:"
+          codesign -d --entitlements - --xml "$APP" 2>/dev/null | tr -d '\0' | head -40
 
       # Signing alone is not enough: Gatekeeper rejects an unnotarized
       # Developer ID app with the "cannot be verified as free of malware"
