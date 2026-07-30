@@ -60,17 +60,17 @@ enum TimelineReviewRating: String, CaseIterable, Identifiable {
 
   var overlayColor: Color {
     switch self {
-    case .distracted: return Color(hex: "975D57").opacity(0.6)
-    case .neutral: return Color(hex: "8C8379").opacity(0.55)
-    case .focused: return Color(hex: "43765E").opacity(0.6)
+    case .distracted: return Theme.Palette.red.opacity(0.6)
+    case .neutral: return Theme.Palette.ink2.opacity(0.55)
+    case .focused: return Theme.Palette.green.opacity(0.6)
     }
   }
 
   var overlayTextColor: Color {
     switch self {
-    case .distracted: return Color(hex: "F9D8D4")
-    case .neutral: return Color(hex: "F4F0ED")
-    case .focused: return Color(hex: "D9F7E4")
+    case .distracted: return Theme.Palette.redTint
+    case .neutral: return Theme.Palette.inset
+    case .focused: return Theme.Palette.greenTint
     }
   }
 
@@ -78,19 +78,19 @@ enum TimelineReviewRating: String, CaseIterable, Identifiable {
     switch self {
     case .distracted:
       return LinearGradient(
-        colors: [Color(hex: "FFBDB1"), Color(hex: "FF8772")],
+        colors: [Theme.Palette.redTint, Theme.Palette.red],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
     case .neutral:
       return LinearGradient(
-        colors: [Color(hex: "FFFEFE"), Color(hex: "EAE0DB")],
+        colors: [Theme.Palette.redTint, Theme.Palette.inset],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
     case .focused:
       return LinearGradient(
-        colors: [Color(hex: "92F1E3"), Color(hex: "42D0BB")],
+        colors: [Theme.Palette.accentTint, Theme.Palette.accent],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
@@ -99,19 +99,19 @@ enum TimelineReviewRating: String, CaseIterable, Identifiable {
 
   var barStroke: Color {
     switch self {
-    case .distracted: return Color(hex: "FF8772")
-    case .neutral: return Color(hex: "EAE0DB")
-    case .focused: return Color(hex: "42D0BB")
+    case .distracted: return Theme.Palette.red
+    case .neutral: return Theme.Palette.inset
+    case .focused: return Theme.Palette.accent
     }
   }
 
-  var labelColor: Color { Color(hex: "707070") }
+  var labelColor: Color { Theme.Palette.ink2 }
 
   var iconTint: Color {
     switch self {
-    case .distracted: return Color(hex: "FF7B67")
-    case .neutral: return Color(hex: "C8C8C8")
-    case .focused: return Color(hex: "47D2BD")
+    case .distracted: return Theme.Palette.red
+    case .neutral: return Theme.Palette.ink3
+    case .focused: return Theme.Palette.accent
     }
   }
 

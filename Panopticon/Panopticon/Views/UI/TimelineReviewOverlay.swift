@@ -100,7 +100,7 @@ struct TimelineReviewOverlay: View {
 
   private var overlayBackground: some View {
     Rectangle()
-      .fill(Color(hex: "FBE9E0").opacity(0.92))
+      .fill(Theme.Palette.inset.opacity(0.92))
       .ignoresSafeArea()
   }
 
@@ -113,12 +113,12 @@ struct TimelineReviewOverlay: View {
         } label: {
           Image(systemName: "xmark")
             .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(Color(hex: "FF6D00").opacity(0.8))
+            .foregroundColor(Theme.Palette.accent.opacity(0.8))
             .frame(width: 28, height: 28)
             .background(
               Circle()
                 .fill(Color.white.opacity(0.7))
-                .overlay(Circle().stroke(Color(hex: "DABCA4"), lineWidth: 1))
+                .overlay(Circle().stroke(Theme.Palette.accentTint, lineWidth: 1))
             )
         }
         .buttonStyle(.plain)
@@ -211,8 +211,8 @@ struct TimelineReviewOverlay: View {
   private var reviewBottomContent: some View {
     VStack(spacing: 14) {
       Text("Swipe on each card on your Timeline to review your day.")
-        .font(.custom("Figtree", size: 14).weight(.medium))
-        .foregroundColor(Color(hex: "98806D"))
+        .font(.system(size: 14).weight(.medium))
+        .foregroundColor(Theme.Palette.accent)
         .lineLimit(1)
         .minimumScaleFactor(0.95)
 
@@ -228,13 +228,13 @@ struct TimelineReviewOverlay: View {
     return VStack(spacing: 30) {
       VStack(spacing: 12) {
         Text("All caught up!")
-          .font(.custom("InstrumentSerif-Regular", size: 40))
-          .foregroundColor(Color(hex: "333333"))
+          .font(.system(size: 40, weight: .semibold))
+          .foregroundColor(Theme.Palette.ink)
         Text(
           "You've reviewed all your activities so far.\nThe Timeline right panel will be updated with your rating."
         )
-        .font(.custom("Figtree", size: 16).weight(.medium))
-        .foregroundColor(Color(hex: "333333"))
+        .font(.system(size: 16).weight(.medium))
+        .foregroundColor(Theme.Palette.ink)
         .multilineTextAlignment(.center)
       }
 
@@ -244,21 +244,21 @@ struct TimelineReviewOverlay: View {
         dismissOverlay()
       } label: {
         Text("Close")
-          .font(.custom("Figtree", size: 14).weight(.semibold))
-          .foregroundColor(Color(hex: "333333"))
+          .font(.system(size: 14).weight(.semibold))
+          .foregroundColor(Theme.Palette.ink)
           .padding(.horizontal, 24)
           .padding(.vertical, 10)
           .background(
             Capsule()
               .fill(
                 LinearGradient(
-                  colors: [Color(hex: "FFF9F1").opacity(0.9), Color(hex: "FDE8D1").opacity(0.9)],
+                  colors: [Theme.Palette.inset.opacity(0.9), Theme.Palette.inset.opacity(0.9)],
                   startPoint: .topLeading,
                   endPoint: .bottomTrailing
                 )
               )
               .overlay(
-                Capsule().stroke(Color(hex: "FF8904").opacity(0.5), lineWidth: 1.25)
+                Capsule().stroke(Theme.Palette.accent.opacity(0.5), lineWidth: 1.25)
               )
           )
       }
@@ -271,11 +271,11 @@ struct TimelineReviewOverlay: View {
   private var emptyState: some View {
     VStack(spacing: 12) {
       Text("Nothing to review yet")
-        .font(.custom("InstrumentSerif-Regular", size: 28))
-        .foregroundColor(Color(hex: "333333"))
+        .font(.system(size: 28, weight: .semibold))
+        .foregroundColor(Theme.Palette.ink)
       Text("Come back after a few timeline cards appear.")
-        .font(.custom("Figtree", size: 14).weight(.medium))
-        .foregroundColor(Color(hex: "707070"))
+        .font(.system(size: 14).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
     }
   }
 
@@ -298,7 +298,7 @@ struct TimelineReviewOverlay: View {
     if let match = categoryStore.categories.first(where: { $0.name == name }) {
       return Color(hex: match.colorHex)
     }
-    return Color(hex: "B984FF")
+    return Theme.Palette.accentTint
   }
 
   private func handleMoveCommand(_ direction: MoveCommandDirection) {

@@ -99,7 +99,7 @@ struct TimelineReviewCard: View {
 
         VStack(alignment: .leading, spacing: 12) {
           Text(activity.title)
-            .font(.custom("InstrumentSerif-Regular", size: 24))
+            .font(.system(size: 24, weight: .semibold))
             .foregroundColor(Color.black)
             .lineLimit(2)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,8 +112,8 @@ struct TimelineReviewCard: View {
 
           ScrollView(.vertical, showsIndicators: true) {
             Text(summaryText)
-              .font(.custom("Figtree", size: 14).weight(.medium))
-              .foregroundColor(Color(hex: "333333"))
+              .font(.system(size: 14).weight(.medium))
+              .foregroundColor(Theme.Palette.ink)
               .lineSpacing(3)
               .frame(maxWidth: .infinity, alignment: .leading)
               .padding(.trailing, 4)
@@ -125,8 +125,8 @@ struct TimelineReviewCard: View {
           HStack {
             Spacer()
             Text(progressText)
-              .font(.custom("Figtree", size: 10).weight(.medium))
-              .foregroundColor(Color(hex: "AFAFAF"))
+              .font(.system(size: 10).weight(.medium))
+              .foregroundColor(Theme.Palette.ink3)
           }
         }
         .frame(maxHeight: .infinity, alignment: .top)

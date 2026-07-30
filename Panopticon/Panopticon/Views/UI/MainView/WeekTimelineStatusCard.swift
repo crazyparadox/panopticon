@@ -58,16 +58,16 @@ struct WeekRecordingStatusCard: View {
       return WeekStatusCardStyle(
         gradient: LinearGradient(
           stops: [
-            .init(color: Color(hex: "5E7FC0"), location: 0.00),
-            .init(color: Color(hex: "D88ECE"), location: 0.35),
-            .init(color: Color(hex: "FFC19E"), location: 0.68),
-            .init(color: Color(hex: "FFEDE0"), location: 1.00),
+            .init(color: Theme.Palette.accent, location: 0.00),
+            .init(color: Theme.Palette.accent, location: 0.35),
+            .init(color: Theme.Palette.accentTint, location: 0.68),
+            .init(color: Theme.Palette.inset, location: 1.00),
           ],
           startPoint: .leading,
           endPoint: .trailing
         ),
         gradientOpacity: 0.70,
-        baseColor: Color(hex: "D9C6BA"),
+        baseColor: Theme.Palette.accentTint,
         strokeColor: Color.white.opacity(0.52),
         strokeWidth: 0.75,
         shadowColor: .black.opacity(0.10),
@@ -78,8 +78,8 @@ struct WeekRecordingStatusCard: View {
       return WeekStatusCardStyle(
         gradient: LinearGradient(
           stops: [
-            .init(color: Color(hex: "F7E6D5"), location: 0.13),
-            .init(color: Color(hex: "DADEE4"), location: 1.00),
+            .init(color: Theme.Palette.inset, location: 0.13),
+            .init(color: Theme.Palette.accentTint, location: 1.00),
           ],
           startPoint: .leading,
           endPoint: .trailing
@@ -102,19 +102,19 @@ struct WeekRecordingStatusCard: View {
         TimelineThinkingSpinner(config: spinnerConfig, visualScale: 0.4)
         if !compact {
           Text("Next card...")
-            .font(.custom("Figtree", size: 10).weight(.semibold))
+            .font(.system(size: 10).weight(.semibold))
             .foregroundColor(.white)
             .lineLimit(1)
         }
       }
     case .pausedTimed, .pausedIndefinite:
       Label("Paused", systemImage: "pause.fill")
-        .font(.custom("Figtree", size: 10).weight(.medium))
-        .foregroundColor(Color(hex: "888D95"))
+        .font(.system(size: 10).weight(.medium))
+        .foregroundColor(Theme.Palette.ink3)
     case .stopped:
       Label("Resume", systemImage: "play.fill")
-        .font(.custom("Figtree", size: 10).weight(.medium))
-        .foregroundColor(Color(hex: "888D95"))
+        .font(.system(size: 10).weight(.medium))
+        .foregroundColor(Theme.Palette.ink3)
     }
   }
 

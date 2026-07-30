@@ -64,7 +64,7 @@ struct PausePillView: View {
   }
 
   private var pillLabelFont: Font {
-    .custom("Figtree-Medium", size: 12)
+    .system(size: 12, weight: .medium)
   }
 
   private var statusSpacing: CGFloat { 10 }
@@ -98,7 +98,7 @@ struct PausePillView: View {
       if isStatusPresented {
         Text(statusText)
           .font(pillLabelFont)
-          .foregroundColor(Color(hex: "F3854B"))
+          .foregroundColor(Theme.Palette.accent)
           .tracking(-0.36)
           .monospacedDigit()
           .lineLimit(1)
@@ -164,7 +164,7 @@ struct PausePillView: View {
       }
 
       Capsule()
-        .strokeBorder(Color(hex: "FFE1C9"), lineWidth: 1.25)
+        .strokeBorder(Theme.Palette.inset, lineWidth: 1.25)
         .allowsHitTesting(false)
     }
     .frame(width: pillWidth, height: 32)
@@ -189,7 +189,7 @@ struct PausePillView: View {
       PillPauseIcon()
       Text("Pause")
         .font(pillLabelFont)
-        .foregroundColor(Color(hex: "786655"))
+        .foregroundColor(Theme.Palette.accent)
         .lineLimit(1)
         .fixedSize(horizontal: true, vertical: false)
     }
@@ -258,7 +258,7 @@ struct PausePillView: View {
               ? .system(size: 11, weight: .medium)
               : .system(size: 8, weight: .semibold)
           )
-          .foregroundColor(hovered ? .white : Color(hex: "494949"))
+          .foregroundColor(hovered ? .white : Theme.Palette.ink)
       }
       .frame(width: 42, height: 20)
       .contentShape(Capsule())
@@ -602,7 +602,7 @@ struct PausePillView: View {
 private struct PillPauseIcon: View {
   var body: some View {
     Canvas { ctx, _ in
-      let color = Color(hex: "786655")
+      let color = Theme.Palette.accent
       ctx.fill(Path(CGRect(x: 3, y: 2.5, width: 2, height: 7)), with: .color(color))
       ctx.fill(Path(CGRect(x: 7, y: 2.5, width: 2, height: 7)), with: .color(color))
     }
@@ -642,30 +642,30 @@ private struct PillChipButtonStyle: ButtonStyle {
 private enum Grad {
   static let idle = LinearGradient(
     stops: [
-      .init(color: Color(red: 1, green: 0.973, blue: 0.949).opacity(0.6), location: 0),
-      .init(color: Color(red: 1, green: 0.906, blue: 0.827).opacity(0.6), location: 0.495),
-      .init(color: Color(red: 1, green: 0.804, blue: 0.690).opacity(0.6), location: 0.755),
-      .init(color: Color(red: 1, green: 0.906, blue: 0.827).opacity(0.6), location: 1),
+      .init(color: Theme.Palette.inset.opacity(0.6), location: 0),
+      .init(color: Theme.Palette.inset.opacity(0.6), location: 0.495),
+      .init(color: Theme.Palette.accentTint.opacity(0.6), location: 0.755),
+      .init(color: Theme.Palette.inset.opacity(0.6), location: 1),
     ],
     startPoint: .top, endPoint: .bottom
   )
 
   static let menu = LinearGradient(
     stops: [
-      .init(color: Color(red: 0.973, green: 0.784, blue: 0.675).opacity(0.6), location: 0),
-      .init(color: Color(red: 1, green: 0.906, blue: 0.835).opacity(0.6), location: 0.14),
-      .init(color: Color(red: 1, green: 0.816, blue: 0.694).opacity(0.6), location: 0.688),
-      .init(color: Color(red: 0.973, green: 0.784, blue: 0.675).opacity(0.6), location: 1),
+      .init(color: Theme.Palette.accentTint.opacity(0.6), location: 0),
+      .init(color: Theme.Palette.inset.opacity(0.6), location: 0.14),
+      .init(color: Theme.Palette.accentTint.opacity(0.6), location: 0.688),
+      .init(color: Theme.Palette.accentTint.opacity(0.6), location: 1),
     ],
     startPoint: .top, endPoint: .bottom
   )
 
   static let paused = LinearGradient(
     stops: [
-      .init(color: Color(red: 1, green: 0.714, blue: 0.608), location: 0),
-      .init(color: Color(red: 1, green: 0.569, blue: 0.278), location: 0.495),
-      .init(color: Color(red: 1, green: 0.553, blue: 0.251), location: 0.760),
-      .init(color: Color(red: 1, green: 0.643, blue: 0.510), location: 1),
+      .init(color: Theme.Palette.accentTint, location: 0),
+      .init(color: Theme.Palette.accent, location: 0.495),
+      .init(color: Theme.Palette.accent, location: 0.760),
+      .init(color: Theme.Palette.accentTint, location: 1),
     ],
     startPoint: .top, endPoint: .bottom
   )
@@ -684,9 +684,9 @@ private enum Grad {
   // Chip hover — orange gradient overlay
   static let chipHover = LinearGradient(
     stops: [
-      .init(color: Color(red: 1, green: 0.702, blue: 0.565).opacity(0.82), location: 0),
-      .init(color: Color(red: 1, green: 0.624, blue: 0.416).opacity(0.82), location: 0.42),
-      .init(color: Color(red: 1, green: 0.553, blue: 0.251).opacity(0.82), location: 1),
+      .init(color: Theme.Palette.accentTint.opacity(0.82), location: 0),
+      .init(color: Theme.Palette.accent.opacity(0.82), location: 0.42),
+      .init(color: Theme.Palette.accent.opacity(0.82), location: 1),
     ],
     startPoint: UnitPoint(x: 0.91, y: 0.97),
     endPoint: UnitPoint(x: 0.11, y: 0)
@@ -697,8 +697,8 @@ private enum Grad {
 
 private enum Col {
   static let shineIdle = Color.white.opacity(0.5)
-  static let shineMenu = Color(red: 0.949, green: 0.749, blue: 0.655).opacity(0.5)
-  static let shinePaused = Color(red: 1, green: 0.894, blue: 0.761).opacity(0.5)
+  static let shineMenu = Theme.Palette.accentTint.opacity(0.5)
+  static let shinePaused = Theme.Palette.inset.opacity(0.5)
 }
 
 // MARK: - Preview
@@ -708,5 +708,5 @@ private enum Col {
     PausePillView()
   }
   .frame(width: 400, height: 200)
-  .background(Color(red: 0.992, green: 0.973, blue: 0.945))  // #FDF8F1
+  .background(Theme.Palette.inset)  // #FDF8F1
 }

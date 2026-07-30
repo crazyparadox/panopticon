@@ -58,16 +58,16 @@ struct CanvasActivityCard: View {
 
   private var backupIndicator: some View {
     Text("!")
-      .font(Font.custom("Figtree", size: 9).weight(.semibold))
-      .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+      .font(Font.system(size: 9).weight(.semibold))
+      .foregroundColor(Theme.Palette.ink2)
       .frame(width: 14, height: 14)
       .background(
         Circle()
-          .fill(Color(red: 0.96, green: 0.94, blue: 0.91).opacity(0.9))
+          .fill(Theme.Palette.inset.opacity(0.9))
       )
       .overlay(
         Circle()
-          .stroke(Color(red: 0.9, green: 0.9, blue: 0.9), lineWidth: 0.75)
+          .stroke(Theme.Palette.line, lineWidth: 0.75)
       )
       .help(
         "This card fell back to a lower-quality Gemini model due to rate limiting, so output quality may be lower."
@@ -76,7 +76,7 @@ struct CanvasActivityCard: View {
 
   private var selectionStroke: Color {
     if isSystemCategory {
-      return Color(red: 1, green: 0.16, blue: 0.11)
+      return Theme.Palette.red
     }
     return style.accent
   }
@@ -94,7 +94,7 @@ struct CanvasActivityCard: View {
               HStack(alignment: .top, spacing: 8) {
                 Text(title)
                   .font(
-                    Font.custom("Figtree", size: fontSize)
+                    Font.system(size: fontSize)
                       .weight(fontWeight.fontWeight)
                   )
                   .foregroundColor(style.text)
@@ -103,7 +103,7 @@ struct CanvasActivityCard: View {
 
                 Text(time)
                   .font(
-                    Font.custom("Figtree", size: secondaryFontSize)
+                    Font.system(size: secondaryFontSize)
                       .weight(.medium)
                   )
                   .foregroundColor(style.time)
@@ -113,8 +113,8 @@ struct CanvasActivityCard: View {
 
               if let statusLine = statusLine {
                 Text(statusLine)
-                  .font(Font.custom("Figtree", size: secondaryFontSize))
-                  .foregroundColor(Color(red: 0.55, green: 0.45, blue: 0.4))
+                  .font(Font.system(size: secondaryFontSize))
+                  .foregroundColor(Theme.Palette.accent)
                   .lineLimit(1)
                   .truncationMode(.tail)
               }
@@ -133,7 +133,7 @@ struct CanvasActivityCard: View {
 
             Text(title)
               .font(
-                Font.custom("Figtree", size: fontSize)
+                Font.system(size: fontSize)
                   .weight(fontWeight.fontWeight)
               )
               .foregroundColor(style.text)
@@ -147,7 +147,7 @@ struct CanvasActivityCard: View {
 
               Text(time)
                 .font(
-                  Font.custom("Figtree", size: secondaryFontSize)
+                  Font.system(size: secondaryFontSize)
                     .weight(.medium)
                 )
                 .foregroundColor(style.time)
@@ -166,13 +166,13 @@ struct CanvasActivityCard: View {
         maxHeight: height,
         alignment: isCompactCard ? .leading : .topLeading
       )
-      .background(isFailedCard ? Color(hex: "FFECE4") : Color(hex: "FFFBF8"))
+      .background(isFailedCard ? Theme.Palette.inset : Theme.Palette.inset)
       .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
       .overlay(
         RoundedRectangle(cornerRadius: 2, style: .continuous)
           .inset(by: 0.25)
           .stroke(
-            isFailedCard ? Color(red: 1, green: 0.16, blue: 0.11) : Color(hex: "E8E8E8"),
+            isFailedCard ? Theme.Palette.red : Theme.Palette.line,
             style: isFailedCard
               ? StrokeStyle(lineWidth: 0.5, dash: [2.5, 2.5]) : StrokeStyle(lineWidth: 0.25)
           )

@@ -57,10 +57,10 @@ struct TabFilterBar: View {
 
         Text(category.name)
           .font(
-            Font.custom("Figtree", size: 13)
+            Font.system(size: 13)
               .weight(.medium)
           )
-          .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+          .foregroundColor(Theme.Palette.ink)
           .lineLimit(1)
           .fixedSize()
       }
@@ -72,7 +72,7 @@ struct TabFilterBar: View {
       .overlay(
         RoundedRectangle(cornerRadius: 6)
           .inset(by: 0.25)
-          .stroke(Color(red: 0.88, green: 0.88, blue: 0.88), lineWidth: 0.5)
+          .stroke(Theme.Palette.line, lineWidth: 0.5)
       )
     }
   }
@@ -119,7 +119,7 @@ struct TabFilterBar: View {
 
   private var overflowGradient: some View {
     LinearGradient(
-      gradient: Gradient(colors: [Color.clear, Color(hex: "FFF8F1")]),
+      gradient: Gradient(colors: [Color.clear, Theme.Palette.inset]),
       startPoint: .leading,
       endPoint: .trailing
     )

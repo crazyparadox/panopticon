@@ -86,9 +86,9 @@ struct TimelineRateSummaryView: View {
 
       HStack(spacing: 8) {
         Text(title)
-          .font(Font.custom("Figtree", size: 12).weight(.medium))
+          .font(Font.system(size: 12).weight(.medium))
           .foregroundColor(
-            Color(red: 0.49, green: 0.47, blue: 0.46)
+            Theme.Palette.ink2
               .opacity(isEnabled ? 0.95 : 0.45)
           )
 
@@ -104,11 +104,11 @@ struct TimelineRateSummaryView: View {
     .padding(.horizontal, 12)
     .padding(.vertical, 3)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(red: 0.98, green: 0.98, blue: 0.98))
+    .background(Theme.Palette.surface)
     .overlay(
       Rectangle()
         .inset(by: 0.5)
-        .stroke(Color(red: 0.93, green: 0.93, blue: 0.93), lineWidth: 1)
+        .stroke(Theme.Palette.surface, lineWidth: 1)
     )
     .shadow(color: Color.white.opacity(1.0), radius: 9, x: 0, y: -4)
     .opacity(isEnabled ? 1 : 0.6)
@@ -124,10 +124,10 @@ struct TimelineRateSummaryView: View {
 
   private var deleteButton: some View {
     let transition = AnyTransition.opacity.combined(with: .scale(scale: 0.5))
-    let idleText = Color(hex: "C05C54")
+    let idleText = Theme.Palette.red
     let idleIconTextOpacity = 0.9
-    let confirmBackground = Color(hex: "DF6055")
-    let confirmStroke = Color(hex: "CB4E43")
+    let confirmBackground = Theme.Palette.red
+    let confirmStroke = Theme.Palette.red
     let isConfirmVisualState = deleteButtonState != .idle
 
     return Button(action: handleDeleteTap) {
@@ -139,11 +139,11 @@ struct TimelineRateSummaryView: View {
             .transition(transition)
         } else if deleteButtonState == .confirming {
           Text("Confirm")
-            .font(Font.custom("Figtree", size: 12).weight(.medium))
+            .font(Font.system(size: 12).weight(.medium))
             .transition(transition)
         } else {
           Text("Delete")
-            .font(Font.custom("Figtree", size: 12).weight(.medium))
+            .font(Font.system(size: 12).weight(.medium))
             .transition(transition)
         }
       }

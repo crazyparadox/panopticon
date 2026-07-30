@@ -31,23 +31,7 @@ struct PanopticonApp: App {
         }
       }
       .background {
-        // The timeline panel composites translucently over the window
-        // background, so post-onboarding keeps the original textured art;
-        // onboarding uses the flat canvas.
-        if didOnboard {
-          ZStack {
-            Image("MainUIBackground")
-              .resizable()
-              .scaledToFill()
-            Color(red: 0.98, green: 0.96, blue: 0.93)
-              .opacity(0.4)
-          }
-          .ignoresSafeArea()
-          .allowsHitTesting(false)
-          .accessibilityHidden(true)
-        } else {
-          Theme.Palette.canvas.ignoresSafeArea()
-        }
+        Theme.Palette.canvas.ignoresSafeArea()
         MainWindowRegistrationView()
       }
       .frame(minWidth: 900, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)

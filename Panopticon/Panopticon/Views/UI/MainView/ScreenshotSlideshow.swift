@@ -49,7 +49,7 @@ struct ScreenshotSlideshowModal: View {
               "\(Self.timeFormatter.string(from: startTime)) to \(Self.timeFormatter.string(from: endTime))"
             )
             .font(.caption)
-            .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+            .foregroundColor(Theme.Palette.ink2)
           }
         }
         Spacer()

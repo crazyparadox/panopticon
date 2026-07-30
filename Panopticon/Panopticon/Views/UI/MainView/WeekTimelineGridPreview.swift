@@ -17,13 +17,13 @@ private struct WeekTimelineHoverPrototypeHarness: View {
     VStack(alignment: .leading, spacing: 12) {
       VStack(alignment: .leading, spacing: 4) {
         Text("Hover-expand prototype")
-          .font(.custom("Figtree", size: 13).weight(.semibold))
-          .foregroundColor(Color(hex: "333333"))
+          .font(.system(size: 13).weight(.semibold))
+          .foregroundColor(Theme.Palette.ink)
         Text(
           "Hover a short card — the card grows to reveal the full title. No text shifts; only new lines appear below."
         )
-        .font(.custom("Figtree", size: 11))
-        .foregroundColor(Color(hex: "6B5548"))
+        .font(.system(size: 11))
+        .foregroundColor(Theme.Palette.accent)
       }
 
       WeekTimelineGridView(
@@ -36,11 +36,11 @@ private struct WeekTimelineHoverPrototypeHarness: View {
         onClearSelection: { selectedActivity = nil },
         previewPositionedActivities: Self.mockActivities()
       )
-      .background(Color(hex: "FFF6EE"))
+      .background(Theme.Palette.inset)
     }
     .padding(16)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color(hex: "FAF3EB"))
+    .background(Theme.Palette.inset)
     .preferredColorScheme(.light)
   }
 

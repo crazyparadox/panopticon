@@ -14,21 +14,17 @@ struct OnboardingFlow: View {
   @State private var step: OnboardingStep = OnboardingStepMigration.restoredStep()
   @AppStorage("didOnboard") private var didOnboard = false
   @AppStorage("selectedLLMProvider") private var selectedProvider: String = "gemini"
-  @AppStorage("onboardingHasPaidAI") private var savedHasPaidAISelection = ""
   @EnvironmentObject private var categoryStore: CategoryStore
-  @State private var userHasPaidAI: Bool? = OnboardingFlow.loadSavedHasPaidAISelection()
   @State private var flowID = UUID().uuidString.lowercased()
 
   private var onboardingFilledSegments: Int {
     switch step {
-    case .roleSelection: return 0
-    case .preferences: return 1
-    case .llmSelection: return 2
-    case .llmSetup: return 3
-    case .categories: return 4
-    case .categoryColors: return 5
-    case .screen: return 6
-    case .completion: return 7
+    case .llmSelection: return 0
+    case .llmSetup: return 1
+    case .categories: return 2
+    case .categoryColors: return 3
+    case .screen: return 4
+    case .completion: return 5
     }
   }
 
@@ -41,33 +37,9 @@ struct OnboardingFlow: View {
     ZStack(alignment: .bottomLeading) {
       // NO NESTING! Just render the appropriate view directly - NO GROUP!
       switch step {
-      case .roleSelection:
-        OnboardingPrototypeRoleSelectionStep(
-          onContinue: { selectedRole in
-            categoryStore.setOnboardingRole(selectedRole)
-            advance(selectedRole: selectedRole)
-          }
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .transition(.opacity)
-        .onAppear {
-        }
-
-      case .preferences:
-        OnboardingPrototypePreferencesStep(
-          onContinue: { hasPaidAI in
-            userHasPaidAI = hasPaidAI
-            savedHasPaidAISelection = hasPaidAI ? "yes" : "no"
-            advance(extraProps: ["has_paid_ai": hasPaidAI])
-          }
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear {
-        }
-
       case .llmSelection:
         OnboardingPrototypeChooseProviderStep(
-          hasPaidAI: userHasPaidAI ?? false,
+          hasPaidAI: false,
           flowID: flowID,
           flowVariant: "production_onboarding",
           onSelect: { providerTitle in
@@ -153,7 +125,6 @@ struct OnboardingFlow: View {
             markStepCompleted(.completion)
             didOnboard = true
             savedStepRawValue = 0
-            savedHasPaidAISelection = ""
           }
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -162,7 +133,7 @@ struct OnboardingFlow: View {
       }
 
       // Progress ring — bottom-left, always in tree (opacity toggle preserves @State)
-      ProgressRingView(totalSegments: 8, filledSegments: onboardingFilledSegments)
+      ProgressRingView(totalSegments: 6, filledSegments: onboardingFilledSegments)
         .opacity(showsProgressRing ? 1 : 0)
         .animation(.easeInOut(duration: 0.3), value: showsProgressRing)
         .padding(.leading, 0)
@@ -186,17 +157,12 @@ struct OnboardingFlow: View {
     if migratedValue != savedStepRawValue {
       savedStepRawValue = migratedValue
     }
-    userHasPaidAI = persistedHasPaidAISelection
     if let savedStep = OnboardingStep(rawValue: migratedValue) {
       if savedStep == .categories {
         prepareCategoriesForOnboardingIfNeeded()
       }
       step = savedStep
     }
-  }
-
-  private var persistedHasPaidAISelection: Bool? {
-    Self.decodeHasPaidAISelection(savedHasPaidAISelection)
   }
 
   private func setStep(_ newStep: OnboardingStep) {
@@ -223,15 +189,6 @@ struct OnboardingFlow: View {
 
   private func advance(selectedRole: String? = nil, extraProps: [String: Any] = [:]) {
     switch step {
-    case .roleSelection:
-      let extraProps = selectedRole.map { ["role": $0] } ?? [:]
-      markStepCompleted(step, extraProps: extraProps)
-      step.next()
-      savedStepRawValue = step.rawValue
-    case .preferences:
-      markStepCompleted(step, extraProps: extraProps)
-      step.next()
-      savedStepRawValue = step.rawValue
     case .llmSelection:
       markStepCompleted(step, extraProps: extraProps)
       let nextStep: OnboardingStep = .llmSetup
@@ -275,34 +232,15 @@ struct OnboardingFlow: View {
     }
   }
 
-  private static func loadSavedHasPaidAISelection(defaults: UserDefaults = .standard) -> Bool? {
-    decodeHasPaidAISelection(defaults.string(forKey: "onboardingHasPaidAI") ?? "")
-  }
-
-  private static func decodeHasPaidAISelection(_ value: String) -> Bool? {
-    switch value {
-    case "yes":
-      return true
-    case "no":
-      return false
-    default:
-      return nil
-    }
-  }
-
 }
 
 /// Wizard step order
 enum OnboardingStep: Int, CaseIterable {
-  case roleSelection, preferences, llmSelection, llmSetup,
+  case llmSelection, llmSetup,
     categories, categoryColors, screen, completion
 
   var analyticsName: String {
     switch self {
-    case .roleSelection:
-      return "role_selection"
-    case .preferences:
-      return "preferences"
     case .llmSelection:
       return "llm_selection"
     case .llmSetup:
@@ -341,7 +279,7 @@ enum OnboardingStepMigration {
   }
 
   static func restoredStep(defaults: UserDefaults = .standard) -> OnboardingStep {
-    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .roleSelection
+    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .llmSelection
   }
 }
 

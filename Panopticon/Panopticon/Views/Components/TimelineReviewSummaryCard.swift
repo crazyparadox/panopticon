@@ -39,9 +39,9 @@ struct TimelineReviewSummaryCard: View {
     static let headerSpacing: CGFloat = 2
     static let contentSpacing: CGFloat = 16
 
-    static let titleColor = Color(hex: "333333")
-    static let subtitleColor = Color(hex: "707070")
-    static let linkColor = Color(hex: "F96E00")
+    static let titleColor = Theme.Palette.ink
+    static let subtitleColor = Theme.Palette.ink2
+    static let linkColor = Theme.Palette.accent
 
     static let barHeight: CGFloat = 39
     static let barCornerRadius: CGFloat = 4
@@ -89,11 +89,11 @@ struct TimelineReviewSummaryCard: View {
   private var header: some View {
     VStack(alignment: .leading, spacing: Design.headerSpacing) {
       Text("Your review")
-        .font(.custom("InstrumentSerif-Regular", size: 20))
+        .font(.system(size: 20, weight: .semibold))
         .foregroundColor(Design.titleColor)
 
       subtitle
-        .font(.custom("Figtree", size: 11))
+        .font(.system(size: 11))
         .lineSpacing(2)
         .onTapGesture {
           guard cardsToReviewCount > 0 else { return }
@@ -175,13 +175,13 @@ struct TimelineReviewSummaryCard: View {
               )
 
             Text(metric.label)
-              .font(.custom("Figtree", size: 10))
+              .font(.system(size: 10))
               .foregroundColor(Design.subtitleColor)
           }
 
           if summary.hasData {
             Text(metric.durationText)
-              .font(.custom("Figtree", size: 12).weight(.semibold))
+              .font(.system(size: 12).weight(.semibold))
               .foregroundColor(Design.titleColor)
               .padding(.leading, 14)
           }
@@ -199,10 +199,10 @@ struct TimelineReviewSummaryCard: View {
       ratio: max(CGFloat(summary.distractedRatio), 0),
       durationText: durationText(summary.distractedDuration),
       style: metricStyle(
-        baseColor: Color(hex: "FF8772"),
+        baseColor: Theme.Palette.red,
         shadow: Color(red: 148 / 255, green: 87 / 255, blue: 77 / 255).opacity(0.25),
-        legendFill: Color(hex: "FF8772").opacity(0.4),
-        legendStroke: Color(hex: "FF8772"),
+        legendFill: Theme.Palette.red.opacity(0.4),
+        legendStroke: Theme.Palette.red,
         placeholder: placeholder
       )
     )
@@ -213,10 +213,10 @@ struct TimelineReviewSummaryCard: View {
       ratio: max(CGFloat(summary.neutralRatio), 0),
       durationText: durationText(summary.neutralDuration),
       style: metricStyle(
-        baseColor: Color(hex: "EAE0DB"),
+        baseColor: Theme.Palette.inset,
         shadow: Color(red: 225 / 255, green: 210 / 255, blue: 203 / 255).opacity(0.25),
-        legendFill: Color(hex: "DDDBDA").opacity(0.4),
-        legendStroke: Color(hex: "DDDBDA"),
+        legendFill: Theme.Palette.line.opacity(0.4),
+        legendStroke: Theme.Palette.line,
         placeholder: placeholder
       )
     )
@@ -227,10 +227,10 @@ struct TimelineReviewSummaryCard: View {
       ratio: max(CGFloat(summary.productiveRatio), 0),
       durationText: durationText(summary.productiveDuration),
       style: metricStyle(
-        baseColor: Color(hex: "42D0BB"),
+        baseColor: Theme.Palette.accent,
         shadow: Color(red: 77 / 255, green: 156 / 255, blue: 145 / 255).opacity(0.25),
-        legendFill: Color(hex: "42D0BB").opacity(0.4),
-        legendStroke: Color(hex: "42D0BB"),
+        legendFill: Theme.Palette.accent.opacity(0.4),
+        legendStroke: Theme.Palette.accent,
         placeholder: placeholder
       )
     )
@@ -245,7 +245,7 @@ struct TimelineReviewSummaryCard: View {
     legendStroke: Color,
     placeholder: Bool
   ) -> ReviewMetricStyle {
-    let barColor = placeholder ? Color(hex: "EAE0DB") : baseColor
+    let barColor = placeholder ? Theme.Palette.inset : baseColor
     let barShadow =
       placeholder
       ? Color(red: 225 / 255, green: 210 / 255, blue: 203 / 255).opacity(0.25)
@@ -320,5 +320,5 @@ struct TimelineReviewSummaryCard: View {
     .frame(width: 322)
   }
   .padding(24)
-  .background(Color(red: 0.98, green: 0.97, blue: 0.96))
+  .background(Theme.Palette.inset)
 }

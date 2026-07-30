@@ -64,7 +64,7 @@ private struct TimelineNavigationButton: View {
     }) {
       ZStack {
         Circle()
-          .fill(Color(hex: "FFEBD3").opacity(0.79))
+          .fill(Theme.Palette.inset.opacity(0.79))
           .frame(width: hoverCircleSize, height: hoverCircleSize)
           .opacity(isHovering && isEnabled ? 1 : 0)
 
@@ -300,11 +300,11 @@ extension MainView {
   }
 
   private var timelineCalendarButtonFillColor: Color {
-    showTimelineCalendarPopover ? Color(hex: "FFB38E") : Color(hex: "FFA777")
+    showTimelineCalendarPopover ? Theme.Palette.accentTint : Theme.Palette.accentTint
   }
 
   private var timelineCalendarButtonBorderColor: Color {
-    showTimelineCalendarPopover ? Color(hex: "E8BDA1") : Color(hex: "F2D2BD")
+    showTimelineCalendarPopover ? Theme.Palette.accentTint : Theme.Palette.line
   }
 
   private var timelineCalendarButtonShadowColor: Color {
@@ -416,15 +416,15 @@ extension MainView {
                 .fill(
                   LinearGradient(
                     colors: [
-                      Color(hex: "FFB18D").opacity(0.6),
-                      Color(hex: "FFA46F"),
-                      Color(hex: "FFB18D"),
+                      Theme.Palette.accentTint.opacity(0.6),
+                      Theme.Palette.accent,
+                      Theme.Palette.accentTint,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                   )
                 )
-                .shadow(color: Color(hex: "E89A6C").opacity(0.18), radius: 4, x: 0, y: 1)
+                .shadow(color: Theme.Palette.accent.opacity(0.18), radius: 4, x: 0, y: 1)
                 .matchedGeometryEffect(
                   id: "timeline_mode_highlight",
                   in: timelineModeSwitchNamespace
@@ -432,8 +432,8 @@ extension MainView {
             }
 
             Text(mode.title)
-              .font(.custom("Figtree", size: 12).weight(.medium))
-              .foregroundColor(isSelected ? .white : Color(hex: "796E64"))
+              .font(.system(size: 12).weight(.medium))
+              .foregroundColor(isSelected ? .white : Theme.Palette.ink2)
               // Concrete width (52pt × 2 = 104pt container) instead of
               // `.frame(maxWidth: .infinity)`. The infinity was being fought
               // by the `.fixedSize(horizontal: true)` ancestor on
@@ -456,11 +456,11 @@ extension MainView {
       }
     }
     .frame(width: 104, height: 30)
-    .background(Color(hex: "FFEFE4"))
+    .background(Theme.Palette.inset)
     .clipShape(Capsule(style: .continuous))
     .overlay(
       Capsule(style: .continuous)
-        .stroke(Color(hex: "F2D2BD"), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
     )
     .animation(timelineModeSwitchAnimation, value: timelineMode)
   }
@@ -470,8 +470,8 @@ extension MainView {
       navigateTimeline(to: timelineDisplayDate(from: Date()), method: "today")
     }) {
       Text("Today")
-        .font(.custom("Figtree", size: 12).weight(.medium))
-        .foregroundColor(Color(hex: "796E64"))
+        .font(.system(size: 12).weight(.medium))
+        .foregroundColor(Theme.Palette.ink2)
         .padding(.horizontal, 10)
         // Explicit width pinned (natural ~52pt + 4pt safety margin). Same
         // rationale as the calendar pill: under the ancestor's `.fixedSize`
@@ -479,11 +479,11 @@ extension MainView {
         // values mid-transition, nudging the Day/Week toggle's position and
         // desyncing its `matchedGeometryEffect` anchors during a mode flip.
         .frame(width: 56, height: 30)
-        .background(Color(hex: "FFEFE4"))
+        .background(Theme.Palette.inset)
         .clipShape(Capsule(style: .continuous))
         .overlay(
           Capsule(style: .continuous)
-            .stroke(Color(hex: "F2D2BD"), lineWidth: 1)
+            .stroke(Theme.Palette.line, lineWidth: 1)
         )
     }
     .buttonStyle(PanopticonPressScaleButtonStyle(pressedScale: 0.97))
@@ -493,7 +493,7 @@ extension MainView {
 
   private var timelineHeaderDateLabel: some View {
     Text(timelineTitleText)
-      .font(.custom("InstrumentSerif-Regular", size: 26))
+      .font(.system(size: 26, weight: .semibold))
       .foregroundColor(Color.black)
       .lineLimit(1)
       .fixedSize(horizontal: true, vertical: false)

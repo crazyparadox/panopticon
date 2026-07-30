@@ -191,7 +191,7 @@ struct VideoExpansionOverlay: View {
             "\(videoPlayerTimeFormatter.string(from: startTime)) to \(videoPlayerTimeFormatter.string(from: endTime))"
           )
           .font(.caption)
-          .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+          .foregroundColor(Theme.Palette.ink2)
         }
       }
       Spacer()
@@ -616,7 +616,7 @@ struct VideoPlayerModal: View {
                 "\(videoPlayerTimeFormatter.string(from: startTime)) to \(videoPlayerTimeFormatter.string(from: endTime))"
               )
               .font(.caption)
-              .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+              .foregroundColor(Theme.Palette.ink2)
             }
           }
           Spacer()

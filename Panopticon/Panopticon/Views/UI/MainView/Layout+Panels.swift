@@ -100,7 +100,7 @@ extension MainView {
         timelineLeftColumn
           .zIndex(1)
         Rectangle()
-          .fill(Color(hex: "ECECEC"))
+          .fill(Theme.Palette.line)
           .frame(width: timelineInspectorDividerWidth)
           .opacity(timelineInspectorDividerWidth == 0 ? 0 : 1)
           .frame(maxHeight: .infinity)
@@ -389,15 +389,15 @@ extension MainView {
   }
 
   private var weeklyHoursText: some View {
-    let textColor = Color(red: 0.84, green: 0.65, blue: 0.52)
+    let textColor = Theme.Palette.accent
     let parts = timelineTrackedMinutesParts
 
     return
       (Text(parts.bold)
-      .font(Font.custom("Figtree", size: 10).weight(.bold))
+      .font(Font.system(size: 10).weight(.bold))
       .foregroundColor(textColor)
       + Text(parts.rest)
-      .font(Font.custom("Figtree", size: 10).weight(.regular))
+      .font(Font.system(size: 10).weight(.regular))
       .foregroundColor(textColor))
       .background(
         GeometryReader { proxy in
@@ -410,9 +410,9 @@ extension MainView {
   }
 
   private var copyTimelineButton: some View {
-    let background = Color(red: 0.99, green: 0.93, blue: 0.88)
-    let stroke = Color(red: 0.97, green: 0.89, blue: 0.81)
-    let textColor = Color(red: 0.84, green: 0.65, blue: 0.52)
+    let background = Theme.Palette.inset
+    let stroke = Theme.Palette.inset
+    let textColor = Theme.Palette.accent
 
     // Slide up + fade: no text scaling (scaling distorts letterforms)
     let enterTransition = AnyTransition.opacity
@@ -432,7 +432,7 @@ extension MainView {
             Image(systemName: "checkmark")
               .font(.system(size: 11.5, weight: .medium))
             Text("Copied")
-              .font(Font.custom("Figtree", size: 11.5).weight(.medium))
+              .font(Font.system(size: 11.5).weight(.medium))
           }
           .transition(.asymmetric(insertion: enterTransition, removal: exitTransition))
         } else {
@@ -444,7 +444,7 @@ extension MainView {
               .scaledToFit()
               .frame(width: 11.5, height: 11.5)
             Text("Copy timeline")
-              .font(Font.custom("Figtree", size: 11.5).weight(.medium))
+              .font(Font.system(size: 11.5).weight(.medium))
           }
           .transition(.asymmetric(insertion: enterTransition, removal: exitTransition))
         }

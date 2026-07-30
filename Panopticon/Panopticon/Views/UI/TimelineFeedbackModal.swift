@@ -76,7 +76,7 @@ struct TimelineFeedbackModal: View {
       Button(action: onClose) {
         Image(systemName: "xmark")
           .font(.system(size: 12.5, weight: .semibold))
-          .foregroundColor(Color(hex: "FF8046").opacity(0.7))
+          .foregroundColor(Theme.Palette.accent.opacity(0.7))
           .frame(width: 22, height: 22)
           .background(Color.white.opacity(0.9))
           .clipShape(Circle())
@@ -107,7 +107,7 @@ struct TimelineFeedbackModal: View {
         .fill(
           LinearGradient(
             gradient: Gradient(stops: [
-              .init(color: Color(hex: "FFF4E9"), location: 0),
+              .init(color: Theme.Palette.inset, location: 0),
               .init(color: Color.white, location: 0.85),
             ]),
             startPoint: .bottom,
@@ -117,7 +117,7 @@ struct TimelineFeedbackModal: View {
     )
     .overlay(
       RoundedRectangle(cornerRadius: 6)
-        .stroke(Color(hex: "ECECEC"), lineWidth: 1)
+        .stroke(Theme.Palette.line, lineWidth: 1)
     )
     .shadow(color: Color.black.opacity(0.07), radius: 12, x: 0, y: 6)
   }
@@ -126,21 +126,21 @@ struct TimelineFeedbackModal: View {
     VStack(spacing: 16) {
       VStack(spacing: 12) {
         Text(content.formTitle)
-          .font(Font.custom("InstrumentSerif-Regular", size: 18))
-          .foregroundColor(Color(hex: "333333"))
+          .font(Font.system(size: 18, weight: .semibold))
+          .foregroundColor(Theme.Palette.ink)
           .multilineTextAlignment(.center)
 
         Text(content.formSubtitle)
-          .font(Font.custom("Figtree", size: 13).weight(.medium))
-          .foregroundColor(Color(hex: "333333"))
+          .font(Font.system(size: 13).weight(.medium))
+          .foregroundColor(Theme.Palette.ink)
           .multilineTextAlignment(.center)
       }
 
       VStack(spacing: 8) {
         ZStack(alignment: .topLeading) {
           TextEditor(text: $message)
-            .font(Font.custom("Figtree", size: 12).weight(.medium))
-            .foregroundColor(Color(hex: "333333"))
+            .font(Font.system(size: 12).weight(.medium))
+            .foregroundColor(Theme.Palette.ink)
             .padding(.horizontal, 6)
             .padding(.vertical, 8)
             .background(Color.white)
@@ -148,7 +148,7 @@ struct TimelineFeedbackModal: View {
             .cornerRadius(4)
             .overlay(
               RoundedRectangle(cornerRadius: 4)
-                .stroke(Color(hex: "D9D9D9"), lineWidth: 1)
+                .stroke(Theme.Palette.line, lineWidth: 1)
             )
             .focused($isEditorFocused)
             .onAppear {
@@ -160,8 +160,8 @@ struct TimelineFeedbackModal: View {
 
           if message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             Text(content.placeholder)
-              .font(Font.custom("Figtree", size: 12).weight(.medium))
-              .foregroundColor(Color(hex: "AAAAAA"))
+              .font(Font.system(size: 12).weight(.medium))
+              .foregroundColor(Theme.Palette.ink3)
               .padding(.horizontal, 12)
               .padding(.vertical, 12)
           }
@@ -172,7 +172,7 @@ struct TimelineFeedbackModal: View {
         } label: {
           HStack(alignment: .top, spacing: 8) {
             RoundedRectangle(cornerRadius: 2)
-              .stroke(Color(hex: "FF8046"), lineWidth: shareLogs ? 0 : 1)
+              .stroke(Theme.Palette.accent, lineWidth: shareLogs ? 0 : 1)
               .frame(width: 14, height: 14)
               .overlay(
                 Image(systemName: "checkmark")
@@ -182,11 +182,11 @@ struct TimelineFeedbackModal: View {
               )
               .background(
                 RoundedRectangle(cornerRadius: 2)
-                  .fill(shareLogs ? Color(hex: "FF8046") : Color.clear)
+                  .fill(shareLogs ? Theme.Palette.accent : Color.clear)
               )
 
             Text(content.shareLogsLabel)
-              .font(Font.custom("Figtree", size: 10).weight(.medium))
+              .font(Font.system(size: 10).weight(.medium))
               .foregroundColor(Color.black)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -199,11 +199,11 @@ struct TimelineFeedbackModal: View {
 
       Button(action: onSubmit) {
         Text(content.submitButtonTitle)
-          .font(Font.custom("Figtree", size: 12).weight(.medium))
+          .font(Font.system(size: 12).weight(.medium))
           .foregroundColor(.white)
           .frame(maxWidth: .infinity)
           .frame(height: 30)
-          .background(Color(hex: "FF8046"))
+          .background(Theme.Palette.accent)
           .cornerRadius(4)
       }
       .buttonStyle(.plain)
@@ -214,16 +214,16 @@ struct TimelineFeedbackModal: View {
   private var thanksContent: some View {
     VStack(spacing: 20) {
       Text(content.thanksTitle)
-        .font(Font.custom("InstrumentSerif-Regular", size: 18))
-        .foregroundColor(Color(hex: "333333"))
+        .font(Font.system(size: 18, weight: .semibold))
+        .foregroundColor(Theme.Palette.ink)
         .multilineTextAlignment(.center)
         .padding(.bottom, 4)
 
       VStack(alignment: .leading, spacing: 12) {
         if let thanksBody = content.thanksBody {
           Text(thanksBody)
-            .font(Font.custom("Figtree", size: 12).weight(.medium))
-            .foregroundColor(Color(hex: "333333"))
+            .font(Font.system(size: 12).weight(.medium))
+            .foregroundColor(Theme.Palette.ink)
             .multilineTextAlignment(.leading)
         }
 

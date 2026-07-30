@@ -357,7 +357,7 @@ private struct TimelineFailureToastView: View {
       HStack(alignment: .top, spacing: 10) {
         Image(systemName: "exclamationmark.triangle.fill")
           .font(.system(size: 14))
-          .foregroundColor(Color(hex: "C04A00"))
+          .foregroundColor(Theme.Palette.accent)
           .padding(.top, 2)
 
         // Mirrors ScreenRecordingPermissionNoticeView: semibold title with a
@@ -365,13 +365,13 @@ private struct TimelineFailureToastView: View {
         VStack(alignment: .leading, spacing: 3) {
           if let title {
             Text(title)
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .fontWeight(.semibold)
               .foregroundColor(.black.opacity(0.86))
           }
 
           Text(message)
-            .font(.custom("Figtree", size: title == nil ? 13 : 12))
+            .font(.system(size: title == nil ? 13 : 12))
             .foregroundColor(.black.opacity(title == nil ? 0.82 : 0.62))
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -394,11 +394,11 @@ private struct TimelineFailureToastView: View {
             Image(systemName: "gearshape")
               .font(.system(size: 12))
             Text(actionTitle)
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .fontWeight(.semibold)
           }
         },
-        background: Color(red: 0.25, green: 0.17, blue: 0),
+        background: Theme.Palette.ink,
         foreground: .white,
         borderColor: .clear,
         cornerRadius: 8,
@@ -409,11 +409,11 @@ private struct TimelineFailureToastView: View {
     }
     .padding(14)
     .frame(width: 360, alignment: .leading)
-    .background(Color(hex: "FFF8F2"))
+    .background(Theme.Palette.inset)
     .cornerRadius(12)
     .overlay(
       RoundedRectangle(cornerRadius: 12)
-        .stroke(Color(hex: "F3D9C2"), lineWidth: 1)
+        .stroke(Theme.Palette.inset, lineWidth: 1)
     )
     .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
   }
@@ -428,17 +428,17 @@ private struct ScreenRecordingPermissionNoticeView: View {
       HStack(alignment: .top, spacing: 10) {
         Image(systemName: "record.circle.fill")
           .font(.system(size: 15))
-          .foregroundColor(Color(hex: "C7352D"))
+          .foregroundColor(Theme.Palette.red)
           .padding(.top, 2)
 
         VStack(alignment: .leading, spacing: 3) {
           Text("Screen recording access needed")
-            .font(.custom("Figtree", size: 13))
+            .font(.system(size: 13))
             .fontWeight(.semibold)
             .foregroundColor(.black.opacity(0.86))
 
           Text("Panopticon cannot update your timeline until access is restored.")
-            .font(.custom("Figtree", size: 12))
+            .font(.system(size: 12))
             .foregroundColor(.black.opacity(0.62))
             .fixedSize(horizontal: false, vertical: true)
         }
@@ -461,11 +461,11 @@ private struct ScreenRecordingPermissionNoticeView: View {
             Image(systemName: "gearshape")
               .font(.system(size: 12))
             Text("Open System Settings")
-              .font(.custom("Figtree", size: 12))
+              .font(.system(size: 12))
               .fontWeight(.semibold)
           }
         },
-        background: Color(red: 0.25, green: 0.17, blue: 0),
+        background: Theme.Palette.ink,
         foreground: .white,
         borderColor: .clear,
         cornerRadius: 8,
@@ -476,11 +476,11 @@ private struct ScreenRecordingPermissionNoticeView: View {
     }
     .padding(14)
     .frame(width: 360, alignment: .leading)
-    .background(Color(hex: "FFF8F2"))
+    .background(Theme.Palette.inset)
     .cornerRadius(12)
     .overlay(
       RoundedRectangle(cornerRadius: 12)
-        .stroke(Color(hex: "F3D9C2"), lineWidth: 1)
+        .stroke(Theme.Palette.inset, lineWidth: 1)
     )
     .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
   }

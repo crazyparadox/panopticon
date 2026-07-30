@@ -11,16 +11,16 @@ struct ConfettiBurstView: View {
   let trigger: Int
 
   private let colors: [Color] = [
-    Color(hex: "FF6B6B"),
-    Color(hex: "FFD93D"),
-    Color(hex: "6BCB77"),
-    Color(hex: "4D96FF"),
-    Color(hex: "9B5DE5"),
-    Color(hex: "FF8FAB"),
-    Color(hex: "00C2FF"),
-    Color(hex: "FFA41B"),
-    Color(hex: "F72585"),
-    Color(hex: "7AE582"),
+    Theme.Palette.red,
+    Theme.Palette.accent,
+    Theme.Palette.green,
+    Theme.Palette.accent,
+    Theme.Palette.accent,
+    Theme.Palette.accentTint,
+    Theme.Palette.accent,
+    Theme.Palette.accent,
+    Theme.Palette.accent,
+    Theme.Palette.green,
   ]
   private let confettiCount = 60
 

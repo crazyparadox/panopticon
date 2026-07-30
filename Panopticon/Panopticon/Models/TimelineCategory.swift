@@ -95,9 +95,8 @@ final class CategoryStore: ObservableObject {
 
   func applyOnboardingPresetIfNeeded() {
     let defaults = UserDefaults.standard
-    guard let roleName = defaults.string(forKey: StoreKeys.onboardingSelectedRole) else {
-      return
-    }
+    // Onboarding no longer asks for a role; fall back to the generic preset.
+    let roleName = defaults.string(forKey: StoreKeys.onboardingSelectedRole) ?? "Other"
 
     if defaults.bool(forKey: StoreKeys.onboardingCategoriesCustomized) {
       return

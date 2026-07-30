@@ -252,8 +252,8 @@ struct WeekTimelineGridView: View {
       ForEach(weekRange.days) { day in
         HStack(spacing: WeekTimelineConfig.weekdayInlineSpacing) {
           Text(day.weekdayLabel)
-            .font(.custom("Figtree", size: 12).weight(.medium))
-            .foregroundColor(Color(hex: "333333"))
+            .font(.system(size: 12).weight(.medium))
+            .foregroundColor(Theme.Palette.ink)
 
           dayNumberBadge(for: day)
         }
@@ -268,17 +268,17 @@ struct WeekTimelineGridView: View {
 
     if isToday {
       Text(day.dayNumber)
-        .font(.custom("Figtree", size: 12).weight(.semibold))
+        .font(.system(size: 12).weight(.semibold))
         .foregroundColor(.white)
         .frame(width: 18, height: 18)
         .background(
           Circle()
-            .fill(Color(hex: "F96E00"))
+            .fill(Theme.Palette.accent)
         )
     } else {
       Text(day.dayNumber)
-        .font(.custom("Figtree", size: 12).weight(.medium))
-        .foregroundColor(Color(hex: "333333"))
+        .font(.system(size: 12).weight(.medium))
+        .foregroundColor(Theme.Palette.ink)
     }
   }
 
@@ -359,8 +359,8 @@ struct WeekTimelineGridView: View {
       ForEach(WeekTimelineConfig.startHour..<WeekTimelineConfig.endHour, id: \.self) { hour in
         let hourIndex = hour - WeekTimelineConfig.startHour
         Text(formatHour(hour))
-          .font(.custom("Figtree", size: 9))
-          .foregroundColor(Color(hex: "594838"))
+          .font(.system(size: 9))
+          .foregroundColor(Theme.Palette.ink)
           .padding(.trailing, 6)
           .padding(.top, 2)
           .frame(width: WeekTimelineConfig.timeColumnWidth, alignment: .trailing)
@@ -875,7 +875,7 @@ struct WeekTimelineGridView: View {
       accent: Color(nsColor: accentNSColor),
       fill: Color(nsColor: fillColor),
       border: Color(nsColor: borderColor),
-      title: Color(hex: "333333")
+      title: Theme.Palette.ink
     )
   }
 }

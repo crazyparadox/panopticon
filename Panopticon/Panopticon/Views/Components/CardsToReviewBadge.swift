@@ -17,7 +17,7 @@ struct CardsToReviewBadge: View {
 
       // Label text
       Text(count == 1 ? "card to review" : "cards to review")
-        .font(.custom("Figtree", size: 10).weight(.medium))
+        .font(.system(size: 10).weight(.medium))
         .foregroundColor(.white)
     }
     .padding(.horizontal, 12)
@@ -25,19 +25,19 @@ struct CardsToReviewBadge: View {
     .background(
       LinearGradient(
         stops: [
-          Gradient.Stop(color: Color(red: 1, green: 0.6, blue: 0.44), location: 0.00),
-          Gradient.Stop(color: Color(red: 0.74, green: 0.67, blue: 1), location: 1.00),
+          Gradient.Stop(color: Theme.Palette.accent, location: 0.00),
+          Gradient.Stop(color: Theme.Palette.accentTint, location: 1.00),
         ],
         startPoint: UnitPoint(x: 0.05, y: 0),
         endPoint: UnitPoint(x: 0.95, y: 1)
       )
     )
     .cornerRadius(20)
-    .shadow(color: Color(red: 0.91, green: 0.79, blue: 0.7), radius: 1.5, x: 0, y: 2)
+    .shadow(color: Theme.Palette.accentTint, radius: 1.5, x: 0, y: 2)
     .overlay(
       RoundedRectangle(cornerRadius: 20)
         .inset(by: 0.75)
-        .stroke(Color(red: 1, green: 0.85, blue: 0.83), lineWidth: 1.5)
+        .stroke(Theme.Palette.redTint, lineWidth: 1.5)
     )
   }
 
@@ -60,12 +60,12 @@ struct CardsToReviewBadge: View {
       .overlay(
         RoundedRectangle(cornerRadius: 3.5)
           .inset(by: -0.63)
-          .stroke(Color(red: 0.97, green: 0.61, blue: 0.51), lineWidth: 1.25)
+          .stroke(Theme.Palette.accentTint, lineWidth: 1.25)
       )
       .overlay(
         Text("\(count)")
-          .font(.custom("Figtree", size: 9).weight(.heavy))
-          .foregroundColor(Color(red: 0.98, green: 0.6, blue: 0.49))
+          .font(.system(size: 9).weight(.heavy))
+          .foregroundColor(Theme.Palette.accentTint)
       )
       .offset(x: 4, y: 0)
     }
@@ -159,6 +159,6 @@ private struct CardsToReviewBadgePreview: View {
       .cornerRadius(12)
     }
     .padding(60)
-    .background(Color(red: 0.98, green: 0.96, blue: 0.94))
+    .background(Theme.Palette.inset)
   }
 }

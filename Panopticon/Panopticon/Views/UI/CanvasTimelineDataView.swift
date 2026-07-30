@@ -272,8 +272,8 @@ struct CanvasTimelineDataView: View {
       ForEach(CanvasConfig.startHour..<CanvasConfig.endHour, id: \.self) { hour in
         let hourIndex = hour - CanvasConfig.startHour
         Text(formatHour(hour))
-          .font(.custom("Figtree", size: timeLabelFontSize))
-          .foregroundColor(Color(hex: "594838"))
+          .font(.system(size: timeLabelFontSize))
+          .foregroundColor(Theme.Palette.ink)
           .padding(.trailing, 5)
           .padding(.top, 2)
           .frame(width: CanvasConfig.timeColumnWidth, alignment: .trailing)
@@ -398,7 +398,7 @@ struct CanvasTimelineDataView: View {
           yPosition: calculateYPosition(for: projection.start) + 1,
           gradient: recordingStatusGradient,
           gradientOpacity: 0.70,
-          baseColor: Color(hex: "D9C6BA"),
+          baseColor: Theme.Palette.accentTint,
           strokeColor: Color.white.opacity(0.52),
           strokeWidth: 0.75,
           shadowColor: .black.opacity(0.10),
@@ -499,10 +499,10 @@ struct CanvasTimelineDataView: View {
   private var recordingStatusGradient: LinearGradient {
     LinearGradient(
       stops: [
-        .init(color: Color(hex: "5E7FC0"), location: 0.00),
-        .init(color: Color(hex: "D88ECE"), location: 0.35),
-        .init(color: Color(hex: "FFC19E"), location: 0.68),
-        .init(color: Color(hex: "FFEDE0"), location: 1.00),
+        .init(color: Theme.Palette.accent, location: 0.00),
+        .init(color: Theme.Palette.accent, location: 0.35),
+        .init(color: Theme.Palette.accentTint, location: 0.68),
+        .init(color: Theme.Palette.inset, location: 1.00),
       ],
       startPoint: .leading,
       endPoint: .trailing
@@ -512,8 +512,8 @@ struct CanvasTimelineDataView: View {
   private var pausedStatusGradient: LinearGradient {
     LinearGradient(
       stops: [
-        .init(color: Color(hex: "F7E6D5"), location: 0.13),
-        .init(color: Color(hex: "DADEE4"), location: 1.00),
+        .init(color: Theme.Palette.inset, location: 0.13),
+        .init(color: Theme.Palette.accentTint, location: 1.00),
       ],
       startPoint: .leading,
       endPoint: .trailing
@@ -529,7 +529,7 @@ struct CanvasTimelineDataView: View {
       Text("Generating your next card")
     }
     .font(
-      Font.custom("Figtree", size: 12)
+      Font.system(size: 12)
         .weight(.semibold)
     )
     .lineSpacing(2.4)
@@ -557,16 +557,16 @@ struct CanvasTimelineDataView: View {
     HStack(spacing: 10) {
       Image(systemName: iconName)
         .font(.system(size: 11, weight: .semibold))
-        .foregroundColor(Color(hex: "888D95"))
+        .foregroundColor(Theme.Palette.ink3)
       Text(message)
     }
     .font(
-      Font.custom("Figtree", size: 12)
+      Font.system(size: 12)
         .weight(.regular)
     )
     .lineSpacing(2.4)
     .tracking(0)
-    .foregroundColor(Color(hex: "888D95"))
+    .foregroundColor(Theme.Palette.ink3)
     .lineLimit(1)
     .truncationMode(.tail)
   }

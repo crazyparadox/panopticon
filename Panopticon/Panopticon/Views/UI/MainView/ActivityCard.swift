@@ -107,7 +107,7 @@ struct ActivityCard: View {
         Spacer()
         if hasAnyActivities {
           Text("Select an activity to view details")
-            .font(.custom("Figtree", size: 15))
+            .font(.system(size: 15))
             .fontWeight(.regular)
             .foregroundColor(.gray.opacity(0.5))
         } else {
@@ -119,7 +119,7 @@ struct ActivityCard: View {
               Text(
                 "Cards are generated about every 15 minutes. If Panopticon is on and no cards show up within 30 minutes, please report a bug."
               )
-              .font(.custom("Figtree", size: 13))
+              .font(.system(size: 13))
               .foregroundColor(.gray.opacity(0.6))
               .multilineTextAlignment(.center)
               .padding(.horizontal, 16)
@@ -130,7 +130,7 @@ struct ActivityCard: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.gray.opacity(0.7))
               Text("Panopticon recording is currently turned off, so cards aren’t being produced.")
-                .font(.custom("Figtree", size: 13))
+                .font(.system(size: 13))
                 .foregroundColor(.gray.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
@@ -155,7 +155,7 @@ struct ActivityCard: View {
         VStack(alignment: .leading, spacing: 6) {
           Text(activity.title)
             .font(
-              Font.custom("Figtree", size: 16)
+              Font.system(size: 16)
                 .weight(.semibold)
             )
             .foregroundColor(.black)
@@ -165,18 +165,18 @@ struct ActivityCard: View {
               "\(timeFormatter.string(from: activity.startTime)) - \(timeFormatter.string(from: activity.endTime))"
             )
             .font(
-              Font.custom("Figtree", size: 12)
+              Font.system(size: 12)
             )
-            .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+            .foregroundColor(Theme.Palette.ink2)
             .lineLimit(1)
             .padding(.horizontal, 6)
             .padding(.vertical, 4)
-            .background(Color(red: 0.96, green: 0.94, blue: 0.91).opacity(0.9))
+            .background(Theme.Palette.inset.opacity(0.9))
             .cornerRadius(6)
             .overlay(
               RoundedRectangle(cornerRadius: 6)
                 .inset(by: 0.38)
-                .stroke(Color(red: 0.9, green: 0.9, blue: 0.9), lineWidth: 0.75)
+                .stroke(Theme.Palette.line, lineWidth: 0.75)
             )
 
             Spacer(minLength: 6)
@@ -189,8 +189,8 @@ struct ActivityCard: View {
                     .frame(width: 8, height: 8)
 
                   Text(badge.name)
-                    .font(Font.custom("Figtree", size: 12))
-                    .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.2))
+                    .font(Font.system(size: 12))
+                    .foregroundColor(Theme.Palette.ink)
                     .lineLimit(1)
                 }
                 .padding(.horizontal, 8)
@@ -200,7 +200,7 @@ struct ActivityCard: View {
                 .overlay(
                   RoundedRectangle(cornerRadius: 6)
                     .inset(by: 0.25)
-                    .stroke(Color(red: 0.88, green: 0.88, blue: 0.88), lineWidth: 0.5)
+                    .stroke(Theme.Palette.line, lineWidth: 0.5)
                 )
               }
 
@@ -236,8 +236,8 @@ struct ActivityCard: View {
       if isFailedCard(activity), let statusLine = retryCoordinator.statusLine(for: activity.batchId)
       {
         Text(statusLine)
-          .font(.custom("Figtree", size: 11))
-          .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.5))
+          .font(.system(size: 11))
+          .foregroundColor(Theme.Palette.ink2)
           .lineLimit(1)
       }
 
@@ -282,14 +282,14 @@ struct ActivityCard: View {
       VStack(alignment: .leading, spacing: 3) {
         Text("SUMMARY")
           .font(
-            Font.custom("Figtree", size: 12)
+            Font.system(size: 12)
               .weight(.semibold)
           )
-          .foregroundColor(Color(red: 0.55, green: 0.55, blue: 0.55))
+          .foregroundColor(Theme.Palette.ink2)
 
         renderMarkdownText(activity.summary)
           .font(
-            Font.custom("Figtree", size: 12)
+            Font.system(size: 12)
           )
           .foregroundColor(.black)
           .lineLimit(nil)
@@ -301,14 +301,14 @@ struct ActivityCard: View {
         VStack(alignment: .leading, spacing: 3) {
           Text("DETAILED SUMMARY")
             .font(
-              Font.custom("Figtree", size: 12)
+              Font.system(size: 12)
                 .weight(.semibold)
             )
-            .foregroundColor(Color(red: 0.55, green: 0.55, blue: 0.55))
+            .foregroundColor(Theme.Palette.ink2)
 
           renderMarkdownText(formattedDetailedSummary(activity.detailedSummary))
             .font(
-              Font.custom("Figtree", size: 12)
+              Font.system(size: 12)
             )
             .foregroundColor(.black)
             .lineLimit(nil)
@@ -393,27 +393,27 @@ struct ActivityCard: View {
           .frame(width: 16, height: 16)
 
         Text("Processing")
-          .font(.custom("Figtree", size: 13))
-          .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+          .font(.system(size: 13))
+          .foregroundColor(Theme.Palette.ink2)
           .lineLimit(1)
       }
       .padding(.horizontal, 12)
       .padding(.vertical, 8)
-      .background(Color(red: 0.91, green: 0.85, blue: 0.8))
+      .background(Theme.Palette.inset)
       .cornerRadius(200)
     } else {
       // Retry button - orange pill
       Button(action: { handleRetry(for: activity) }) {
         HStack(alignment: .center, spacing: 4) {
           Text("Retry")
-            .font(.custom("Figtree", size: 13).weight(.medium))
+            .font(.system(size: 13).weight(.medium))
           Image(systemName: "arrow.clockwise")
             .font(.system(size: 13, weight: .medium))
         }
         .foregroundColor(.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color(red: 1, green: 0.54, blue: 0.17))
+        .background(Theme.Palette.accent)
         .cornerRadius(200)
       }
       .buttonStyle(PlainButtonStyle())
@@ -477,7 +477,7 @@ struct ActivityCard: View {
                 ProgressView()
                   .scaleEffect(0.8)
                 Text("Preparing timelapse...")
-                  .font(.custom("Figtree", size: 12).weight(.semibold))
+                  .font(.system(size: 12).weight(.semibold))
                   .foregroundColor(.white)
               }
             }
@@ -516,8 +516,8 @@ struct ActivityCard: View {
 
       if let errorMessage = slideshowError {
         Text(errorMessage)
-          .font(Font.custom("Figtree", size: 11))
-          .foregroundColor(Color(red: 0.76, green: 0.16, blue: 0.2))
+          .font(Font.system(size: 11))
+          .foregroundColor(Theme.Palette.red)
       }
     }
   }

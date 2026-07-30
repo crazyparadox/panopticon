@@ -93,7 +93,7 @@ struct TimelineCalendarPopover: View {
     }
     .overlay {
       RoundedRectangle(cornerRadius: 8, style: .continuous)
-        .strokeBorder(Color(hex: "E9DAD1"), lineWidth: 1)
+        .strokeBorder(Theme.Palette.inset, lineWidth: 1)
     }
     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 1)
@@ -108,7 +108,7 @@ struct TimelineCalendarPopover: View {
   private var monthHeader: some View {
     HStack(spacing: 0) {
       Text(Self.monthYearFormatter.string(from: displayMonth))
-        .font(.custom("Figtree", size: 14))
+        .font(.system(size: 14))
         .foregroundColor(.black)
         .lineLimit(1)
 
@@ -132,7 +132,7 @@ struct TimelineCalendarPopover: View {
     Button(action: action) {
       Image(systemName: systemName)
         .font(.system(size: 16, weight: .medium))
-        .foregroundColor(Color(hex: "A8A09A"))
+        .foregroundColor(Theme.Palette.ink3)
         .frame(width: 20, height: 20)
         .contentShape(Rectangle())
     }
@@ -150,7 +150,7 @@ struct TimelineCalendarPopover: View {
     return HStack(spacing: Self.columnSpacing) {
       ForEach(labels.indices, id: \.self) { i in
         Text(labels[i])
-          .font(.custom("InstrumentSerif-Regular", size: 12))
+          .font(.system(size: 12, weight: .semibold))
           .foregroundColor(.black)
           .frame(width: Self.columnWidth, height: Self.weekdayHeight)
       }
@@ -167,7 +167,7 @@ struct TimelineCalendarPopover: View {
         ZStack {
           if isSelectedWeek {
             Capsule(style: .continuous)
-              .fill(Color(hex: "FC7103"))
+              .fill(Theme.Palette.accent)
               .frame(
                 width: Self.contentWidth,
                 height: Self.selectedWeekHighlightHeight
@@ -203,7 +203,7 @@ struct TimelineCalendarPopover: View {
         return (!day.isCurrentMonth || isDisabled) ? .white.opacity(0.55) : .white
       }
       if !day.isCurrentMonth || isDisabled {
-        return Color(hex: "C1B5AC")
+        return Theme.Palette.accent
       }
       return showsSelectedDayCircle ? .white : .black
     }()
@@ -215,11 +215,11 @@ struct TimelineCalendarPopover: View {
       ZStack {
         if showsSelectedDayCircle {
           Circle()
-            .fill(Color(hex: "FC7103"))
+            .fill(Theme.Palette.accent)
             .frame(width: Self.selectedCircleSize, height: Self.selectedCircleSize)
         }
         Text(day.label)
-          .font(.custom("Figtree", size: 12))
+          .font(.system(size: 12))
           .foregroundColor(foregroundColor)
       }
       .frame(width: Self.columnWidth, height: Self.dayCellHeight)

@@ -131,7 +131,7 @@ struct WeekTimelineActivityCard: View {
 
       VStack(alignment: .leading, spacing: 2) {
         Text(title)
-          .font(.custom("Figtree", size: titleFontSize).weight(.semibold))
+          .font(.system(size: titleFontSize).weight(.semibold))
           .foregroundColor(palette.title)
           .multilineTextAlignment(.leading)
           .lineLimit(renderingExpanded ? nil : maxUnhoveredTitleLines)
@@ -154,13 +154,13 @@ struct WeekTimelineActivityCard: View {
     // stroke, and no left accent bar. Kept as three inline branches rather
     // than a dedicated Modifier so it's obvious at read-time what's
     // special-cased.
-    .background(isFailedCard ? Color(hex: "FFECE4") : palette.fill)
+    .background(isFailedCard ? Theme.Palette.inset : palette.fill)
     .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     .overlay(
       RoundedRectangle(cornerRadius: 2, style: .continuous)
         .stroke(
           isFailedCard
-            ? Color(red: 1, green: 0.16, blue: 0.11)
+            ? Theme.Palette.red
             : (isSelected ? palette.accent : palette.border),
           style: isFailedCard
             ? StrokeStyle(lineWidth: 0.5, dash: [2.5, 2.5])
@@ -215,7 +215,7 @@ struct WeekTimelineActivityCard: View {
 
       VStack(alignment: .leading, spacing: 2) {
         Text(title)
-          .font(.custom("Figtree", size: titleFontSize).weight(.semibold))
+          .font(.system(size: titleFontSize).weight(.semibold))
           .multilineTextAlignment(.leading)
           .fixedSize(horizontal: false, vertical: true)
 
@@ -253,8 +253,8 @@ struct WeekTimelineActivityCard: View {
       }
 
       Text(statusLine)
-        .font(.custom("Figtree", size: 9))
-        .foregroundColor(Color(hex: "7A6254"))
+        .font(.system(size: 9))
+        .foregroundColor(Theme.Palette.accent)
         .lineLimit(renderingExpanded ? nil : 1)
         .truncationMode(.tail)
     }

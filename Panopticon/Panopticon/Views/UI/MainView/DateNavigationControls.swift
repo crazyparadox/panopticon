@@ -30,7 +30,7 @@ struct DateNavigationControls: View {
       } content: {
         Image(systemName: "chevron.left")
           .font(.system(size: 14, weight: .medium))
-          .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
+          .foregroundColor(Theme.Palette.ink)
       }
 
       Button(action: {
@@ -61,7 +61,7 @@ struct DateNavigationControls: View {
           .font(.system(size: 14, weight: .medium))
           .foregroundColor(
             canNavigateForward(from: selectedDate)
-              ? Color(red: 0.3, green: 0.3, blue: 0.3)
+              ? Theme.Palette.ink
               : Color.gray.opacity(0.3)
           )
       }
