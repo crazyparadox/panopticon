@@ -98,9 +98,22 @@ jobs:
             exit 0
           fi
           ditto -c -k --keepParent "$APP" notarize.zip
-          xcrun notarytool submit notarize.zip \
+          # --wait exits 0 even when the verdict is Invalid, and the verdict
+          # alone never says which binary was rejected. Capture the id so the
+          # per-issue log can be printed before failing.
+          SUBMIT=$(xcrun notarytool submit notarize.zip \
             --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
-            --team-id "$NOTARY_TEAM_ID" --wait
+            --team-id "$NOTARY_TEAM_ID" --wait --output-format json)
+          echo "$SUBMIT"
+          ID=$(echo "$SUBMIT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          STATUS=$(echo "$SUBMIT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])')
+          if [ "$STATUS" != "Accepted" ]; then
+            echo "::error::Notarization returned $STATUS. Apple's findings:"
+            xcrun notarytool log "$ID" \
+              --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
+              --team-id "$NOTARY_TEAM_ID"
+            exit 1
+          fi
           xcrun stapler staple "$APP"
           xcrun stapler validate "$APP"
           echo "notarized=true" >> "$GITHUB_OUTPUT"

@@ -54,19 +54,12 @@
   }
   .u:hover { text-decoration-color: var(--ink); }
   @media (min-width: 1024px) { nav { padding: 18px 40px; } .nav-links { gap: 32px; } }
-  /* Mobile: brand keeps the top row, links wrap onto their own line so four
-     of them never squeeze against the logo. */
   @media (max-width: 640px) {
-    nav {
-      flex-wrap: wrap; align-items: baseline;
-      gap: 10px 16px; padding: 14px 18px 12px;
-      border-bottom: 1px solid var(--stone-200);
-    }
+    nav { padding: 14px 18px 12px; border-bottom: 1px solid var(--stone-200); }
     .brand { font-size: 15px; }
-    .nav-links {
-      width: 100%; gap: 16px; font-size: 13.5px; flex-wrap: wrap;
-      color: var(--stone-600);
-    }
+    /* The same links are all reachable from the footer, so on a narrow screen
+       the header is just the wordmark. */
+    .nav-links { display: none; }
   }
 
   /* ── main column ─────────────────────────────── */
