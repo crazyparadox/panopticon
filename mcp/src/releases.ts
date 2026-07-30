@@ -123,6 +123,29 @@ ${items}
   }
 }
 
+// ── Download redirect ────────────────────────────────────────────────────
+//
+// Sends the visitor to the newest release's .zip so the landing button never
+// points at a stale version. Falls back to the releases page if there is no
+// downloadable asset yet.
+
+export async function serveDownload(_req: Request, res: Response): Promise<void> {
+  try {
+    const releases = await fetchReleases();
+    for (const r of releases) {
+      if (r.prerelease) continue;
+      const asset = r.assets.find((a) => /\.(zip|dmg)$/.test(a.name));
+      if (asset) {
+        res.redirect(302, asset.browser_download_url);
+        return;
+      }
+    }
+  } catch {
+    // fall through to the releases page
+  }
+  res.redirect(302, `https://github.com/${REPO}/releases/latest`);
+}
+
 // ── Human changelog page ─────────────────────────────────────────────────
 
 export async function serveChangelog(_req: Request, res: Response): Promise<void> {
@@ -168,6 +191,7 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Changelog — Panopticon</title>
+<link rel="icon" type="image/png" href="/assets/app-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />

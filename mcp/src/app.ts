@@ -12,7 +12,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { loadConfig } from "./config.js";
 import { db } from "./db.js";
 import { buildMcpServer } from "./mcpServer.js";
-import { serveAppcast, serveChangelog } from "./releases.js";
+import { serveAppcast, serveChangelog, serveDownload } from "./releases.js";
 import { buildSyncRouter } from "./sync.js";
 
 export const config = loadConfig();
@@ -56,6 +56,7 @@ const staticAssets: Record<string, Buffer> = {
   "wall-imessage.jpg": readFileSync(new URL("./assets/wall-imessage.jpg", import.meta.url)),
   "wall-telegram.jpg": readFileSync(new URL("./assets/wall-telegram.jpg", import.meta.url)),
   "wall-whatsapp.jpg": readFileSync(new URL("./assets/wall-whatsapp.jpg", import.meta.url)),
+  "app-icon.png": readFileSync(new URL("./assets/app-icon.png", import.meta.url)),
 };
 const serveLanding = (_req: Request, res: Response) => {
   res.header("Content-Type", "text/html; charset=utf-8");
@@ -64,6 +65,7 @@ const serveLanding = (_req: Request, res: Response) => {
 };
 app.get("/", serveLanding);
 app.get("/landing", serveLanding);
+app.get("/download", serveDownload);
 app.get("/appcast.xml", serveAppcast);
 app.get("/changelog", serveChangelog);
 
