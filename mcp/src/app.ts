@@ -6,6 +6,7 @@
 // Auth is a single shared bearer (PANOPTICON_TOKEN) checked on /mcp and
 // /sync/* — this is a personal, single-user deployment; there is no OAuth.
 
+import { readFileSync } from "node:fs";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import { loadConfig } from "./config.js";
@@ -41,6 +42,18 @@ app.use((req, res, next) => {
 app.get("/health", (_req, res) => {
   res.status(200).send("ok");
 });
+
+// Landing page. The build copies src/landing.html next to the compiled
+// app.js (see the build script), so resolve it relative to this module —
+// a pattern Vercel's file tracer follows when bundling the function.
+const landingHtml = readFileSync(new URL("./landing.html", import.meta.url), "utf8");
+const serveLanding = (_req: Request, res: Response) => {
+  res.header("Content-Type", "text/html; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=300");
+  res.send(landingHtml);
+};
+app.get("/", serveLanding);
+app.get("/landing", serveLanding);
 
 function requireBearer(req: Request, res: Response, next: NextFunction): void {
   const header = req.headers.authorization ?? "";

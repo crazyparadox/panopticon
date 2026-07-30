@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Panopticon — a memory of your screen, for your agents</title>
+<meta name="description" content="Panopticon records your Mac, turns the footage into a structured activity timeline with an LLM, and serves it to your agents over MCP." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Panopticon — a memory of your screen, for your agents" />
+<meta property="og:description" content="A personal screen recorder that turns your day into structured memory your agents can query over MCP." />
+<meta name="theme-color" content="#1b1c19" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-0: #0c0d0b;
+    --bg-1: #131412;
+    --bg-2: #1b1c19;      /* page */
+    --bg-3: #232520;      /* tertiary panels */
+    --bg-4: #292d25;      /* elevated */
+    --text-primary: #e5e6e3;
+    --text-secondary: #969892;
+    --text-muted: #5a5c56;
+    --border: #2a2b29;
+    --accent: #6f96ff;
+    --accent-rgb: 111, 150, 255;
+    --accent-ink: #0e1220;
+    --serif: "Instrument Serif", Georgia, serif;
+    --sans: "Inter", -apple-system, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --radius: 6px;
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg-2);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+
+  /* ── header ─────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(19, 20, 18, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav {
+    max-width: 1300px; margin: 0 auto; height: 52px;
+    padding: 0 40px;
+    display: flex; align-items: center; gap: 28px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: 14.5px; text-decoration: none;
+  }
+  .brand .mark {
+    width: 18px; height: 18px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--accent), #2f4fa8);
+    position: relative;
+  }
+  .brand .mark::after {
+    content: ""; position: absolute; inset: 5px;
+    border-radius: 50%; background: var(--bg-1);
+  }
+  .nav-links { display: flex; gap: 4px; flex: 1; }
+  .nav-links a {
+    padding: 6px 10px; font-size: 13.5px; text-decoration: none;
+    color: var(--text-secondary); border-radius: 8px;
+  }
+  .nav-links a:hover { color: var(--text-primary); background: var(--bg-3); }
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .nav-actions .ghost-sm {
+    font-size: 13.5px; color: var(--text-secondary); text-decoration: none; padding: 6px 10px;
+  }
+  .nav-actions .ghost-sm:hover { color: var(--text-primary); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 42px; padding: 0 18px;
+    font-size: 14.5px; font-weight: 500; font-family: var(--sans);
+    border-radius: 10px; text-decoration: none; white-space: nowrap;
+    border: none; cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    background: transparent; color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0 22px;
+  }
+  .btn-ghost:hover { border-color: var(--text-muted); background: var(--bg-3); }
+  .btn-sm { height: 34px; padding: 0 14px; font-size: 13.5px; }
+  .link-muted {
+    display: inline-flex; align-items: center; padding: 0 4px;
+    font-size: 14.5px; color: var(--text-muted); text-decoration: none;
+  }
+  .link-muted:hover { color: var(--text-primary); }
+  .link-accent {
+    font-size: 14.5px; font-weight: 500; color: var(--accent);
+    text-decoration: none; width: fit-content;
+  }
+  .link-accent:hover { opacity: 0.75; }
+
+  /* ── hero ───────────────────────────────────────── */
+  .hero {
+    max-width: 1300px; margin: 0 auto;
+    min-height: calc(100vh - 52px);
+    padding: 90px 40px 40px;
+    display: flex; flex-direction: column; gap: 32px;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .hero-copy { display: flex; flex-direction: column; gap: 24px; align-items: flex-start; animation: rise 0.5s ease-out; }
+  h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.1; letter-spacing: -0.03em;
+  }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hero-showcase {
+    position: relative; flex: 1; min-height: 420px;
+    display: flex; align-items: center; justify-content: flex-start;
+    padding-left: 55px; border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--bg-3);
+    animation: rise 0.6s ease-out 0.1s both;
+  }
+  .hero-backdrop {
+    position: absolute; inset: 0; opacity: 0.7;
+    background:
+      radial-gradient(90% 120% at 85% 0%, rgba(var(--accent-rgb), 0.22), transparent 55%),
+      radial-gradient(70% 90% at 15% 100%, rgba(64, 160, 43, 0.10), transparent 60%),
+      linear-gradient(160deg, #20231e 0%, #161714 100%);
+  }
+  /* CSS mock of the Panopticon window */
+  .app-mock {
+    position: relative; z-index: 1; height: 78%; min-height: 320px;
+    aspect-ratio: 16 / 10.4;
+    background: #f9fafb; border-radius: 8px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+    font-size: 11px; color: #101828;
+  }
+  .app-mock .titlebar {
+    display: flex; align-items: center; gap: 6px; padding: 9px 12px;
+    background: #fff; border-bottom: 1px solid #eaecf0;
+  }
+  .app-mock .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .app-mock .mock-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px 6px; font-weight: 600; font-size: 12px;
+  }
+  .app-mock .seg {
+    display: inline-flex; background: #f4f5f7; border: 1px solid #eaecf0;
+    border-radius: 7px; padding: 2px; font-size: 10px; font-weight: 500; color: #475467;
+  }
+  .app-mock .seg b { background: #fff; border: 1px solid #eaecf0; border-radius: 5px; padding: 1px 8px; color: #101828; font-weight: 500; }
+  .app-mock .seg span { padding: 1px 8px; }
+  .app-mock .chips { display: flex; gap: 5px; padding: 4px 14px 8px; }
+  .app-mock .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #f4f5f7; border-radius: 5px; padding: 2px 7px;
+    font-size: 9.5px; font-weight: 500; color: #475467;
+  }
+  .app-mock .chip i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .app-mock .cards { flex: 1; padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .app-mock .card {
+    background: #fff; border: 1px solid #eaecf0; border-radius: 8px;
+    padding: 7px 10px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  }
+  .app-mock .card .row { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 10.5px; }
+  .app-mock .card .row time { margin-left: auto; font-family: var(--mono); font-weight: 400; font-size: 9px; color: #98a2b3; }
+  .app-mock .card p { margin-top: 2px; font-size: 9.5px; color: #475467; font-weight: 400; }
+
+  /* ── sections ───────────────────────────────────── */
+  section { max-width: 1300px; margin: 0 auto; padding: 90px 40px 0; }
+  .features { display: flex; flex-direction: column; gap: 90px; }
+  .feature {
+    display: grid; grid-template-columns: 2fr 3fr; gap: 24px; align-items: stretch;
+  }
+  .feature.reverse { grid-template-columns: 3fr 2fr; }
+  .feature.reverse .feature-text { order: 2; }
+  .feature.reverse .feature-media { order: 1; }
+  .feature-text {
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 0; padding: 4px;
+  }
+  .feature-text > *:last-child { margin-top: 16px; }
+  .feature-text h3 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 21px; letter-spacing: -0.01em; line-height: 1.3;
+    margin-bottom: 3px;
+  }
+  .feature-text p { font-size: 17px; line-height: 1.5; color: var(--text-secondary); max-width: 480px; }
+  .feature-media {
+    position: relative; aspect-ratio: 5 / 4; align-self: center;
+    border-radius: 4px; overflow: hidden;
+    background: var(--bg-4); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    width: 100%;
+  }
+  .feature-media.accent {
+    background:
+      radial-gradient(120% 140% at 80% 10%, rgba(var(--accent-rgb), 0.18), transparent 60%),
+      var(--bg-4);
+  }
+
+  /* install-command widget */
+  .cmd-widget { display: flex; flex-direction: column; gap: 6px; max-width: 440px; width: 100%; }
+  .cmd-tabs { display: flex; gap: 4px; }
+  .cmd-tabs button {
+    padding: 4px 10px; font-size: 12px; font-family: var(--sans); border: none;
+    border-radius: 999px; cursor: pointer; color: var(--text-primary); background: transparent;
+  }
+  .cmd-tabs button.active, .cmd-tabs button:hover { background: var(--bg-4); }
+  .cmd-line {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 9px 10px; background: var(--bg-4); border-radius: var(--radius);
+  }
+  .cmd-line code {
+    font-family: var(--mono); font-size: 12.5px; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cmd-copy {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 24px; flex-shrink: 0; border: none; border-radius: 999px;
+    background: var(--text-primary); color: var(--bg-0); cursor: pointer; font-size: 11px;
+  }
+  .cmd-copy:hover { opacity: 0.85; }
+
+  /* mocks inside feature media */
+  .mock-panel {
+    width: 78%; background: var(--bg-1); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; box-shadow: var(--shadow);
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.9;
+    color: var(--text-secondary); overflow: hidden;
+  }
+  .mock-panel .k { color: var(--accent); }
+  .mock-panel .s { color: #9ac27f; }
+  .mock-panel .dim { color: var(--text-muted); }
+  .mock-timeline { width: 74%; display: flex; flex-direction: column; gap: 8px; }
+  .mock-timeline .tl-card {
+    background: var(--bg-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .mock-timeline .tl-row { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; }
+  .mock-timeline .tl-row i { width: 7px; height: 7px; border-radius: 50%; }
+  .mock-timeline .tl-row time { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); font-weight: 400; }
+  .mock-timeline .tl-card small { font-size: 11.5px; color: var(--text-secondary); font-weight: 400; }
+  .provider-chips { display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; padding: 24px; }
+  .provider-chips span {
+    padding: 8px 16px; font-size: 13.5px; font-family: var(--mono);
+    color: var(--text-primary); background: var(--bg-4);
+    border: 1px solid var(--border); border-radius: 999px;
+  }
+
+  /* ── stack grid ─────────────────────────────────── */
+  .stack-title {
+    font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em;
+    font-size: 26px; margin-bottom: 32px;
+  }
+  .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+  .stack-card {
+    display: flex; flex-direction: column; gap: 16px; min-width: 0;
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 9px; padding: 20px;
+  }
+  .stack-card h3 { font-family: var(--serif); font-weight: 400; font-size: 21px; letter-spacing: -0.01em; }
+  .stack-card p { font-size: 15px; color: var(--text-secondary); }
+  .stack-card .link-accent { margin-top: auto; }
+
+  /* ── changelog ──────────────────────────────────── */
+  .changelog { display: flex; flex-direction: column; gap: 16px; }
+  .changelog h2 { font-family: var(--serif); font-weight: 400; font-size: 21px; }
+  .cl-rows { display: flex; flex-direction: column; gap: 12px; }
+  .cl-row {
+    display: flex; gap: 16px; align-items: baseline;
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 13px 20px;
+  }
+  .cl-row .v { font-family: var(--mono); font-size: 12.5px; color: var(--accent); width: 34px; flex-shrink: 0; }
+  .cl-row .d { font-size: 14px; color: var(--text-muted); white-space: nowrap; }
+  .cl-row .t { font-size: 14.5px; color: var(--text-secondary); }
+
+  /* ── mission ────────────────────────────────────── */
+  .mission { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+  .mission p {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(22px, 3vw, 28px); line-height: 1.35;
+    letter-spacing: -0.01em; max-width: 760px;
+  }
+
+  /* ── final callout ──────────────────────────────── */
+  .callout {
+    display: flex; flex-direction: column; align-items: center; gap: 28px;
+    text-align: center; padding: 80px 0;
+  }
+  .callout h2 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(40px, 6vw, 72px); line-height: 1.1; letter-spacing: -0.03em;
+  }
+  .callout .hero-ctas { justify-content: center; }
+  .glow { display: inline-flex; border-radius: 10px; filter: drop-shadow(0 8px 20px rgba(var(--accent-rgb), 0.25)); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .footer-inner {
+    max-width: 1300px; margin: 0 auto; padding: 28px 40px;
+    display: flex; align-items: center; gap: 20px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .footer-inner a { color: var(--text-muted); text-decoration: none; }
+  .footer-inner a:hover { color: var(--text-primary); }
+  .footer-inner .spacer { flex: 1; }
+
+  @media (max-width: 768px) {
+    .nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { min-height: auto; padding: 40px 20px 32px; }
+    .hero-showcase { min-height: 0; padding: 24px; justify-content: center; }
+    .app-mock { height: auto; width: 100%; aspect-ratio: auto; }
+    section { padding: 56px 20px 0; }
+    .features { gap: 56px; }
+    .feature, .feature.reverse { grid-template-columns: minmax(0, 1fr); }
+    .feature.reverse .feature-text { order: unset; }
+    .feature.reverse .feature-media { order: unset; }
+    .stack-grid { grid-template-columns: minmax(0, 1fr); }
+    .callout { padding: 40px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><span class="mark"></span><span>Panopticon</span></a>
+    <nav class="nav-links">
+      <a href="#timeline">Timeline</a>
+      <a href="#mcp">MCP</a>
+      <a href="#sync">Sync</a>
+      <a href="#changelog">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="ghost-sm" href="/health">Status</a>
+      <a class="btn btn-primary btn-sm" href="#get">Get Panopticon</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- hero -->
+  <div class="hero">
+    <div class="hero-copy">
+      <h1>Your agents need to know what you did today.<br />Not what you remember telling them.</h1>
+      <div class="hero-ctas">
+        <span class="glow"><a class="btn btn-primary" href="#get">Get Panopticon</a></span>
+        <a class="btn btn-ghost" href="#mcp">Connect an agent</a>
+        <a class="link-muted" href="#timeline">How it works</a>
+      </div>
+    </div>
+    <div class="hero-showcase">
+      <div class="hero-backdrop" aria-hidden="true"></div>
+      <div class="app-mock" role="img" aria-label="Panopticon timeline — activity cards for a recorded day">
+        <div class="titlebar">
+          <span class="dot" style="background:#f26b5e"></span>
+          <span class="dot" style="background:#f5bf4f"></span>
+          <span class="dot" style="background:#58c655"></span>
+        </div>
+        <div class="mock-head">
+          <span class="seg"><b>Day</b><span>Week</span></span>
+          <span>Today, Jul 30</span>
+        </div>
+        <div class="chips">
+          <span class="chip"><i style="background:#6172f3"></i>Coding / Debugging</span>
+          <span class="chip"><i style="background:#53b1fd"></i>Code Review</span>
+          <span class="chip"><i style="background:#b692f6"></i>Research</span>
+          <span class="chip"><i style="background:#f7b27a"></i>Communication</span>
+        </div>
+        <div class="cards">
+          <div class="card">
+            <div class="row"><i class="dot" style="width:7px;height:7px;background:#6172f3"></i>Rebuilt the sync pipeline in Xcode<time>9:40 – 11:05 AM</time></div>
+            <p>Refactored CloudSyncManager, wired day-snapshot pushes, ran the test suite twice.</p>
+          </div>
+          <div class="card">
+            <div class="row"><i class="dot" style="width:7px;height:7px;background:#b692f6"></i>Read Neon &amp; MCP transport docs<time>11:05 – 11:50 AM</time></div>
+            <p>Compared serverless Postgres drivers, skimmed the Streamable HTTP spec.</p>
+          </div>
+          <div class="card">
+            <div class="row"><i class="dot" style="width:7px;height:7px;background:#53b1fd"></i>Reviewed teammate's PR<time>12:10 – 12:45 PM</time></div>
+            <p>Left 6 comments on the auth middleware change, approved with nits.</p>
+          </div>
+          <div class="card">
+            <div class="row"><i class="dot" style="width:7px;height:7px;background:#f7b27a"></i>Slack + standup notes<time>1:15 – 1:40 PM</time></div>
+            <p>Answered deploy questions, drafted tomorrow's standup from the recap.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- features -->
+  <section class="features" id="timeline">
+    <div class="feature">
+      <div class="feature-text">
+        <h3>A timeline, not a pile of screenshots</h3>
+        <p>Panopticon captures your screen in the background and an LLM turns the footage into activity cards — what you did, when, in which category, with which apps.</p>
+        <a class="link-accent" href="#mcp">See what agents can read →</a>
+      </div>
+      <div class="feature-media accent">
+        <div class="mock-timeline">
+          <div class="tl-card">
+            <div class="tl-row"><i style="background:#6172f3"></i>Deep work: sync pipeline<time>9:40 AM</time></div>
+            <small>85 min · Xcode, GitHub · 2 distractions</small>
+          </div>
+          <div class="tl-card">
+            <div class="tl-row"><i style="background:#b692f6"></i>Research: serverless Postgres<time>11:05 AM</time></div>
+            <small>45 min · Arc, Neon docs</small>
+          </div>
+          <div class="tl-card">
+            <div class="tl-row"><i style="background:#f7b27a"></i>Standup prep from daily recap<time>1:15 PM</time></div>
+            <small>25 min · Slack, Notes</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature reverse" id="mcp">
+      <div class="feature-text">
+        <h3>Served to your agents over MCP</h3>
+        <p>One endpoint, five tools: list days, read a day's timeline, search it, pull the daily recap, break down time by category. Any MCP client, one bearer token.</p>
+        <div class="cmd-widget">
+          <div class="cmd-tabs">
+            <button type="button" class="active">Claude Code</button>
+            <button type="button">Any MCP client</button>
+          </div>
+          <div class="cmd-line">
+            <code id="cmd">claude mcp add --transport http panopticon https://panopticon.decentparadox.me/mcp</code>
+            <button type="button" class="cmd-copy" aria-label="Copy command" onclick="navigator.clipboard.writeText(document.getElementById('cmd').textContent);this.textContent='✓';setTimeout(()=>this.textContent='⧉',1200)">⧉</button>
+          </div>
+        </div>
+      </div>
+      <div class="feature-media">
+        <div class="mock-panel">
+<span class="dim">&gt;</span> <span class="k">get_timeline</span>(day: <span class="s">"2026-07-30"</span>)<br />
+{<br />
+&nbsp;&nbsp;<span class="k">"cards"</span>: [{<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"title"</span>: <span class="s">"Rebuilt the sync pipeline"</span>,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"category"</span>: <span class="s">"Coding / Debugging"</span>,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"start"</span>: <span class="s">"9:40 AM"</span>, <span class="k">"end"</span>: <span class="s">"11:05 AM"</span><br />
+&nbsp;&nbsp;}, <span class="dim">…</span>]<br />
+}
+        </div>
+      </div>
+    </div>
+
+    <div class="feature" id="sync">
+      <div class="feature-text">
+        <h3>Synced on your schedule</h3>
+        <p>Every few hours the app pushes day snapshots — cards and recaps — to your own Postgres. Replayed whole, so the cloud copy always matches the source.</p>
+        <a class="link-accent" href="#stack">How the stack fits together →</a>
+      </div>
+      <div class="feature-media">
+        <div class="mock-panel">
+<span class="dim">02:00</span> sync <span class="s">✓</span> 3 days · 41 cards · 2 recaps<br />
+<span class="dim">05:30</span> sync <span class="s">✓</span> 3 days · 47 cards · 2 recaps<br />
+<span class="dim">09:00</span> sync <span class="s">✓</span> 3 days · 52 cards · 3 recaps<br />
+<span class="dim">12:30</span> sync <span class="s">✓</span> 3 days · 58 cards · 3 recaps<br />
+<span class="dim">&nbsp;&nbsp;now</span> <span class="k">agent</span> read <span class="s">"what did I ship today?"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature reverse">
+      <div class="feature-text">
+        <h3>Your models, your machine</h3>
+        <p>Timeline generation runs on whichever LLM you already pay for — Gemini, Claude Code, Codex, or a fully local model. Recordings never leave your Mac except to the provider you chose.</p>
+        <a class="link-accent" href="#get">Get set up in minutes →</a>
+      </div>
+      <div class="feature-media accent">
+        <div class="provider-chips">
+          <span>gemini</span>
+          <span>claude</span>
+          <span>codex</span>
+          <span>ollama</span>
+          <span>lm-studio</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- stack -->
+  <section id="stack">
+    <h2 class="stack-title">A memory stack for personal agents</h2>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <h3>Local-first by construction</h3>
+        <p>Capture, analysis and storage live in a SQLite database on your Mac. The cloud copy is a projection of it, not the source of truth.</p>
+        <a class="link-accent" href="#timeline">How recording works →</a>
+      </div>
+      <div class="stack-card">
+        <h3>Built to be read by agents</h3>
+        <p>No dashboard to maintain. The data model is the product: days, cards, categories, recaps — shapes an agent can query directly.</p>
+        <a class="link-accent" href="#mcp">The MCP tools →</a>
+      </div>
+      <div class="stack-card">
+        <h3>One token, your database</h3>
+        <p>A single bearer token guards ingest and reads. Data lands in your own Neon Postgres — rotate the token or drop the tables any time.</p>
+        <a class="link-accent" href="#sync">The sync protocol →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- changelog -->
+  <section id="changelog">
+    <div class="changelog">
+      <h2>Changelog</h2>
+      <div class="cl-rows">
+        <div class="cl-row"><span class="v">0.3</span><span class="d">Jul 30, 2026</span><span class="t">MCP server + cloud sync to Neon</span></div>
+        <div class="cl-row"><span class="v">0.2</span><span class="d">Jul 30, 2026</span><span class="t">Timeline restored, review flow removed, new design system</span></div>
+        <div class="cl-row"><span class="v">0.1</span><span class="d">Jul 30, 2026</span><span class="t">Panopticon forked from Dayflow as a headless recorder</span></div>
+      </div>
+      <a class="link-accent" href="https://github.com/decentparadox" target="_blank" rel="noreferrer">Full history on GitHub →</a>
+    </div>
+  </section>
+
+  <!-- mission -->
+  <section>
+    <div class="mission">
+      <p>Panopticon is a personal instrument: a recorder that turns a day at the screen into structured memory — so the agents that work for you know what you're up to without being told.</p>
+      <a class="link-accent" href="#get">Run your own →</a>
+    </div>
+  </section>
+
+  <!-- final callout -->
+  <section id="get">
+    <div class="callout">
+      <h2>See everything.<br />Tell no one twice.</h2>
+      <div class="hero-ctas">
+        <span class="glow"><a class="btn btn-primary" href="https://github.com/decentparadox" target="_blank" rel="noreferrer">Build from source</a></span>
+        <a class="btn btn-ghost" href="#mcp">Connect an agent</a>
+      </div>
+      <a class="link-muted" href="/health">Server status</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>Panopticon</span>
+    <span class="spacer"></span>
+    <a href="#timeline">Timeline</a>
+    <a href="#mcp">MCP</a>
+    <a href="#changelog">Changelog</a>
+    <a href="/health">Status</a>
+  </div>
+</footer>
+
+</body>
+</html>
