@@ -1,4 +1,4 @@
-// Neon access. The serverless driver speaks HTTP per query — no pooling to
+// Neon access. The serverless driver speaks HTTP per query, so no pooling to
 // manage, which is exactly right for Vercel functions.
 
 import { neon } from "@neondatabase/serverless";

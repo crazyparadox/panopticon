@@ -1,6 +1,6 @@
 // Environment configuration. Two secrets:
-//   DATABASE_URL     — Neon Postgres connection string (server-side only)
-//   PANOPTICON_TOKEN — shared bearer token; the Mac app uses it to push data
+//   DATABASE_URL     : Neon Postgres connection string (server-side only)
+//   PANOPTICON_TOKEN : shared bearer token; the Mac app uses it to push data
 //                      and MCP clients use it to read. Personal deployment,
 //                      one user, so a single static token instead of OAuth.
 

@@ -108,7 +108,7 @@ export function buildSyncRouter(sql: Sql): Router {
     res.json({ ok: true, recaps: recaps.length });
   });
 
-  // What the server has — lets the app decide what still needs pushing.
+  // What the server has, so the app can decide what still needs pushing.
   router.get("/state", async (req: Request, res: Response) => {
     const deviceId = String(req.query.deviceId ?? "");
     if (!deviceId) {

@@ -1,10 +1,10 @@
-// Panopticon MCP server — the Express app (transport-agnostic). Runs as a
+// Panopticon MCP server: the Express app (transport-agnostic). Runs as a
 // long-lived process (src/index.ts → app.listen) or as a Vercel serverless
 // function (api/index.ts → export default app). Stateless: a fresh MCP
 // server + transport per request.
 //
 // Auth is a single shared bearer (PANOPTICON_TOKEN) checked on /mcp and
-// /sync/* — this is a personal, single-user deployment; there is no OAuth.
+// /sync/*. This is a personal, single-user deployment; there is no OAuth.
 
 import { readFileSync } from "node:fs";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -12,7 +12,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { loadConfig } from "./config.js";
 import { db } from "./db.js";
 import { buildMcpServer } from "./mcpServer.js";
-import { serveAppcast, serveChangelog, serveDownload } from "./releases.js";
+import { recentReleaseRows, serveAppcast, serveChangelog, serveDownload } from "./releases.js";
 import { buildSyncRouter } from "./sync.js";
 
 export const config = loadConfig();
@@ -45,7 +45,7 @@ app.get("/health", (_req, res) => {
 });
 
 // Landing page. The build copies src/landing.html next to the compiled
-// app.js (see the build script), so resolve it relative to this module —
+// app.js (see the build script), so resolve it relative to this module,
 // a pattern Vercel's file tracer follows when bundling the function.
 const landingHtml = readFileSync(new URL("./landing.html", import.meta.url), "utf8");
 const staticAssets: Record<string, Buffer> = {
@@ -53,15 +53,32 @@ const staticAssets: Record<string, Buffer> = {
   "poke-logo.png": readFileSync(new URL("./assets/poke-logo.png", import.meta.url)),
   "folk-logo.png": readFileSync(new URL("./assets/folk-logo.png", import.meta.url)),
   "hermes-logo.png": readFileSync(new URL("./assets/hermes-logo.png", import.meta.url)),
+  "openclaw-logo.png": readFileSync(new URL("./assets/openclaw-logo.png", import.meta.url)),
   "wall-imessage.jpg": readFileSync(new URL("./assets/wall-imessage.jpg", import.meta.url)),
   "wall-telegram.jpg": readFileSync(new URL("./assets/wall-telegram.jpg", import.meta.url)),
   "wall-whatsapp.jpg": readFileSync(new URL("./assets/wall-whatsapp.jpg", import.meta.url)),
   "app-icon.png": readFileSync(new URL("./assets/app-icon.png", import.meta.url)),
 };
-const serveLanding = (_req: Request, res: Response) => {
+const IS_DEV = process.env.NODE_ENV !== "production" && !process.env.VERCEL;
+
+// react-grab lets you select an element in the browser and hand its context
+// to a coding agent. Dev-only; it must never reach the deployed page.
+const GRAB_SNIPPET =
+  '<script crossorigin src="https://unpkg.com/react-grab/dist/index.global.js"></script>';
+
+const serveLanding = async (_req: Request, res: Response) => {
+  // The changelog block is filled from the real GitHub releases at request
+  // time (5-min cached upstream). If that lookup comes back empty we drop the
+  // block entirely rather than show a version history we made up.
+  const rows = await recentReleaseRows();
+  let html = landingHtml.replace(
+    "<!--RELEASE_ROWS-->",
+    rows ?? '      <p class="muted" style="font-size:14px">No tagged releases yet.</p>'
+  );
+  if (IS_DEV) html = html.replace("</body>", `${GRAB_SNIPPET}\n</body>`);
   res.header("Content-Type", "text/html; charset=utf-8");
-  res.header("Cache-Control", "public, max-age=300");
-  res.send(landingHtml);
+  res.header("Cache-Control", IS_DEV ? "no-store" : "public, max-age=300");
+  res.send(html);
 };
 app.get("/", serveLanding);
 app.get("/landing", serveLanding);

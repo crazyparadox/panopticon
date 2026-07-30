@@ -1,5 +1,5 @@
 // The Panopticon MCP server: read-only tools over the synced activity
-// timeline. Stateless — a fresh server+transport per request (see app.ts),
+// timeline. Stateless: a fresh server+transport per request (see app.ts),
 // which is what Vercel functions need.
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -123,7 +123,7 @@ export function buildMcpServer(sql: Sql): McpServer {
     {
       title: "Time by category",
       description:
-        "Total recorded minutes per category over a day range — how time was actually spent.",
+        "Total recorded minutes per category over a day range: how time was actually spent.",
       inputSchema: {
         from: DAY,
         to: DAY,

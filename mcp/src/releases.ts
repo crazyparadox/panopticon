@@ -86,6 +86,60 @@ function version(tag: string): string {
   return tag.replace(/^v/, "");
 }
 
+/** Recent releases rendered as landing-page rows. Returns null when GitHub is
+ *  unreachable and nothing is cached, so the caller can fall back to a link
+ *  rather than printing a version history that isn't real. */
+export async function recentReleaseRows(limit = 4): Promise<string | null> {
+  let releases: GhRelease[];
+  try {
+    releases = await fetchReleases();
+  } catch {
+    return null;
+  }
+  if (releases.length === 0) return null;
+  return releases
+    .slice(0, limit)
+    .map((r) => {
+      const date = new Date(r.published_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+      const title = describe(r);
+      return `      <a class="cl-row" href="/changelog"><span class="v">${esc(
+        version(r.tag_name)
+      )}</span><span class="d">${date}</span>${
+        title ? `<span>${esc(title)}</span>` : ""
+      }</a>`;
+    })
+    .join("\n");
+}
+
+/** A one-line description of a release, or "" when there genuinely isn't one.
+ *  A release titled "Panopticon 0.1.1" says nothing the version column doesn't,
+ *  and GitHub's auto-generated bodies are often just a compare link. In both
+ *  cases we print nothing rather than inventing a summary. */
+function describe(r: GhRelease): string {
+  const v = version(r.tag_name);
+  const name = (r.name ?? "").trim();
+  if (name && name !== r.tag_name && name !== v && name !== `Panopticon ${v}`) {
+    return name;
+  }
+  for (const raw of (r.body ?? "").split(/\r?\n/)) {
+    // Blockquotes carry build caveats (e.g. the unsigned-build warning), not
+    // changelog content, so they never stand in for a description.
+    if (/^\s*>/.test(raw)) continue;
+    const line = raw
+      .replace(/^\s*[-*]\s*/, "")
+      .replace(/[*`#]/g, "")
+      .trim();
+    if (!line || /^https?:/.test(line)) continue;
+    if (/^full changelog/i.test(line)) continue;
+    return line.length > 72 ? `${line.slice(0, 71)}…` : line;
+  }
+  return "";
+}
+
 // ── Sparkle appcast ──────────────────────────────────────────────────────
 
 export async function serveAppcast(_req: Request, res: Response): Promise<void> {
@@ -159,7 +213,7 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
 
   const rows =
     releases.length === 0
-      ? `<p class="muted">${error ? esc(error) : "No releases yet — the first tagged build will appear here."}</p>`
+      ? `<p class="muted">${error ? esc(error) : "No releases yet. The first tagged build will appear here."}</p>`
       : releases
           .map((r) => {
             const date = new Date(r.published_at).toLocaleDateString("en-US", {
@@ -190,7 +244,7 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Changelog — Panopticon</title>
+<title>Changelog: Panopticon</title>
 <link rel="icon" type="image/png" href="/assets/app-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
