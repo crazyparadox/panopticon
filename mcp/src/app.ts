@@ -12,6 +12,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { loadConfig } from "./config.js";
 import { db } from "./db.js";
 import { buildMcpServer } from "./mcpServer.js";
+import { serveAppcast, serveChangelog } from "./releases.js";
 import { buildSyncRouter } from "./sync.js";
 
 export const config = loadConfig();
@@ -60,6 +61,9 @@ const serveLanding = (_req: Request, res: Response) => {
 };
 app.get("/", serveLanding);
 app.get("/landing", serveLanding);
+app.get("/appcast.xml", serveAppcast);
+app.get("/changelog", serveChangelog);
+
 app.get("/assets/:name", (req: Request, res: Response) => {
   const asset = staticAssets[String(req.params.name ?? "")];
   if (!asset) {

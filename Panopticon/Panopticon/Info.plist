@@ -17,6 +17,12 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>SUFeedURL</key>
+	<string>https://panopticon-mcp.vercel.app/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>Panopticon uses screen access to record your activity. Recordings stay on your Mac and you can pause or delete them anytime.</string>
 </dict>

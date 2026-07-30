@@ -1,0 +1,122 @@
+# Release pipeline: push a version tag (v0.2.0) and this builds the app,
+# signs it if signing secrets are configured, zips it, and publishes a GitHub
+# release. The MCP server's /appcast.xml is generated from those releases, so
+# installed apps pick the update up via Sparkle.
+#
+# Sparkle validates updates via Apple code signing (same Developer ID team as
+# the installed app), so UNSIGNED builds will install fresh but will NOT be
+# accepted as auto-updates by signed installs. Configure these repo secrets
+# for signed releases:
+#   MACOS_CERT_P12        base64 of the Developer ID Application .p12
+#   MACOS_CERT_PASSWORD   password for the .p12
+# Optional notarization (recommended so Gatekeeper trusts downloads):
+#   NOTARY_APPLE_ID / NOTARY_PASSWORD (app-specific) / NOTARY_TEAM_ID
+
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Import signing certificate (if configured)
+        id: signing
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          if [ -z "$MACOS_CERT_P12" ]; then
+            echo "No signing certificate configured — producing an unsigned build."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          KEYCHAIN=build.keychain
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$MACOS_CERT_P12" | base64 --decode > cert.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import cert.p12 -k "$KEYCHAIN" -P "$MACOS_CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s \
+            -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          rm cert.p12
+          IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN" \
+            | awk -F'"' '/Developer ID Application/{print $2; exit}')
+          echo "identity=$IDENTITY" >> "$GITHUB_OUTPUT"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          IDENTITY: ${{ steps.signing.outputs.identity }}
+        run: |
+          SIGN_ARGS=(CODE_SIGNING_ALLOWED=NO)
+          if [ "$SIGNED" = "true" ]; then
+            SIGN_ARGS=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$IDENTITY" \
+              OTHER_CODE_SIGN_FLAGS=--timestamp ENABLE_HARDENED_RUNTIME=YES)
+          fi
+          xcodebuild -project Panopticon/Panopticon.xcodeproj \
+            -scheme Panopticon -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath build \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$VERSION" \
+            "${SIGN_ARGS[@]}" \
+            build
+
+      - name: Notarize (if configured)
+        env:
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+        run: |
+          APP=build/Build/Products/Release/Panopticon.app
+          if [ "$SIGNED" != "true" ] || [ -z "$NOTARY_APPLE_ID" ]; then
+            echo "Skipping notarization."
+            exit 0
+          fi
+          ditto -c -k --keepParent "$APP" notarize.zip
+          xcrun notarytool submit notarize.zip \
+            --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
+            --team-id "$NOTARY_TEAM_ID" --wait
+          xcrun stapler staple "$APP"
+
+      - name: Package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          APP=build/Build/Products/Release/Panopticon.app
+          ditto -c -k --keepParent "$APP" "Panopticon-$VERSION.zip"
+          shasum -a 256 "Panopticon-$VERSION.zip" | tee checksums.txt
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+        run: |
+          NOTE=""
+          if [ "$SIGNED" != "true" ]; then
+            NOTE=$'\n\n> **Unsigned build** — built without a signing certificate. Right-click → Open on first launch; Sparkle auto-update will not accept it from a signed install.'
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            "Panopticon-$VERSION.zip" checksums.txt \
+            --title "Panopticon $VERSION" \
+            --generate-notes \
+            --notes "$NOTE"

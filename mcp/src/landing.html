@@ -351,8 +351,8 @@
   <div class="nav-links">
     <a class="u" href="#how">How it works</a>
     <a class="u" href="#selfhost">Self-host</a>
-    <a class="u" href="#changelog">Changelog</a>
-    <a class="u" href="https://github.com/decentparadox" target="_blank" rel="noreferrer">GitHub</a>
+    <a class="u" href="/changelog">Changelog</a>
+    <a class="u" href="https://github.com/crazyparadox/panopticon" target="_blank" rel="noreferrer">GitHub</a>
   </div>
 </nav>
 
@@ -362,7 +362,7 @@
 
   <div class="cta-row">
     <a class="btn" href="#selfhost"><svg width="13" height="15" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true"><path d="M788 341c-6 4-107 61-107 187 0 146 128 198 132 199-1 3-20 70-67 138-42 60-86 120-153 120s-84-39-161-39c-75 0-102 40-163 40s-104-56-153-124C60 782 14 664 14 552c0-180 117-275 232-275 61 0 112 41 150 41 36 0 93-43 162-43 26 0 120 2 182 92zM554 187c31-36 52-87 52-137 0-7-1-14-2-20-50 2-109 33-145 74-28 32-54 83-54 134 0 8 1 15 2 18 3 1 8 1 13 1 45 0 101-30 134-70z"/></svg>Download for Mac</a>
-    <a class="btn vercel" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdecentparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN" target="_blank" rel="noreferrer"><svg width="13" height="12" viewBox="0 0 76 65" fill="currentColor" aria-hidden="true"><path d="M37.59.25l36.95 64H.64l36.95-64z"/></svg>Deploy with Vercel</a>
+    <a class="btn vercel" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcrazyparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN" target="_blank" rel="noreferrer"><svg width="13" height="12" viewBox="0 0 76 65" fill="currentColor" aria-hidden="true"><path d="M37.59.25l36.95 64H.64l36.95-64z"/></svg>Deploy with Vercel</a>
   </div>
   <div class="cta-row" style="margin-top:2px">
     <span class="cmd">
@@ -495,7 +495,7 @@
     <p class="muted">There is no hosted service. You run the app on your Mac and the server on your own Vercel + Neon; one bearer token that only you hold guards the whole stack.</p>
 
     <p class="step"><span class="n">01</span><span class="strong">Build the app.</span> Clone the repo and build with Xcode 16+. Grant Screen Recording when onboarding asks.</p>
-    <div class="codeline"><code id="c1">git clone &lt;repo&gt; &amp;&amp; open Panopticon/Panopticon.xcodeproj</code><button type="button" aria-label="Copy" onclick="cp(this,'c1')">⧉</button></div>
+    <div class="codeline"><code id="c1">git clone https://github.com/crazyparadox/panopticon &amp;&amp; open Panopticon/Panopticon.xcodeproj</code><button type="button" aria-label="Copy" onclick="cp(this,'c1')">⧉</button></div>
 
     <p class="step"><span class="n">02</span><span class="strong">Create the database.</span> A free Neon Postgres works; the schema is three tables in one file.</p>
     <div class="codeline"><code id="c2">psql "$DATABASE_URL" -f mcp/sql/schema.sql</code><button type="button" aria-label="Copy" onclick="cp(this,'c2')">⧉</button></div>
@@ -503,7 +503,7 @@
     <p class="step"><span class="n">03</span><span class="strong">Deploy the server.</span> Ship the <code style="font-family:var(--mono);font-size:13px">mcp/</code> directory to Vercel with two env vars: <code style="font-family:var(--mono);font-size:13px">DATABASE_URL</code> and a <code style="font-family:var(--mono);font-size:13px">PANOPTICON_TOKEN</code> you generate.</p>
     <div class="codeline"><code id="c3">cd mcp &amp;&amp; npm i &amp;&amp; vercel deploy --prod</code><button type="button" aria-label="Copy" onclick="cp(this,'c3')">⧉</button></div>
     <p class="muted" style="font-size:14px">Or one click:
-      <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdecentparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN&envDescription=Neon%20connection%20string%20%2B%20a%20bearer%20token%20you%20generate" target="_blank" rel="noreferrer" style="vertical-align:middle;display:inline-block;margin-left:4px"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="28" style="height:28px;display:block"/></a>
+      <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcrazyparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN&envDescription=Neon%20connection%20string%20%2B%20a%20bearer%20token%20you%20generate" target="_blank" rel="noreferrer" style="vertical-align:middle;display:inline-block;margin-left:4px"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="28" style="height:28px;display:block"/></a>
     </p>
 
     <p class="step"><span class="n">04</span><span class="strong">Point the app at it.</span> Settings → Export → Cloud sync: paste your deployment URL and token, toggle sync on. The first push backfills every recorded day.</p>
@@ -521,6 +521,7 @@
   <!-- changelog -->
   <div class="section" id="changelog">
     <p class="section-label">Changelog</p>
+    <p class="muted" style="font-size:14px">Live release history at <a class="u" href="/changelog">/changelog</a> — the app updates itself from the same feed.</p>
     <div>
       <div class="cl-row"><span class="v">0.3</span><span class="d">Jul 30, 2026</span><span>MCP server + cloud sync to Neon</span></div>
       <div class="cl-row"><span class="v">0.2</span><span class="d">Jul 30, 2026</span><span>Timeline restored, review flow removed, new design system</span></div>
@@ -533,7 +534,7 @@
     <p>Ready to stop repeating yourself to your agents?</p>
     <div class="cta-row">
       <a class="btn blue" href="#selfhost">Self-host Panopticon</a>
-      <a class="u muted" href="https://github.com/decentparadox" target="_blank" rel="noreferrer" style="font-size:14.5px">View the source</a>
+      <a class="u muted" href="https://github.com/crazyparadox/panopticon" target="_blank" rel="noreferrer" style="font-size:14.5px">View the source</a>
     </div>
   </div>
 </main>
@@ -541,9 +542,9 @@
 <footer>
   <a href="#how">How it works</a>
   <a href="#selfhost">Self-host</a>
-  <a href="#changelog">Changelog</a>
+  <a href="/changelog">Changelog</a>
   <a href="/health">Status</a>
-  <a href="https://github.com/decentparadox" target="_blank" rel="noreferrer">GitHub</a>
+  <a href="https://github.com/crazyparadox/panopticon" target="_blank" rel="noreferrer">GitHub</a>
 </footer>
 
 <script>

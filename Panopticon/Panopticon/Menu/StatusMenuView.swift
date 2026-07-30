@@ -24,6 +24,7 @@ struct StatusMenuView: View {
 
       MenuRow(title: "Open Panopticon", systemImage: "macwindow", action: openPanopticon)
       MenuRow(title: "Open Recordings", action: openRecordingsFolder)
+      MenuRow(title: "Check for Updates", systemImage: "arrow.triangle.2.circlepath", action: checkForUpdates)
 
       MenuDivider()
 
@@ -57,6 +58,13 @@ struct StatusMenuView: View {
 
       NSApp.unhide(nil)
       MainWindowController.shared.showMainWindow()
+      NSApp.activate(ignoringOtherApps: true)
+    }
+  }
+
+  private func checkForUpdates() {
+    performAfterMenuDismiss {
+      UpdaterManager.shared.checkForUpdates()
       NSApp.activate(ignoringOtherApps: true)
     }
   }

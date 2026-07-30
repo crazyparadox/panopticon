@@ -1,8 +1,16 @@
 # Panopticon
 
-A background screen recorder for macOS. It captures your screen, turns the
-captures into a structured activity timeline with an LLM, and stores everything
-locally in SQLite so your own agents can read it.
+A background screen recorder for macOS.
+
+> **Fork notice**: Panopticon is a fork of [Dayflow](https://github.com/JerryZLiu/Dayflow)
+> by Jerry Liu (MIT licensed). It keeps Dayflow's recording and timeline core and removes
+> the hosted service, telemetry, and dashboard features in favor of a self-hosted
+> MCP server so personal agents can read the timeline. The original copyright is
+> preserved in [LICENSE](LICENSE).
+
+It captures your screen, turns the captures into a structured activity timeline
+with an LLM, and stores everything locally in SQLite so your own agents can
+read it.
 
 Panopticon has no dashboard. It is a capture-and-store daemon: the data is the
 product, and it is meant to be consumed programmatically (an MCP server is
@@ -59,10 +67,15 @@ Recordings and the database live under `~/Library/Application Support/`. Nothing
 leaves your machine except the screenshots sent to whichever LLM provider you
 configure.
 
+## Updating
+
+The app checks for updates via Sparkle against `/appcast.xml` on your deployed
+server, which is generated from this repo's GitHub releases. Release builds are
+produced by the `release` GitHub Actions workflow on version tags (`v*`).
+
 ## Roadmap
 
-- MCP server exposing timeline, recaps, and screenshots to local agents
-- Optional cloud sync for captured data
+- Screenshot/photo sync to blob storage
 - Notes capture
 
 ## License

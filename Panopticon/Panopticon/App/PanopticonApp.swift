@@ -59,6 +59,10 @@ struct PanopticonApp: App {
           }
         }
         .keyboardShortcut("R", modifiers: [.command, .shift])
+
+        Button("Check for Updates…") {
+          UpdaterManager.shared.checkForUpdates()
+        }
       }
     }
   }
