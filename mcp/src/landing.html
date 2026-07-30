@@ -507,6 +507,7 @@
     </p>
 
     <p class="step"><span class="n">04</span><span class="strong">Point the app at it.</span> Settings → Export → Cloud sync: paste your deployment URL and token, toggle sync on. The first push backfills every recorded day.</p>
+    <p class="muted" style="font-size:14px">To receive updates from your own server too, set <code style="font-family:var(--mono);font-size:13px">SUFeedURL</code> in <code style="font-family:var(--mono);font-size:13px">Panopticon/Info.plist</code> to <code style="font-family:var(--mono);font-size:13px">https://&lt;your-server&gt;/appcast.xml</code> before building.</p>
 
     <p class="step"><span class="n">05</span><span class="strong">Connect your agents.</span> Any MCP client works. For Claude Code:</p>
     <div class="codeline"><code id="c5">claude mcp add --transport http panopticon https://&lt;your-server&gt;/mcp --header "Authorization: Bearer &lt;token&gt;"</code><button type="button" aria-label="Copy" onclick="cp(this,'c5')">⧉</button></div>

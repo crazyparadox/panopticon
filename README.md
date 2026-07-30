@@ -69,8 +69,14 @@ configure.
 
 ## Updating
 
-The app checks for updates via Sparkle against `/appcast.xml` on your deployed
-server, which is generated from this repo's GitHub releases. Release builds are
+The app checks for updates via Sparkle against `/appcast.xml` on the deployed
+server, which is generated from this repo's GitHub releases. If you self-host,
+point `SUFeedURL` in `Panopticon/Info.plist` at your own deployment before
+building — it ships pointing at the reference deployment.
+
+Sparkle validates updates by Apple code signature (matching Developer ID team),
+not an EdDSA key, so release builds must be signed to be accepted as updates by
+an installed signed copy. See the `release` workflow for the required secrets. Release builds are
 produced by the `release` GitHub Actions workflow on version tags (`v*`).
 
 ## Roadmap
