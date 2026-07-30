@@ -12,8 +12,21 @@ struct SettingsDataTabView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: SettingsStyle.sectionSpacing) {
+      cloudSyncSection
       exportSection
       reprocessSection
+    }
+  }
+
+  // MARK: - Cloud sync
+
+  private var cloudSyncSection: some View {
+    SettingsSection(
+      title: "Cloud sync",
+      subtitle:
+        "Push timeline cards and daily recaps to your hosted endpoint so your agents can read them over MCP."
+    ) {
+      CloudSyncSettingsRows()
     }
   }
 

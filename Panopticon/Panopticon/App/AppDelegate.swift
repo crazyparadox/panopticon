@@ -95,6 +95,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Generate daily recaps in the background (no in-app surface; read via MCP)
     DailyRecapScheduler.shared.start()
 
+    // Push timeline + recaps to the hosted sync endpoint (if configured)
+    CloudSyncManager.shared.start()
+
     powerObserver = NSWorkspace.shared.notificationCenter.addObserver(
       forName: NSWorkspace.willPowerOffNotification,
       object: nil,
@@ -161,5 +164,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       powerObserver = nil
     }
     DailyRecapScheduler.shared.stop()
+    CloudSyncManager.shared.stop()
   }
 }
