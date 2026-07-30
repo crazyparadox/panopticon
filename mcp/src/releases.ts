@@ -147,7 +147,8 @@ export async function serveAppcast(_req: Request, res: Response): Promise<void> 
     const releases = await fetchReleases();
     const items = releases
       .map((r) => {
-        const asset = r.assets.find((a) => /\.(zip|dmg)$/.test(a.name));
+        // Sparkle updates from the versioned zip; the dmg is for humans.
+        const asset = r.assets.find((a) => a.name.endsWith(".zip"));
         if (!asset) return null;
         return `    <item>
       <title>${esc(r.name ?? r.tag_name)}</title>
@@ -184,20 +185,13 @@ ${items}
 // downloadable asset yet.
 
 export async function serveDownload(_req: Request, res: Response): Promise<void> {
-  try {
-    const releases = await fetchReleases();
-    for (const r of releases) {
-      if (r.prerelease) continue;
-      const asset = r.assets.find((a) => /\.(zip|dmg)$/.test(a.name));
-      if (asset) {
-        res.redirect(302, asset.browser_download_url);
-        return;
-      }
-    }
-  } catch {
-    // fall through to the releases page
-  }
-  res.redirect(302, `https://github.com/${REPO}/releases/latest`);
+  // Deliberately no API call. The previous version asked GitHub for the newest
+  // asset, and the unauthenticated API allows 60 requests/hour per IP; on
+  // Vercel's shared egress that quota runs out and every miss dumped the
+  // visitor on the releases page instead of downloading. GitHub resolves
+  // /releases/latest/download/<name> itself, so a stable asset name needs no
+  // quota, no cache, and no fallback path.
+  res.redirect(302, `https://github.com/${REPO}/releases/latest/download/Panopticon.dmg`);
 }
 
 // ── Human changelog page ─────────────────────────────────────────────────
@@ -221,7 +215,9 @@ export async function serveChangelog(_req: Request, res: Response): Promise<void
               day: "numeric",
               year: "numeric",
             });
-            const asset = r.assets.find((a) => /\.(zip|dmg)$/.test(a.name));
+            const asset =
+              r.assets.find((a) => a.name.endsWith(".dmg")) ??
+              r.assets.find((a) => a.name.endsWith(".zip"));
             return `<article class="rel">
   <div class="rel-head">
     <span class="v">${esc(version(r.tag_name))}</span>

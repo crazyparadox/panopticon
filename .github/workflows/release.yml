@@ -79,7 +79,12 @@ jobs:
             "${SIGN_ARGS[@]}" \
             build
 
-      - name: Notarize (if configured)
+      # Signing alone is not enough: Gatekeeper rejects an unnotarized
+      # Developer ID app with the "cannot be verified as free of malware"
+      # dialog, exactly as if it were unsigned. Stapling the ticket to the app
+      # here means every artifact built from it below inherits the ticket.
+      - name: Notarize app (if configured)
+        id: notarize
         env:
           SIGNED: ${{ steps.signing.outputs.signed }}
           NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
@@ -89,6 +94,7 @@ jobs:
           APP=build/Build/Products/Release/Panopticon.app
           if [ "$SIGNED" != "true" ] || [ -z "$NOTARY_APPLE_ID" ]; then
             echo "Skipping notarization."
+            echo "notarized=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           ditto -c -k --keepParent "$APP" notarize.zip
@@ -96,27 +102,64 @@ jobs:
             --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
             --team-id "$NOTARY_TEAM_ID" --wait
           xcrun stapler staple "$APP"
+          xcrun stapler validate "$APP"
+          echo "notarized=true" >> "$GITHUB_OUTPUT"
 
+      # Two artifacts, two audiences. Humans get a .dmg under a STABLE name so
+      # /download can point at releases/latest/download/Panopticon.dmg and skip
+      # the GitHub API (whose unauthenticated 60/hr limit was dropping visitors
+      # on the releases page). Sparkle gets the versioned .zip via /appcast.xml.
       - name: Package
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           APP=build/Build/Products/Release/Panopticon.app
           ditto -c -k --keepParent "$APP" "Panopticon-$VERSION.zip"
-          shasum -a 256 "Panopticon-$VERSION.zip" | tee checksums.txt
+
+          STAGE=$(mktemp -d)
+          cp -R "$APP" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "Panopticon" -srcfolder "$STAGE" \
+            -ov -format UDZO Panopticon.dmg
+          rm -rf "$STAGE"
+
+          shasum -a 256 "Panopticon-$VERSION.zip" Panopticon.dmg | tee checksums.txt
+
+      # The disk image is a separate distributable and needs its own ticket;
+      # the app's staple does not travel with the container.
+      - name: Notarize disk image (if configured)
+        env:
+          NOTARIZED: ${{ steps.notarize.outputs.notarized }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+        run: |
+          if [ "$NOTARIZED" != "true" ]; then
+            echo "Skipping disk image notarization."
+            exit 0
+          fi
+          xcrun notarytool submit Panopticon.dmg \
+            --apple-id "$NOTARY_APPLE_ID" --password "$NOTARY_PASSWORD" \
+            --team-id "$NOTARY_TEAM_ID" --wait
+          xcrun stapler staple Panopticon.dmg
+          xcrun stapler validate Panopticon.dmg
+          spctl -a -vvv -t open --context context:primary-signature Panopticon.dmg
 
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
           SIGNED: ${{ steps.signing.outputs.signed }}
+          NOTARIZED: ${{ steps.notarize.outputs.notarized }}
         run: |
           NOTE=""
           if [ "$SIGNED" != "true" ]; then
-            NOTE=$'\n\n> **Unsigned build** — built without a signing certificate. Right-click → Open on first launch; Sparkle auto-update will not accept it from a signed install.'
+            NOTE=$'\n\n> **Unsigned build**: built without a signing certificate. Right-click, Open on first launch; Sparkle auto-update will not accept it from a signed install.'
+          elif [ "$NOTARIZED" != "true" ]; then
+            NOTE=$'\n\n> **Signed but not notarized**: macOS will refuse to open this on first launch. Configure the NOTARY_* secrets and re-tag.'
           fi
           gh release create "$GITHUB_REF_NAME" \
-            "Panopticon-$VERSION.zip" checksums.txt \
+            "Panopticon-$VERSION.zip" Panopticon.dmg checksums.txt \
             --title "Panopticon $VERSION" \
             --generate-notes \
             --notes "$NOTE"
