@@ -72,13 +72,15 @@
   .cta-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 16px; font-size: 14.5px; font-weight: 500;
+    height: 40px; padding: 0 16px; font-size: 14.5px; font-weight: 500;
     border-radius: 8px; text-decoration: none; cursor: pointer; border: none;
     background: var(--ink); color: #fff;
   }
   .btn:hover { background: #2b2927; }
   .btn.blue { background: var(--accent); }
   .btn.blue:hover { filter: brightness(1.06); }
+  .btn.vercel { background: #fff; color: var(--ink); border: 1px solid var(--stone-300); }
+  .btn.vercel:hover { border-color: var(--ink); background: #fff; }
 
   .cmd {
     display: inline-flex; align-items: center; gap: 10px;
@@ -130,7 +132,13 @@
   /* shared chat plumbing */
   .chat-body {
     flex: 1; display: flex; flex-direction: column; gap: 4px;
-    padding: 8px 9px; overflow: hidden; position: relative; z-index: 1;
+    justify-content: flex-end;   /* real chats hug the input bar */
+    padding: 8px 9px 4px; overflow: hidden; position: relative; z-index: 1;
+  }
+  .homebar {
+    position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+    width: 34%; height: 4px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9); z-index: 4;
   }
   .bubble { max-width: 84%; padding: 5px 8px; border-radius: 12px; position: relative; }
   .bubble.in { align-self: flex-start; border-bottom-left-radius: 4px; transform-origin: bottom left; }
@@ -138,19 +146,24 @@
   .meta { display: inline-block; font-size: 6.5px; margin-left: 6px; float: right; margin-top: 6px; }
   .avatar-img { border-radius: 50%; object-fit: cover; display: block; }
 
-  /* entrance animation */
-  .bubble, .dlv { opacity: 0; }
+  /* entrance animation — springy but soft; transform/opacity only so it
+     stays on the compositor */
+  .bubble, .dlv { opacity: 0; will-change: transform, opacity; }
   .play .bubble, .play .dlv {
-    animation: bubble-in 0.5s cubic-bezier(0.2, 1.1, 0.3, 1) both;
-    animation-delay: calc(var(--i) * 0.65s);
+    animation: bubble-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(0.25s + var(--i) * 0.55s);
   }
   @keyframes bubble-in {
-    from { opacity: 0; transform: translateY(9px) scale(0.86); }
-    to   { opacity: 1; transform: none; }
+    0%   { opacity: 0; transform: translateY(14px) scale(0.92); }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: none; }
   }
+  .phone { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+  .phone.risen { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
     .bubble, .dlv { opacity: 1; }
     .play .bubble, .play .dlv { animation: none; }
+    .phone { opacity: 1; transform: none; transition: none; }
   }
 
   /* — iMessage, dark — */
@@ -190,6 +203,8 @@
     background: rgba(28, 30, 34, 0.9); border: 1px solid rgba(255,255,255,0.14); color: #8e8e93;
     display: flex; justify-content: space-between; align-items: center;
   }
+  .imsg .pill { color: #fff; }
+  .imsg .pill svg { color: #0a84ff; }
 
   /* — WhatsApp, dark — */
   .wa { background: #0b141a; }
@@ -202,7 +217,7 @@
   .wa .chat-head .back .cnt { font-size: 8.5px; }
   .wa .chat-head .avatar-img { width: 24px; height: 24px; }
   .wa .cname { font-size: 10px; font-weight: 600; color: #fff; flex: 1; }
-  .wa .icons { display: flex; gap: 11px; font-size: 11px; color: #fff; opacity: 0.92; }
+  .wa .icons { display: inline-flex; align-items: center; gap: 12px; color: #fff; opacity: 0.92; }
   .wa .chat-body {
     background:
       radial-gradient(100% 80% at 30% 20%, rgba(21, 66, 46, 0.55), transparent 70%),
@@ -219,10 +234,11 @@
   .wa .meta { color: rgba(255,255,255,0.55); }
   .wa .meta .tick { color: #53bdeb; }
   .wa .inputbar {
-    display: flex; align-items: center; gap: 7px; padding: 7px 10px 22px;
-    background: rgba(16, 18, 20, 0.96); color: #aebac1; font-size: 12px;
+    display: flex; align-items: center; gap: 8px; padding: 7px 10px 22px;
+    background: rgba(16, 18, 20, 0.96); color: #aebac1;
     position: relative; z-index: 2;
   }
+  .wa .inputbar > span { display: inline-flex; align-items: center; }
   .wa .field {
     flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
     background: #1f2427; color: #6f7a80;
@@ -269,6 +285,7 @@
   .tg .menu {
     background: #2f7cf6; color: #fff; border-radius: 999px;
     padding: 4px 9px; font-size: 8.5px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
   }
   .tg .field {
     flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
@@ -345,6 +362,9 @@
 
   <div class="cta-row">
     <a class="btn" href="#selfhost"><svg width="13" height="15" viewBox="0 0 814 1000" fill="currentColor" aria-hidden="true"><path d="M788 341c-6 4-107 61-107 187 0 146 128 198 132 199-1 3-20 70-67 138-42 60-86 120-153 120s-84-39-161-39c-75 0-102 40-163 40s-104-56-153-124C60 782 14 664 14 552c0-180 117-275 232-275 61 0 112 41 150 41 36 0 93-43 162-43 26 0 120 2 182 92zM554 187c31-36 52-87 52-137 0-7-1-14-2-20-50 2-109 33-145 74-28 32-54 83-54 134 0 8 1 15 2 18 3 1 8 1 13 1 45 0 101-30 134-70z"/></svg>Download for Mac</a>
+    <a class="btn vercel" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdecentparadox%2Fpanopticon&project-name=panopticon-mcp&repository-name=panopticon&root-directory=mcp&env=DATABASE_URL,PANOPTICON_TOKEN" target="_blank" rel="noreferrer"><svg width="13" height="12" viewBox="0 0 76 65" fill="currentColor" aria-hidden="true"><path d="M37.59.25l36.95 64H.64l36.95-64z"/></svg>Deploy with Vercel</a>
+  </div>
+  <div class="cta-row" style="margin-top:2px">
     <span class="cmd">
       <code id="cmd0">claude mcp add --transport http panopticon https://&lt;your-server&gt;/mcp</code>
       <button type="button" aria-label="Copy" onclick="cp(this,'cmd0')">⧉</button>
@@ -361,25 +381,27 @@
           <div class="screen imsg">
             <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
             <div class="pills">
-              <span class="pill">‹ <span class="cnt">39</span></span>
+              <span class="pill"><svg viewBox="0 0 10 16" width="6" height="10" aria-hidden="true"><path d="M8.5 1L2 8l6.5 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="cnt">39</span></span>
               <span class="center-id">
                 <img class="avatar-img" src="/assets/poke-logo.png" alt="Poke" />
                 <span class="namepill">Poke <span class="chev">›</span></span>
               </span>
-              <span class="pill">▣</span>
+              <span class="pill"><svg viewBox="0 0 20 13" width="13" height="9" aria-hidden="true"><rect x="0" y="0.5" width="13" height="12" rx="3.2" fill="currentColor"/><path d="M14.4 4.6L19.5 1.3v10.4l-5.1-3.3z" fill="currentColor"/></svg></span>
             </div>
             <div class="chat-body">
-              <span class="bubble in" style="--i:0">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
-              <span class="bubble out" style="--i:1">wait. how do you know that??</span>
-              <span class="bubble in" style="--i:2">panopticon 🙂 your timeline synced at 12:30</span>
-              <span class="bubble in" style="--i:3">want me to draft the PR description from it?</span>
-              <span class="bubble out" style="--i:4">ok that's actually sick. yes</span>
-              <span class="dlv" style="--i:5"><b>Read</b> 3:11 PM</span>
+              <span class="bubble in" style="--i:0">i can see today's timeline btw. 107 minutes of coding across 7 activity cards</span>
+              <span class="bubble in" style="--i:1">how'd the sync pipeline refactor go? you were heads-down in Xcode basically all morning</span>
+              <span class="bubble out" style="--i:2">wait. how do you know that??</span>
+              <span class="bubble in" style="--i:3">panopticon 🙂 your timeline synced at 12:30</span>
+              <span class="bubble in" style="--i:4">want me to draft the PR description from it?</span>
+              <span class="bubble out" style="--i:5">ok that's actually sick. yes</span>
+              <span class="dlv" style="--i:6"><b>Read</b> 3:11 PM</span>
             </div>
             <div class="inputbar">
-              <span class="plus">+</span>
-              <span class="field"><span>iMessage</span><span>🎤</span></span>
+              <span class="plus"><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              <span class="field"><span>iMessage</span><span style="color:#8e8e93"><svg viewBox="0 0 12 16" width="7" height="10" aria-hidden="true"><rect x="4" y="0.8" width="4" height="8.2" rx="2" fill="currentColor"/><path d="M1.8 7.4a4.2 4.2 0 008.4 0M6 11.6v3.2" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></span></span>
             </div>
+            <span class="homebar"></span>
           </div>
           <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
         </div>
@@ -390,24 +412,26 @@
           <div class="screen wa">
             <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
             <div class="chat-head">
-              <span class="back">‹ <span class="cnt">236</span></span>
+              <span class="back"><svg viewBox="0 0 10 16" width="6" height="10" aria-hidden="true"><path d="M8.5 1L2 8l6.5 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="cnt">236</span></span>
               <img class="avatar-img" src="/assets/folk-logo.png" alt="folk" />
               <span class="cname">folk</span>
-              <span class="icons">▣ ✆</span>
+              <span class="icons"><svg viewBox="0 0 20 13" width="13" height="9" aria-hidden="true"><rect x="0" y="0.5" width="13" height="12" rx="3.2" fill="currentColor"/><path d="M14.4 4.6L19.5 1.3v10.4l-5.1-3.3z" fill="currentColor"/></svg> <svg viewBox="0 0 14 14" width="10" height="10" aria-hidden="true"><path d="M3.4.9c.5-.5 1.3-.4 1.7.1l1.6 2.1c.3.4.3 1-.1 1.4l-.9.9c.5 1.2 2 2.7 3.2 3.2l.9-.9c.4-.4 1-.4 1.4-.1l2.1 1.6c.5.4.6 1.2.1 1.7l-1.1 1.1c-.5.5-1.3.7-2 .5C7 11.9 2.4 7.3.8 3.9c-.3-.7-.1-1.5.4-2z" fill="currentColor"/></svg></span>
             </div>
             <div class="chat-body">
               <span class="datechip">TODAY</span>
-              <span class="bubble in" style="--i:0">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
-              <span class="bubble in" style="--i:1">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
-              <span class="bubble out" style="--i:2">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-              <span class="bubble out" style="--i:3">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
-              <span class="bubble in" style="--i:4">where else 🙂 done.<span class="meta">5:34 PM</span></span>
+              <span class="bubble in" style="--i:0">daily digest ready — 6 people touched today<span class="meta">5:30 PM</span></span>
+              <span class="bubble in" style="--i:1">you reviewed Sarah's PR at 12:10 and spent 25 min with the infra team on Slack<span class="meta">5:31 PM</span></span>
+              <span class="bubble in" style="--i:2">log both as touchpoints + follow-up with Sarah on Friday?<span class="meta">5:31 PM</span></span>
+              <span class="bubble out" style="--i:3">yes please<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble out" style="--i:4">…you got that from my timeline didn't you<span class="meta">5:33 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:5">where else 🙂 done.<span class="meta">5:34 PM</span></span>
             </div>
             <div class="inputbar">
-              <span>+</span>
-              <span class="field">Message</span>
-              <span>📷</span><span>🎤</span>
+              <span><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              <span class="field"><span>Message</span><span style="opacity:0.8"><svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><path d="M6 0.8A5.2 5.2 0 1011.2 6H8A2 2 0 016 4V0.8z" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round"/></svg></span></span>
+              <span><svg viewBox="0 0 16 13" width="12" height="10" aria-hidden="true"><path d="M5.4.9h5.2l1 1.3h2A1.9 1.9 0 0115.5 4v6.6a1.9 1.9 0 01-1.9 1.9H2.4A1.9 1.9 0 01.5 10.6V4a1.9 1.9 0 011.9-1.8h2z" fill="currentColor"/><circle cx="8" cy="7" r="2.7" fill="#0b141a"/><circle cx="8" cy="7" r="1.9" fill="currentColor" opacity="0.35"/></svg></span><span><svg viewBox="0 0 12 16" width="7" height="10" aria-hidden="true"><rect x="4" y="0.8" width="4" height="8.2" rx="2" fill="currentColor"/><path d="M1.8 7.4a4.2 4.2 0 008.4 0M6 11.6v3.2" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></span>
             </div>
+            <span class="homebar"></span>
           </div>
           <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
         </div>
@@ -418,7 +442,7 @@
           <div class="screen tg">
             <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
             <div class="pills">
-              <span class="pill">‹ <span class="cnt">17471</span></span>
+              <span class="pill"><svg viewBox="0 0 10 16" width="6" height="10" aria-hidden="true"><path d="M8.5 1L2 8l6.5 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="cnt">17471</span></span>
               <span class="pill center"><span class="cname">Hermes</span><span class="sub">bot</span></span>
               <img class="avatar-img" src="/assets/hermes-logo.png" alt="Hermes" />
             </div>
@@ -426,15 +450,17 @@
             <div class="chat-body">
               <span class="bubble out" style="--i:0">/standup<span class="meta">6:02 PM <span class="tick">✓✓</span></span></span>
               <span class="bubble in" style="--i:1">Pulled your day from Panopticon: <code>4.1h</code> coding (sync pipeline), <code>35m</code> review, <code>25m</code> comms.<span class="meta">6:02 PM</span></span>
-              <span class="bubble in" style="--i:2">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
-              <span class="bubble out" style="--i:3">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
+              <span class="bubble in" style="--i:2">Longest focus block: <code>9:40–11:05</code> in Xcode. Two Slack detours, both under 4 minutes.<span class="meta">6:02 PM</span></span>
+              <span class="bubble in" style="--i:3">Draft: "Yesterday — shipped day-snapshot sync, reviewed auth PR. Today — deploy + docs." Edits?<span class="meta">6:02 PM</span></span>
+              <span class="bubble out" style="--i:4">ship it<span class="meta">6:03 PM <span class="tick">✓✓</span></span></span>
             </div>
             <div class="inputbar">
-              <span class="menu">≡ Menu</span>
-              <span class="ic">📎</span>
-              <span class="field"><span>Message</span><span>🕐</span></span>
+              <span class="menu"><svg viewBox="0 0 10 8" width="8" height="7" aria-hidden="true"><path d="M0.8 1h8.4M0.8 4h8.4M0.8 7h8.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Menu</span>
+              <span class="ic"><svg viewBox="0 0 13 16" width="9" height="12" aria-hidden="true"><path d="M10.8 3.6L5 9.4a1.6 1.6 0 002.3 2.3l5.5-5.6a3.4 3.4 0 00-4.8-4.8L2.3 7a5.1 5.1 0 007.3 7.2l4.6-4.7" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" transform="scale(0.85) translate(0,0.5)"/></svg></span>
+              <span class="field"><span>Message</span><span class="ic"><svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><circle cx="6" cy="6" r="5.2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 3.4V6l2 1.4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg></span></span>
               <span class="rec"></span>
             </div>
+            <span class="homebar"></span>
           </div>
           <img class="frame-img" src="/assets/iphone-frame.png" alt="" aria-hidden="true" />
         </div>
@@ -526,6 +552,7 @@
     for (const e of entries) {
       if (e.isIntersecting) {
         e.target.classList.add("play");
+        e.target.closest(".phone")?.classList.add("risen");
         io.unobserve(e.target);
       }
     }
