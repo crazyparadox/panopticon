@@ -13,7 +13,6 @@
 //  recorded day.
 //
 
-import Combine
 import Foundation
 
 enum CloudSyncPreferences {
@@ -74,12 +73,13 @@ final class CloudSyncManager: ObservableObject {
 
   /// Days pushed on every routine cycle (regeneration only touches recent
   /// history, so the trailing window covers all mutations).
-  private let trailingDayCount = 3
-  private let cycleInterval: TimeInterval = 15 * 60
-  private let debounceInterval: TimeInterval = 60
+  private static let trailingDayCount = 3
+  /// Routine cadence: every 3.5 hours. The agent-facing copy doesn't need to
+  /// be real-time — it needs to be recent — and each cycle re-pushes the
+  /// trailing days, so anything analyzed since the last cycle is included.
+  private let cycleInterval: TimeInterval = 3.5 * 60 * 60
 
   private var timer: Timer?
-  private var dataObserver: AnyCancellable?
   private var syncTask: Task<Void, Never>?
   private var pendingDebounce: Task<Void, Never>?
 
@@ -92,19 +92,15 @@ final class CloudSyncManager: ObservableObject {
       Task { @MainActor in CloudSyncManager.shared.syncSoon() }
     }
 
-    // New batch analyzed → push shortly after (debounced; batches can land in
-    // quick succession during reprocessing).
-    dataObserver = NotificationCenter.default
-      .publisher(for: .timelineDataUpdated)
-      .sink { [weak self] _ in self?.syncSoon(after: self?.debounceInterval ?? 60) }
-
-    syncSoon(after: 5)
+    // One push shortly after launch so the cloud copy is fresh when the app
+    // comes back from a long sleep, then the 3.5h cycle takes over. (No
+    // per-batch trigger — the requested cadence is every few hours.)
+    syncSoon(after: 30)
   }
 
   func stop() {
     timer?.invalidate()
     timer = nil
-    dataObserver = nil
     pendingDebounce?.cancel()
     syncTask?.cancel()
   }
@@ -179,7 +175,7 @@ final class CloudSyncManager: ObservableObject {
     let allDays = await detachedFetch { StorageManager.shared.fetchTimelineDays() }
     let days: [String]
     if CloudSyncPreferences.didBackfill {
-      days = Array(allDays.prefix(3))
+      days = Array(allDays.prefix(trailingDayCount))
     } else {
       days = allDays
     }

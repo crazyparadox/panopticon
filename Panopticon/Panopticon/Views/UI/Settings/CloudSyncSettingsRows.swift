@@ -25,7 +25,7 @@ struct CloudSyncSettingsRows: View {
     VStack(alignment: .leading, spacing: 0) {
       SettingsRow(
         label: "Sync to cloud",
-        subtitle: "Pushes recent days automatically after each analyzed batch."
+        subtitle: "Pushes the last few days every 3\u{2013}4 hours so your agents stay current."
       ) {
         SettingsToggle(
           isOn: Binding(
