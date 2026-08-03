@@ -168,11 +168,17 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   /// (preflight passes but captures are denied) this is what breaks the
   /// otherwise-infinite prompt loop.
   private var consecutiveCaptureFailures = 0
-  /// Set when a permission or repeated-failure stop turned recording off, so
-  /// the retry above only fires for that case and never overrides a user who
-  /// deliberately paused.
+  /// Set when a permission stop turned recording off, so the retry only fires
+  /// for that case and never overrides a user who deliberately paused.
   private var didStopForPermissionFailure = false
-  private static let maxConsecutiveCaptureFailures = 3
+  private var lastDisplayRefreshAttempt: Date?
+  /// How often to log a continuing failure streak, so a long outage does not
+  /// fill the log with one line per tick.
+  private static let captureFailureLogInterval = 30
+  /// Minimum gap between display-refresh attempts. refreshDisplay calls
+  /// SCShareableContent, which re-presents the system permission prompt when the
+  /// grant is stale, so this is what keeps that from becoming a prompt storm.
+  private static let minDisplayRefreshInterval: TimeInterval = 60
   private var tracker: ActiveDisplayTracker!
   private var currentDisplayID: CGDirectDisplayID?
   private var requestedDisplayID: CGDirectDisplayID?
@@ -426,22 +432,34 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
         return
       }
 
-      // CGPreflightScreenCaptureAccess can keep returning true when the TCC
-      // grant belongs to a differently-signed build of this app. In that
-      // state every capture fails and every SCShareableContent call re-shows
-      // the system permission prompt — so repeated failures must stop the
-      // recorder rather than keep poking ScreenCaptureKit each tick.
+      // Permission is intact, so this is a transient failure: a display
+      // reconfigure, sleep, lock screen, or a momentary ScreenCaptureKit
+      // hiccup. Keep recording. An earlier version stopped after three
+      // consecutive failures, which killed recording on any of those and then
+      // reported it as a permission problem.
       consecutiveCaptureFailures += 1
-      if consecutiveCaptureFailures >= Self.maxConsecutiveCaptureFailures {
-        dbg("stopping capture after \(consecutiveCaptureFailures) consecutive failures (stale permission?)")
-        handleMissingScreenRecordingPermission(reason: "captureScreenshot_repeated_failures")
-        return
+      if consecutiveCaptureFailures == 1
+        || consecutiveCaptureFailures % Self.captureFailureLogInterval == 0
+      {
+        dbg("capture failed \(consecutiveCaptureFailures)x in a row (still authorised)")
       }
 
-      // If display became unavailable, try to refresh
+      // If display became unavailable, try to refresh. Throttled because
+      // refreshDisplay calls SCShareableContent, which re-presents the system
+      // permission prompt whenever the grant is genuinely stale; unthrottled it
+      // produced a prompt every capture tick. Throttling fixes that without
+      // giving up on recording.
       if (error as NSError).domain == SCStreamErrorDomain {
-        dbg("SCStream error - will refresh display on next capture")
-        Task { await refreshDisplay() }
+        let now = Date()
+        if let last = lastDisplayRefreshAttempt,
+          now.timeIntervalSince(last) < Self.minDisplayRefreshInterval
+        {
+          dbg("SCStream error - display refresh throttled")
+        } else {
+          lastDisplayRefreshAttempt = now
+          dbg("SCStream error - will refresh display on next capture")
+          Task { await refreshDisplay() }
+        }
       }
     }
   }
