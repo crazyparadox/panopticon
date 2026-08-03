@@ -80,7 +80,7 @@ extension MainView {
       let analyticsProps: [String: Any]
 
       switch timelineMode {
-      case .day:
+      case .day, .frames:
         let timelineDate = timelineDisplayDate(from: selectedDate, now: Date())
         let day = dayString(timelineDate)
         let cards = StorageManager.shared.fetchTimelineCards(forDay: day)

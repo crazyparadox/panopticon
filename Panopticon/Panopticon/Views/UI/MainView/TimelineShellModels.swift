@@ -3,6 +3,8 @@ import Foundation
 enum TimelineMode: String, CaseIterable, Identifiable {
   case day
   case week
+  /// The raw captures for the day, scrubbed frame by frame.
+  case frames
 
   var id: String { rawValue }
 
@@ -12,6 +14,8 @@ enum TimelineMode: String, CaseIterable, Identifiable {
       return "Day"
     case .week:
       return "Week"
+    case .frames:
+      return "Frames"
     }
   }
 }

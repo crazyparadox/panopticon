@@ -28,11 +28,6 @@ extension MainView {
       .overlay(alignment: .bottomTrailing) { timelineFailureToastOverlayContent }
       .overlay(alignment: .bottomTrailing) { screenRecordingPermissionNoticeOverlayContent }
       .overlay { categoryEditorOverlay }
-      .overlay(alignment: .topTrailing) {
-        shellToggleButton
-          .padding(.top, 27)
-          .padding(.trailing, 27)
-      }
   }
 
   // Layer 2: sheet + lifecycle + notifications + state-change reactions.

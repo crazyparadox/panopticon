@@ -216,7 +216,9 @@ final class ScreenshotSlideshowPlaybackModel: ObservableObject {
   }
 }
 
-private final class ScreenshotSlideshowFrameLoader: @unchecked Sendable {
+/// Downsampled frame loader with an LRU cache and directional prefetch. Shared
+/// with the day scrubber, which pages through a whole day of captures.
+final class ScreenshotSlideshowFrameLoader: @unchecked Sendable {
   private let screenshots: [Screenshot]
   private let maxPixelSize: Int
   private let decodeQueue: OperationQueue = {

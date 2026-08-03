@@ -115,4 +115,16 @@ extension StorageManager {
     }) ?? []
   }
 
+  /// Instant of the newest surviving capture, so the UI can offer to jump to a
+  /// day that actually has frames instead of stranding the user on an empty one.
+  func mostRecentScreenshotDate() -> Date? {
+    try? timedRead("mostRecentScreenshotDate") { db in
+      try Int.fetchOne(
+        db,
+        sql: "SELECT MAX(captured_at) FROM screenshots WHERE is_deleted = 0"
+      )
+      .map { Date(timeIntervalSince1970: TimeInterval($0)) }
+    } ?? nil
+  }
+
 }

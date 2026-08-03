@@ -33,32 +33,13 @@ enum LogoPosition {
 
 extension MainView {
   var contentStack: some View {
-    // Single panel filling the window; the Dayflow sidebar column is gone.
-    // A gear in the top-right (see `shellToggleButton`) switches between the
-    // timeline and settings.
+    // Single panel filling the window. The scrubber supplies its own search
+    // and settings controls, so there is no outer shell chrome.
     rightPanel
       .padding(0)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
   }
 
-  var shellToggleButton: some View {
-    Button {
-      withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-        selectedIcon = selectedIcon == .settings ? .timeline : .settings
-      }
-    } label: {
-      Image(systemName: selectedIcon == .settings ? "xmark" : "gearshape.fill")
-        .font(.system(size: 13, weight: .semibold))
-        .foregroundColor(Color.black.opacity(0.55))
-        .frame(width: 30, height: 30)
-        .background(Circle().fill(Color.white))
-        .overlay(Circle().stroke(Color.black.opacity(0.08), lineWidth: 1))
-        .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
-    }
-    .buttonStyle(.plain)
-    .pointingHandCursor()
-    .help(selectedIcon == .settings ? "Back to timeline" : "Settings")
-  }
 
   @ViewBuilder
   private var rightPanel: some View {
@@ -118,119 +99,25 @@ extension MainView {
   }
 
   private var timelineLeftColumn: some View {
-    VStack(alignment: .leading, spacing: TimelineAlignment.headerContentGap) {
-      timelineHeader
-      timelineContent
-    }
-    .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(.top, TimelineAlignment.topInset)
-    .padding(.bottom, 15)
-    .padding(.leading, 15)
-    .padding(.trailing, 5)
-    .overlay(alignment: .bottom) {
-      timelineFooter
-    }
-    .coordinateSpace(name: "TimelinePane")
-    .onPreferenceChange(TimelineTimeLabelFramesPreferenceKey.self) { frames in
-      timelineTimeLabelFrames = frames
-    }
-    .onPreferenceChange(WeeklyHoursFramePreferenceKey.self) { frame in
-      weeklyHoursFrame = frame
-    }
+    // The scrubber owns the full surface and supplies its own chrome: search
+    // and settings top-left, the date pill bottom-left. No outer header, no
+    // weekly-hours footer, no padding to inset it.
+    timelineContent
+      .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+      .coordinateSpace(name: "TimelinePane")
   }
 
   private var timelineContent: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      TabFilterBar(
-        categories: categoryStore.editableCategories,
-        idleCategory: categoryStore.idleCategory,
-        onManageCategories: { showCategoryEditor = true }
-      )
-      .padding(.leading, 10 + TimelineAlignment.categoryRowInset)
-      .opacity(contentOpacity)
-
-      ZStack(alignment: .topLeading) {
-        switch timelineMode {
-        case .day:
-          CanvasTimelineDataView(
-            selectedDate: $selectedDate,
-            selectedActivity: $selectedActivity,
-            scrollToNowTick: $scrollToNowTick,
-            hasAnyActivities: $hasAnyActivities,
-            refreshTrigger: $refreshActivitiesTrigger,
-            weeklyHoursFrame: weeklyHoursFrame,
-            weeklyHoursIntersectsCard: $weeklyHoursIntersectsCard,
-            contentLeadingInset: 0,
-            hourHeight: TimelineScale.hourHeight,
-            cardTextFontSize: TimelineTypography.cardTextFontSize,
-            cardTextFontWeight: TimelineTypography.cardTextFontWeight,
-            timeLabelFontSize: TimelineTypography.timeLabelFontSize,
-            cardIconLeadingInset: TimelineCardLayout.iconLeadingInset,
-            cardIconTextSpacing: TimelineCardLayout.iconTextSpacing,
-            cardFaviconSize: TimelineCardLayout.faviconSize,
-            cardFaviconVerticalOffset: TimelineCardLayout.faviconVerticalOffset,
-            cardCompactDurationThreshold: TimelineCardLayout.compactDurationThreshold,
-            cardCompactVerticalPadding: TimelineCardLayout.compactVerticalPadding,
-            cardNormalVerticalPadding: TimelineCardLayout.normalVerticalPadding,
-            cardHoverScale: TimelineCardLayout.hoverScale,
-            cardPressedScale: TimelineCardLayout.pressedScale
-          )
-          // Day is the zoomed-IN view (1/7 of a week). Entering Day feels
-          // like diving into a single column: grow from 0.95 → 1 + fade in.
-          // Exiting Day (to Week) shrinks 1 → 0.95 + fade out, matching the
-          // "pull back to see more" feel when Week slides in behind it.
-          .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .center)))
-          .zIndex(timelineMode == .day ? 1 : 0)
-
-        case .week:
-          WeekTimelineGridView(
-            selectedDate: $selectedDate,
-            selectedActivity: $selectedActivity,
-            hasAnyActivities: $hasAnyActivities,
-            refreshTrigger: $refreshActivitiesTrigger,
-            weekRange: timelineWeekRange,
-            onSelectActivity: selectTimelineActivity,
-            onClearSelection: { clearTimelineSelection() },
-            weeklyHoursFrame: weeklyHoursFrame,
-            weeklyHoursIntersectsCard: $weeklyHoursIntersectsCard,
-            hideCardsForModeSwitch: hideWeekCardsDuringModeSwitch
-          )
-          // Week is the zoomed-OUT view (7 days). Entering Week from Day
-          // feels like pulling back: start at 1.05 (slightly too large) and
-          // settle to 1 + fade in. Exiting Week grows to 1.05 + fade out,
-          // matching the "dive in" feel when Day settles to 1 behind it.
-          .transition(.opacity.combined(with: .scale(scale: 1.05, anchor: .center)))
-          .zIndex(timelineMode == .week ? 1 : 0)
-        }
-      }
-      .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-      .environmentObject(categoryStore)
-      .opacity(contentOpacity)
-      .animation(timelineModeContentAnimation, value: timelineMode)
-    }
+    DayScrubberFrames(
+      selectedDate: $selectedDate,
+      onOpenSettings: { selectedIcon = .settings },
+      onOpenDatePicker: { showDatePicker = true }
+    )
     .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .environmentObject(categoryStore)
+    .opacity(contentOpacity)
   }
 
-  private var timelineFooter: some View {
-    let weeklyHoursOpacity =
-      weeklyHoursFadeOpacity * (weeklyHoursIntersectsCard ? 0 : 1)
-
-    return ZStack(alignment: .bottom) {
-      HStack(alignment: .bottom) {
-        weeklyHoursText
-          .opacity(contentOpacity * weeklyHoursOpacity)
-
-        Spacer()
-
-        copyTimelineButton
-          .opacity(contentOpacity)
-      }
-      .padding(.horizontal, 24)
-
-    }
-    .padding(.bottom, 17)
-    .allowsHitTesting(true)
-  }
 
   private func timelineRightColumn(geo: GeometryProxy) -> some View {
     ZStack(alignment: .topLeading) {
@@ -243,6 +130,9 @@ extension MainView {
         dayTimelineInspectorContent(geo: geo)
       case .week:
         weekTimelineInspectorContent(geo: geo)
+      case .frames:
+        // Zero-width column in this mode; nothing to render.
+        EmptyView()
       }
     }
     .frame(width: timelineInspectorWidth)
@@ -327,40 +217,7 @@ extension MainView {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 
-  private var weeklyHoursFadeOpacity: Double {
-    guard weeklyHoursFrame != .zero, !timelineTimeLabelFrames.isEmpty else { return 1 }
-    var maxOverlap: CGFloat = 0
-    for frame in timelineTimeLabelFrames {
-      let intersection = weeklyHoursFrame.intersection(frame)
-      if !intersection.isNull {
-        maxOverlap = max(maxOverlap, intersection.height)
-      }
-    }
-    guard maxOverlap > 0 else { return 1 }
-    let clamped = min(maxOverlap, weeklyHoursFadeDistance)
-    return Double(1 - (clamped / weeklyHoursFadeDistance))
-  }
 
-  private var weeklyHoursText: some View {
-    let textColor = Theme.Palette.accent
-    let parts = timelineTrackedMinutesParts
-
-    return
-      (Text(parts.bold)
-      .font(Font.system(size: 10).weight(.bold))
-      .foregroundColor(textColor)
-      + Text(parts.rest)
-      .font(Font.system(size: 10).weight(.regular))
-      .foregroundColor(textColor))
-      .background(
-        GeometryReader { proxy in
-          Color.clear.preference(
-            key: WeeklyHoursFramePreferenceKey.self,
-            value: proxy.frame(in: .named("TimelinePane"))
-          )
-        }
-      )
-  }
 
   private var copyTimelineButton: some View {
     let background = Theme.Palette.inset

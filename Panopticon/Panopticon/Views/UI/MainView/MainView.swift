@@ -19,7 +19,7 @@ struct MainView: View {
   @State var selectedDate = timelineDisplayDate(from: Date())
   @State var cachedTimelineWeekRange: TimelineWeekRange = TimelineWeekRange.containing(
     timelineDisplayDate(from: Date()))
-  @State var timelineMode: TimelineMode = .day
+  @State var timelineMode: TimelineMode = .frames
   @State var hideWeekCardsDuringModeSwitch = false
   @State var showDatePicker = false
   // Arrowless calendar card anchored to the timeline header's calendar pill

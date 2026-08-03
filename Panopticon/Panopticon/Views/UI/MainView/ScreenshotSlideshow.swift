@@ -220,7 +220,7 @@ private struct ScreenshotSlideshowStageView: View {
   }
 }
 
-private final class ScreenshotSlideshowImageLayerHostView: NSView {
+final class ScreenshotSlideshowImageLayerHostView: NSView {
   override init(frame frameRect: NSRect) {
     super.init(frame: frameRect)
     wantsLayer = true
@@ -263,7 +263,7 @@ private final class ScreenshotSlideshowImageLayerHostView: NSView {
   }
 }
 
-private struct ScreenshotSlideshowLayerBackedImageView: NSViewRepresentable {
+struct ScreenshotSlideshowLayerBackedImageView: NSViewRepresentable {
   let image: CGImage
 
   func makeNSView(context: Context) -> ScreenshotSlideshowImageLayerHostView {
