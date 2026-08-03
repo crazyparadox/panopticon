@@ -48,11 +48,11 @@ extension MainView {
       switch selectedIcon {
       case .settings:
         // Dense forms and lists were unreadable over the translucent window, so
-        // settings gets an opaque surface of its own.
+        // settings is flat white, edge to edge, with no vibrancy behind it.
         SettingsView()
           .padding(15)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .background(Theme.Palette.surface)
+          .background(Color.white.ignoresSafeArea())
       case .timeline:
         GeometryReader { geo in
           timelinePanel(geo: geo)
@@ -61,9 +61,9 @@ extension MainView {
     }
     .padding(0)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    // A single rounded clip matching the window. Anything nested inside this
-    // with its own radius reads as a second border.
-    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    // No rounded clip of our own. macOS already masks the window to its own
+    // corner radius, and a second rounded shape inside a non-opaque window let
+    // the desktop through at the corners, which is the border that showed.
   }
 
   private func timelinePanel(geo: GeometryProxy) -> some View {
