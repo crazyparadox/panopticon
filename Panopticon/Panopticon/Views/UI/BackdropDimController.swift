@@ -69,6 +69,10 @@ final class BackdropDimController {
       // Purely decorative: clicks must reach whatever is underneath.
       panel.ignoresMouseEvents = true
       panel.isMovable = false
+      // Critical: the scrim covers the whole display, so without this every
+      // screenshot taken while Panopticon is frontmost would have it baked in.
+      // .none hides the window from screen capture entirely.
+      panel.sharingType = .none
       // Stays out of Mission Control, window cycling and screenshots of other
       // apps' windows; follows the user across spaces.
       panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenAuxiliary]

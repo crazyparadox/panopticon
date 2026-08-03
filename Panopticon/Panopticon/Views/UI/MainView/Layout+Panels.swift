@@ -47,8 +47,12 @@ extension MainView {
     ZStack {
       switch selectedIcon {
       case .settings:
+        // Dense forms and lists were unreadable over the translucent window, so
+        // settings gets an opaque surface of its own.
         SettingsView()
           .padding(15)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(Theme.Palette.surface)
       case .timeline:
         GeometryReader { geo in
           timelinePanel(geo: geo)

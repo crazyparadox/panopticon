@@ -124,6 +124,17 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
         }
       }
 
+    // Recovery path. Capping consecutive failures stops the recorder poking
+    // ScreenCaptureKit every tick with a stale grant, but on its own it left
+    // recording dead until the app was relaunched: the handler clears
+    // wantsRecording and nothing re-armed it. Re-check when the app comes
+    // forward, which is when the user has just been to System Settings.
+    NotificationCenter.default.addObserver(
+      forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+    ) { [weak self] _ in
+      self?.retryAfterPermissionRecovery()
+    }
+
     // Active display tracking
     tracker = ActiveDisplayTracker()
     activeDisplaySub = tracker.$activeDisplayID
@@ -157,6 +168,10 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   /// (preflight passes but captures are denied) this is what breaks the
   /// otherwise-infinite prompt loop.
   private var consecutiveCaptureFailures = 0
+  /// Set when a permission or repeated-failure stop turned recording off, so
+  /// the retry above only fires for that case and never overrides a user who
+  /// deliberately paused.
+  private var didStopForPermissionFailure = false
   private static let maxConsecutiveCaptureFailures = 3
   private var tracker: ActiveDisplayTracker!
   private var currentDisplayID: CGDirectDisplayID?
@@ -491,6 +506,27 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
     }
   }
 
+  /// Restart recording if the grant now looks healthy and the user's saved
+  /// preference was on. Cheap enough to run on every activation.
+  private func retryAfterPermissionRecovery() {
+    guard ScreenRecordingPermissionNotice.isGranted else { return }
+    // Only relevant when a failure shut the recorder down, never when the user
+    // paused deliberately.
+    guard didStopForPermissionFailure else { return }
+    // The stop path deliberately does not persist, so the saved preference is
+    // still the user's own choice. Only resume if that choice was "on".
+    guard UserDefaults.standard.bool(forKey: "isRecording") else { return }
+
+    dbg("permission looks restored – re-arming capture")
+    didStopForPermissionFailure = false
+    q.async { [weak self] in
+      self?.consecutiveCaptureFailures = 0
+    }
+    Task { @MainActor in
+      AppState.shared.setRecording(true, persistPreference: true)
+    }
+  }
+
   private func handleMissingScreenRecordingPermission(reason: String) {
     q.async { [weak self] in
       guard let self else { return }
@@ -503,6 +539,7 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
       self.wantsRecording = false
     }
+    didStopForPermissionFailure = true
 
     Task { @MainActor in
       if AppState.shared.isRecording {

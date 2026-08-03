@@ -111,8 +111,8 @@ struct DayScrubberView: View {
       }
     }
     .padding(.horizontal, 16)
-    .padding(.top, 12)
-    .padding(.bottom, 6)
+    .padding(.top, 10)
+    .padding(.bottom, 4)
     .zIndex(20)
   }
 
@@ -315,7 +315,7 @@ struct DayScrubberView: View {
     .buttonStyle(.plain)
     .pointingHandCursor()
     .padding(.leading, 16)
-    .padding(.bottom, 146)
+    .padding(.bottom, 116)
   }
 
   // MARK: - Zoom controls
@@ -344,7 +344,7 @@ struct DayScrubberView: View {
       .background(pillBackground)
     }
     .padding(.trailing, 16)
-    .padding(.bottom, 146)
+    .padding(.bottom, 116)
   }
 
   private func zoomButton(systemName: String, enabled: Bool, action: @escaping () -> Void)
@@ -398,7 +398,7 @@ struct DayScrubberView: View {
       .contentShape(Rectangle())
       .gesture(dragGesture(usable: usable, inset: inset))
     }
-    .frame(height: 132)
+    .frame(height: 104)
   }
 
   /// Sessions intersecting the visible window; the rest are scrolled off.
