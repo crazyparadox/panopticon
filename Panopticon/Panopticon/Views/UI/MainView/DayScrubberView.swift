@@ -22,6 +22,8 @@ struct DayScrubberView: View {
 
   @State private var isDragging = false
   @State private var scrollResidue: CGFloat = 0
+  /// Virtual time position for two-finger scrubbing on the track.
+  @State private var trackCursor: Date?
   @State private var keyMonitor: Any?
   @State private var query = ""
   @FocusState private var searchFocused: Bool
@@ -397,6 +399,7 @@ struct DayScrubberView: View {
       .frame(width: geo.size.width, height: geo.size.height, alignment: .leading)
       .contentShape(Rectangle())
       .gesture(dragGesture(usable: usable, inset: inset))
+      .onScrollWheel { handleTrackScroll($0, usable: usable) }
     }
     .frame(height: 104)
   }
@@ -501,9 +504,29 @@ struct DayScrubberView: View {
       .onChanged { value in
         isDragging = true
         model.stopPlayback()
+        // A pointer drag is absolute, so the swipe cursor is stale afterwards.
+        trackCursor = nil
         model.seek(toFraction: Double((value.location.x - inset) / usable))
       }
       .onEnded { _ in isDragging = false }
+  }
+
+  /// Two-finger swipe over the track. Deltas are converted to time using the
+  /// track's own scale, so a swipe covers the same ground as dragging the same
+  /// distance. Kept on a separate cursor from the playhead because one wheel
+  /// event is usually a fraction of the gap between captures, and snapping to
+  /// the nearest capture on every event would otherwise never accumulate enough
+  /// to move at all.
+  private func handleTrackScroll(_ delta: CGFloat, usable: CGFloat) {
+    model.stopPlayback()
+    let seconds = Double(delta / max(1, usable)) * model.visibleSpan
+    let base = trackCursor ?? model.currentDate ?? model.windowStart
+    let moved = base.addingTimeInterval(seconds)
+    // Clamp to the day so the cursor cannot drift off past the last capture and
+    // then need winding all the way back.
+    let clamped = min(max(moved, model.dayStart), model.dayEnd)
+    trackCursor = clamped
+    model.seek(to: clamped)
   }
 
   // MARK: - Title and search
@@ -558,6 +581,7 @@ struct DayScrubberView: View {
     // Accumulate sub-frame deltas so a slow trackpad drag still advances exactly
     // one capture at a time instead of stalling or skipping.
     model.stopPlayback()
+    trackCursor = nil
     scrollResidue += delta
     let steps = Int(scrollResidue / 6)
     guard steps != 0 else { return }
@@ -588,10 +612,12 @@ struct DayScrubberView: View {
       switch event.keyCode {
       case 123:
         model.stopPlayback()
+        trackCursor = nil
         model.step(by: event.modifierFlags.contains(.shift) ? -10 : -1)
         return nil
       case 124:
         model.stopPlayback()
+        trackCursor = nil
         model.step(by: event.modifierFlags.contains(.shift) ? 10 : 1)
         return nil
       case 115: model.jumpToStart(); return nil  // home
@@ -641,16 +667,45 @@ private struct ScrollWheelCatcher: NSViewRepresentable {
     nsView.handler = handler
   }
 
+  static func dismantleNSView(_ nsView: CatcherView, coordinator: ()) {
+    nsView.teardown()
+  }
+
+  /// Click-through by design. The catcher has to sit *above* the content to see
+  /// scroll events at all, since they travel up the responder chain from the view
+  /// under the pointer and never sideways to a sibling behind it. But an opaque
+  /// overlay would swallow clicks meant for the session markers underneath, so
+  /// hitTest returns nil and scroll events come from a local event monitor
+  /// filtered to this view's own frame instead.
   final class CatcherView: NSView {
     var handler: ((CGFloat) -> Void)?
+    private var monitor: Any?
 
-    override func scrollWheel(with event: NSEvent) {
-      // Horizontal intent wins when present; otherwise vertical scrolling maps
-      // onto the timeline so a plain mouse wheel still works.
-      let horizontal = event.scrollingDeltaX
-      let delta =
-        abs(horizontal) > abs(event.scrollingDeltaY) ? -horizontal : -event.scrollingDeltaY
-      handler?(delta)
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+    override func viewDidMoveToWindow() {
+      super.viewDidMoveToWindow()
+      guard window != nil, monitor == nil else { return }
+      monitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) {
+        [weak self] event in
+        guard let self, let window = self.window, event.window === window else { return event }
+        let local = self.convert(event.locationInWindow, from: nil)
+        guard self.bounds.contains(local) else { return event }
+        // Horizontal intent wins when present; otherwise vertical scrolling maps
+        // onto the timeline so a plain mouse wheel still works.
+        let horizontal = event.scrollingDeltaX
+        let delta =
+          abs(horizontal) > abs(event.scrollingDeltaY) ? -horizontal : -event.scrollingDeltaY
+        self.handler?(delta)
+        return nil
+      }
     }
+
+    func teardown() {
+      if let monitor { NSEvent.removeMonitor(monitor) }
+      monitor = nil
+    }
+
+    deinit { teardown() }
   }
 }
