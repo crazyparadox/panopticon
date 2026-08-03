@@ -31,7 +31,11 @@ struct PanopticonApp: App {
         }
       }
       .background {
-        Theme.Palette.canvas.ignoresSafeArea()
+        // Vibrancy rather than a flat fill, so the desktop reads through the
+        // window. Needs the window itself to be non-opaque; see the
+        // configurator.
+        VisualEffectBackground().ignoresSafeArea()
+        TranslucentWindowConfigurator()
         MainWindowRegistrationView()
       }
       .frame(minWidth: 900, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)

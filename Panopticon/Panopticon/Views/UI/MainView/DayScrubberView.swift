@@ -68,18 +68,15 @@ struct DayScrubberView: View {
 
   // MARK: - Backdrop
 
-  /// Soft tinted wash behind the frame, so the carousel reads as floating above
-  /// the surface rather than sitting in a flat box.
+  /// The surface is the desktop showing through the window, not a painted
+  /// colour. The earlier gradient only imitated the lavender of one particular
+  /// wallpaper; this tracks whatever is actually behind the window. A thin white
+  /// scrim goes over it so the chrome stays legible on a dark or busy desktop.
   private var backdrop: some View {
-    LinearGradient(
-      colors: [
-        Color(hex: "C7CBF2"),
-        Color(hex: "DCDEF5"),
-        Color(hex: "EEEFF8"),
-      ],
-      startPoint: .topLeading,
-      endPoint: .bottomTrailing
-    )
+    ZStack {
+      VisualEffectBackground(material: .hudWindow)
+      Color.white.opacity(0.10)
+    }
     .ignoresSafeArea()
   }
 
