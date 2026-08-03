@@ -49,7 +49,7 @@ extension MainView {
       case .settings:
         // Dense forms and lists were unreadable over the translucent window, so
         // settings is flat white, edge to edge, with no vibrancy behind it.
-        SettingsView()
+        SettingsView(onBack: { selectedIcon = .timeline })
           .padding(15)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .background(Color.white.ignoresSafeArea())

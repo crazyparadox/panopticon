@@ -80,11 +80,54 @@ const serveLanding = async (_req: Request, res: Response) => {
   res.header("Cache-Control", IS_DEV ? "no-store" : "public, max-age=300");
   res.send(html);
 };
-app.get("/", serveLanding);
-app.get("/landing", serveLanding);
+// The landing page is the project's marketing site, not part of the server a
+// user deploys. A self-hosted instance is one person's private endpoint, so it
+// serves a short status page at / instead and skips the marketing routes
+// entirely. Set PANOPTICON_PUBLIC_SITE=1 on the canonical deployment.
+const SERVE_PUBLIC_SITE = process.env.PANOPTICON_PUBLIC_SITE === "1" || IS_DEV;
+
+const serveInstanceStatus = (_req: Request, res: Response) => {
+  res.header("Content-Type", "text/html; charset=utf-8");
+  res.header("Cache-Control", "no-store");
+  // Deliberately plain: confirms the deploy works and says what to do next,
+  // without pretending to be a product page.
+  res.send(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panopticon MCP</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:#101828; color:#EAECF0; font:15px/1.6 ui-sans-serif,system-ui,sans-serif; }
+  main { max-width:34rem; padding:32px 24px; }
+  h1 { margin:0 0 6px; font-size:17px; font-weight:600; }
+  p { margin:0 0 14px; color:#98A2B3; font-size:14px; }
+  code { font-family:ui-monospace,monospace; font-size:13px; background:#1D2939;
+    border-radius:5px; padding:2px 6px; color:#EAECF0; }
+  ul { margin:0; padding-left:18px; color:#98A2B3; font-size:14px; }
+  li { margin:3px 0; }
+</style></head>
+<body><main>
+  <h1>Panopticon MCP server</h1>
+  <p>This instance is running. Point the Mac app and your agents at it.</p>
+  <ul>
+    <li><code>/mcp</code> &mdash; MCP endpoint for your agents</li>
+    <li><code>/sync</code> &mdash; where the app pushes day snapshots</li>
+    <li><code>/health</code> &mdash; liveness check</li>
+  </ul>
+  <p style="margin-top:14px">Both require the bearer token you configured as
+  <code>PANOPTICON_TOKEN</code>.</p>
+</main></body></html>`);
+};
+
+app.get("/", SERVE_PUBLIC_SITE ? serveLanding : serveInstanceStatus);
+if (SERVE_PUBLIC_SITE) {
+  app.get("/landing", serveLanding);
+  app.get("/changelog", serveChangelog);
+}
+// Update routes stay on every instance: a self-hoster can point the app's
+// SUFeedURL at their own server.
 app.get("/download", serveDownload);
 app.get("/appcast.xml", serveAppcast);
-app.get("/changelog", serveChangelog);
 
 app.get("/assets/:name", (req: Request, res: Response) => {
   const name = String(req.params.name ?? "");

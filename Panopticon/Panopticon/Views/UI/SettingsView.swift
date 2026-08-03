@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 
 struct SettingsView: View {
+  /// Returns to the timeline. Optional so the preview and any other embedding
+  /// still compile without one.
+  var onBack: (() -> Void)?
+
   private enum SettingsTab: String, CaseIterable, Identifiable {
     case storage
     case privacy
@@ -151,7 +155,26 @@ struct SettingsView: View {
         .font(.system(size: 22, weight: .semibold))
         .foregroundColor(.black.opacity(0.9))
         .padding(.leading, 10)
-        .padding(.bottom, 18)
+        .padding(.bottom, 12)
+
+      if let onBack {
+        Button(action: onBack) {
+          HStack(spacing: 6) {
+            Image(systemName: "chevron.left")
+              .font(.system(size: 11, weight: .semibold))
+            Text("Timeline")
+              .font(.system(size: 13, weight: .semibold))
+          }
+          .foregroundColor(.black.opacity(0.55))
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(.vertical, 8)
+          .padding(.horizontal, 10)
+        }
+        .buttonStyle(SettingsSidebarButtonStyle())
+        .pointingHandCursor()
+        .keyboardShortcut(.escape, modifiers: [])
+        .padding(.bottom, 6)
+      }
 
       VStack(alignment: .leading, spacing: 2) {
         ForEach(SettingsTab.allCases) { tab in
