@@ -20,7 +20,6 @@ struct OnboardingFlow: View {
   /// way through setup does not replay it, which would be tedious rather than
   /// cinematic.
   @AppStorage("onboardingIntroPlayed") private var introPlayed = false
-  @State private var showIntro = false
 
   private var onboardingFilledSegments: Int {
     switch step {
@@ -39,28 +38,19 @@ struct OnboardingFlow: View {
 
   @ViewBuilder
   var body: some View {
-    ZStack {
-      steps
-      if showIntro {
-        OnboardingCinematicIntro(onBegin: dismissIntro)
-          .transition(.opacity)
-          .zIndex(10)
-      }
-    }
-    .onAppear {
-      // Only for a genuinely fresh start; someone resuming mid-setup goes
-      // straight back to where they left off.
-      if !introPlayed && step == .llmSelection {
-        showIntro = true
-      } else {
-        introPlayed = true
-      }
-    }
+    steps
+      .onAppear(perform: presentIntroIfNeeded)
   }
 
-  private func dismissIntro() {
+  /// The intro lives in its own screen-covering window so it can rise from below
+  /// the Dock, so it is presented rather than composed into this view.
+  private func presentIntroIfNeeded() {
+    guard !introPlayed, step == .llmSelection else {
+      introPlayed = true
+      return
+    }
     introPlayed = true
-    withAnimation(.easeOut(duration: 0.32)) { showIntro = false }
+    OnboardingIntroWindowController.shared.present(onFinish: {})
   }
 
   @ViewBuilder

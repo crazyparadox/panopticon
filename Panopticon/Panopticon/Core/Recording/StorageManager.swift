@@ -200,8 +200,19 @@ final class StorageManager: StorageManaging, @unchecked Sendable {
     UserDefaultsMigrator.migrateIfNeeded()
     StoragePathMigrator.migrateIfNeeded()
 
-    let appSupport = fileMgr.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-    let baseDir = appSupport.appendingPathComponent("Panopticon", isDirectory: true)
+    // PANOPTICON_DATA_DIR points the whole store somewhere else. Needed because
+    // the application-support lookup ignores HOME, so a second copy of the app
+    // run for development otherwise opens the real database and records into a
+    // person's actual timeline.
+    let baseDir: URL
+    if let override = ProcessInfo.processInfo.environment["PANOPTICON_DATA_DIR"],
+      !override.isEmpty
+    {
+      baseDir = URL(fileURLWithPath: override, isDirectory: true)
+    } else {
+      let appSupport = fileMgr.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+      baseDir = appSupport.appendingPathComponent("Panopticon", isDirectory: true)
+    }
     let recordingsDir = baseDir.appendingPathComponent("recordings", isDirectory: true)
     let backupDir = baseDir.appendingPathComponent("backups", isDirectory: true)
 
