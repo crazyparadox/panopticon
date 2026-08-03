@@ -84,11 +84,25 @@ struct DayScrubberView: View {
 
   private var topBar: some View {
     ZStack {
+      // The backdrop is now whatever the user's desktop happens to be, so bare
+      // ink text had no dependable contrast. Sitting it on the same surface pill
+      // as the other controls makes it legible over any wallpaper.
       Text(currentTitle)
-        .font(.system(size: 14, weight: .semibold))
+        .font(.system(size: 13.5, weight: .semibold))
         .foregroundColor(Theme.Palette.ink)
         .lineLimit(1)
-        .padding(.horizontal, 260)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+          RoundedRectangle(cornerRadius: 11, style: .continuous)
+            .fill(Theme.Palette.surface)
+        )
+        .overlay(
+          RoundedRectangle(cornerRadius: 11, style: .continuous)
+            .stroke(Theme.Palette.line, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+        .padding(.horizontal, 250)
 
       HStack(spacing: 9) {
         searchField
@@ -216,10 +230,14 @@ struct DayScrubberView: View {
   /// the neighbours behind it just looked like a duplicate of the same shot.
   private var carousel: some View {
     GeometryReader { geo in
-      let stageWidth = geo.size.width * 0.86
       ZStack {
+        // Sized to the capture's own aspect ratio rather than a fraction of the
+        // surface. The layer draws with .resizeAspect, so any container whose
+        // shape differs from the image letterboxed it; matching the shape means
+        // the card *is* the image and there are no bars down the sides.
         frameCard
-          .frame(width: stageWidth, height: geo.size.height)
+          .aspectRatio(frameAspect, contentMode: .fit)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
           .shadow(color: .black.opacity(0.22), radius: 26, y: 8)
       }
       .frame(width: geo.size.width, height: geo.size.height)
@@ -229,6 +247,13 @@ struct DayScrubberView: View {
       .overlay(alignment: .trailing) { chevron(forward: true).padding(.trailing, 4) }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+
+  /// Aspect of the capture on screen, falling back to 16:10 (the common Mac
+  /// display shape) until the first frame decodes.
+  private var frameAspect: CGFloat {
+    guard let image = model.currentImage, image.height > 0 else { return 1.6 }
+    return CGFloat(image.width) / CGFloat(image.height)
   }
 
   private var frameCard: some View {

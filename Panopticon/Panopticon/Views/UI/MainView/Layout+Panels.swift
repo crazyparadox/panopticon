@@ -57,22 +57,9 @@ extension MainView {
     }
     .padding(0)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-    .background(mainPanelBackground)
-  }
-
-  private var mainPanelBackground: some View {
-    ZStack {
-      RoundedRectangle(cornerRadius: 8, style: .continuous)
-        .fill(Color.white)
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 0)
-      RoundedRectangle(cornerRadius: 8, style: .continuous)
-        .fill(Color.white)
-        .blendMode(.destinationOut)
-      RoundedRectangle(cornerRadius: 8, style: .continuous)
-        .fill(.white.opacity(0.22))
-    }
-    .compositingGroup()
+    // A single rounded clip matching the window. Anything nested inside this
+    // with its own radius reads as a second border.
+    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
   }
 
   private func timelinePanel(geo: GeometryProxy) -> some View {

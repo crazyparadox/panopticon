@@ -49,7 +49,6 @@ struct DayScrubberFrames: View {
         .id(generation)
       }
     }
-    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     .task(id: selectedDate) { await load() }
   }
 
