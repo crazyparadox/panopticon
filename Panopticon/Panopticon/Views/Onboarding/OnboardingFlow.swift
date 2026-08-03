@@ -16,6 +16,11 @@ struct OnboardingFlow: View {
   @AppStorage("selectedLLMProvider") private var selectedProvider: String = "gemini"
   @EnvironmentObject private var categoryStore: CategoryStore
   @State private var flowID = UUID().uuidString.lowercased()
+  /// The opening sequence plays once per install. Persisted so a relaunch part
+  /// way through setup does not replay it, which would be tedious rather than
+  /// cinematic.
+  @AppStorage("onboardingIntroPlayed") private var introPlayed = false
+  @State private var showIntro = false
 
   private var onboardingFilledSegments: Int {
     switch step {
@@ -34,6 +39,32 @@ struct OnboardingFlow: View {
 
   @ViewBuilder
   var body: some View {
+    ZStack {
+      steps
+      if showIntro {
+        OnboardingCinematicIntro(onBegin: dismissIntro)
+          .transition(.opacity)
+          .zIndex(10)
+      }
+    }
+    .onAppear {
+      // Only for a genuinely fresh start; someone resuming mid-setup goes
+      // straight back to where they left off.
+      if !introPlayed && step == .llmSelection {
+        showIntro = true
+      } else {
+        introPlayed = true
+      }
+    }
+  }
+
+  private func dismissIntro() {
+    introPlayed = true
+    withAnimation(.easeOut(duration: 0.32)) { showIntro = false }
+  }
+
+  @ViewBuilder
+  private var steps: some View {
     ZStack(alignment: .bottomLeading) {
       // NO NESTING! Just render the appropriate view directly - NO GROUP!
       switch step {

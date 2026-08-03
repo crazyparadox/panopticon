@@ -53,6 +53,9 @@ struct PanopticonApp: App {
           let defaults = UserDefaults.standard
           defaults.set(false, forKey: "didOnboard")
           defaults.set(0, forKey: "onboardingStep")
+          // Replay the opening sequence too, otherwise a reset gives a partial
+          // first run.
+          defaults.set(false, forKey: "onboardingIntroPlayed")
           defaults.removeObject(forKey: CategoryStore.StoreKeys.onboardingSelectedRole)
           defaults.removeObject(forKey: CategoryStore.StoreKeys.onboardingAppliedCategoryPreset)
           defaults.removeObject(forKey: CategoryStore.StoreKeys.onboardingCategoriesCustomized)
