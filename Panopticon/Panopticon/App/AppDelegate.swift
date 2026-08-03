@@ -37,8 +37,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     UserDefaults.standard.set(
       Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "", forKey: "lastRunBuild")
     statusBar = StatusBarController()
-    // Dims and blurs everything behind the window while Panopticon is in front.
-    BackdropBlurController.shared.attach()
+    // Dims everything behind the window while Panopticon is in front.
+    BackdropDimController.shared.attach()
     LaunchAtLoginManager.shared.bootstrapDefaultPreference()
     deepLinkRouter = AppDeepLinkRouter()
     flushPendingDeepLinks()

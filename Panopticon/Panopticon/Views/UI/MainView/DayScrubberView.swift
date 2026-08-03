@@ -111,8 +111,8 @@ struct DayScrubberView: View {
       }
     }
     .padding(.horizontal, 16)
-    .padding(.top, 14)
-    .padding(.bottom, 12)
+    .padding(.top, 12)
+    .padding(.bottom, 6)
     .zIndex(20)
   }
 
@@ -231,13 +231,13 @@ struct DayScrubberView: View {
   private var carousel: some View {
     GeometryReader { geo in
       ZStack {
-        // Sized to the capture's own aspect ratio rather than a fraction of the
-        // surface. The layer draws with .resizeAspect, so any container whose
-        // shape differs from the image letterboxed it; matching the shape means
-        // the card *is* the image and there are no bars down the sides.
+        // Fills rather than fits. Fitting kept the card height-limited on a
+        // wide window, which is exactly what left bars down both sides; filling
+        // takes the full width and crops a little off the top and bottom.
         frameCard
-          .aspectRatio(frameAspect, contentMode: .fit)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .aspectRatio(frameAspect, contentMode: .fill)
+          .frame(width: geo.size.width, height: geo.size.height)
+          .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
           .shadow(color: .black.opacity(0.22), radius: 26, y: 8)
       }
       .frame(width: geo.size.width, height: geo.size.height)

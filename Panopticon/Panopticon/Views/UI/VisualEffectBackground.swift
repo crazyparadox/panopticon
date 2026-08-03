@@ -54,6 +54,11 @@ struct TranslucentWindowConfigurator: NSViewRepresentable {
       // Without this the titlebar area paints its own opaque material over the
       // vibrancy, leaving a visible band across the top.
       window.titlebarAppearsTransparent = true
+      // No traffic lights. The window is still closable with Cmd+W and the app
+      // stays reachable from the menu bar item.
+      for button in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+        window.standardWindowButton(button)?.isHidden = true
+      }
     }
   }
 }

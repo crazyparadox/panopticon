@@ -1,24 +1,27 @@
 //
-//  BackdropBlurController.swift
+//  BackdropDimController.swift
 //  Panopticon
 //
-//  Blurs everything behind the main window while Panopticon is in front, so the
+//  Dims everything behind the main window while Panopticon is in front, so the
 //  timeline reads as the focus rather than one window among many.
 //
-//  This is done with a borderless, non-opaque window per screen carrying an
-//  NSVisualEffectView in `.behindWindow` mode: the compositor blurs whatever is
-//  underneath it. No screen capture is involved, so it needs no permission and
-//  costs nothing to keep on screen.
+//  A borderless, non-opaque panel per screen filled with translucent black. No
+//  blur: blurring the desktop fought the window's own vibrancy, and a flat scrim
+//  is both cheaper and easier to read against.
 //
 
 import AppKit
 
 @MainActor
-final class BackdropBlurController {
-  static let shared = BackdropBlurController()
+final class BackdropDimController {
+  static let shared = BackdropDimController()
 
   private var panels: [NSWindow] = []
   private var isShown = false
+
+  /// How dark the rest of the screen goes. Low enough that the desktop stays
+  /// visible, high enough that the window is clearly the focus.
+  private static let dimOpacity: CGFloat = 0.5
 
   private init() {}
 
@@ -71,13 +74,12 @@ final class BackdropBlurController {
       panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenAuxiliary]
       panel.setFrame(screen.frame, display: false)
 
-      let effect = NSVisualEffectView(frame: screen.frame)
-      effect.material = .fullScreenUI
-      effect.blendingMode = .behindWindow
-      // `.active` keeps the blur up even though the panel never becomes key.
-      effect.state = .active
-      effect.autoresizingMask = [.width, .height]
-      panel.contentView = effect
+      let scrim = NSView(frame: screen.frame)
+      scrim.wantsLayer = true
+      scrim.layer?.backgroundColor =
+        NSColor.black.withAlphaComponent(Self.dimOpacity).cgColor
+      scrim.autoresizingMask = [.width, .height]
+      panel.contentView = scrim
 
       panel.orderFront(nil)
       return panel
