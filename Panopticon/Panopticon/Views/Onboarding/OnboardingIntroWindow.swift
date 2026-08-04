@@ -3,11 +3,10 @@
 //  Panopticon
 //
 //  The opening sequence is its own window, not a view inside the app window, so
-//  it can rise from below the Dock and cover the whole screen. Coast and Dia both
-//  do this with a borderless full-screen window; Coast plays one pre-rendered
-//  movie into it, Dia live-renders and fires discrete sound cues. This follows
-//  Dia's shape: real animation with cues, so there is no 40MB video in the bundle
-//  and it adapts to any display size.
+//  it can rise from below the Dock and cover the whole screen. This follows
+//  Coast: the window is a bare full-screen player for one pre-rendered movie
+//  composited over the desktop, and when the movie ends the window fades out and
+//  setup is already underneath.
 //
 
 import AppKit
@@ -66,7 +65,7 @@ final class OnboardingIntroWindowController {
     // occur.
 
     let root = OnboardingIntroContent(
-      onBegin: { [weak self] in self?.dismiss() }
+      onFinished: { [weak self] in self?.dismiss() }
     )
     let host = NSHostingView(rootView: root)
     host.frame = CGRect(origin: .zero, size: start.size)
@@ -90,16 +89,12 @@ final class OnboardingIntroWindowController {
     let finish = onFinish
     onFinish = nil
 
-    let frame = window.frame
-    let away = CGRect(
-      x: frame.minX, y: frame.minY - frame.height,
-      width: frame.width, height: frame.height)
-
+    // Fades out in place. Sliding it back down drew attention to the panel as an
+    // object, when by this point the film should simply stop being there.
     NSAnimationContext.runAnimationGroup(
       { context in
-        context.duration = 0.5
-        context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-        window.animator().setFrame(away, display: true)
+        context.duration = 0.55
+        context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         window.animator().alphaValue = 0
       },
       completionHandler: {

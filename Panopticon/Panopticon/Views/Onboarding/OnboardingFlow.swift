@@ -23,6 +23,7 @@ struct OnboardingFlow: View {
 
   private var onboardingFilledSegments: Int {
     switch step {
+    case .welcome: return 0
     case .llmSelection: return 0
     case .llmSetup: return 1
     case .categories: return 2
@@ -33,7 +34,7 @@ struct OnboardingFlow: View {
   }
 
   private var showsProgressRing: Bool {
-    step != .llmSelection && step != .categoryColors
+    step != .welcome && step != .llmSelection && step != .categoryColors
   }
 
   @ViewBuilder
@@ -42,10 +43,11 @@ struct OnboardingFlow: View {
       .onAppear(perform: presentIntroIfNeeded)
   }
 
-  /// The intro lives in its own screen-covering window so it can rise from below
-  /// the Dock, so it is presented rather than composed into this view.
+  /// The film runs once, on the very first open, and fades to reveal the welcome
+  /// screen underneath. It lives in its own screen-covering window so it can rise
+  /// from below the Dock, so it is presented rather than composed into this view.
   private func presentIntroIfNeeded() {
-    guard !introPlayed, step == .llmSelection else {
+    guard !introPlayed, step == .welcome, OnboardingIntroAsset.exists else {
       introPlayed = true
       return
     }
@@ -58,6 +60,10 @@ struct OnboardingFlow: View {
     ZStack(alignment: .bottomLeading) {
       // NO NESTING! Just render the appropriate view directly - NO GROUP!
       switch step {
+      case .welcome:
+        OnboardingWelcomeStepView(onStart: { advance() })
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+
       case .llmSelection:
         OnboardingPrototypeChooseProviderStep(
           hasPaidAI: false,
@@ -210,6 +216,9 @@ struct OnboardingFlow: View {
 
   private func advance(selectedRole: String? = nil, extraProps: [String: Any] = [:]) {
     switch step {
+    case .welcome:
+      markStepCompleted(step)
+      setStep(.llmSelection)
     case .llmSelection:
       markStepCompleted(step, extraProps: extraProps)
       let nextStep: OnboardingStep = .llmSetup
@@ -257,11 +266,13 @@ struct OnboardingFlow: View {
 
 /// Wizard step order
 enum OnboardingStep: Int, CaseIterable {
-  case llmSelection, llmSetup,
+  case welcome, llmSelection, llmSetup,
     categories, categoryColors, screen, completion
 
   var analyticsName: String {
     switch self {
+    case .welcome:
+      return "welcome"
     case .llmSelection:
       return "llm_selection"
     case .llmSetup:
@@ -288,92 +299,27 @@ enum OnboardingStep: Int, CaseIterable {
 enum OnboardingStepMigration {
   static let schemaVersionKey = "onboardingStepSchemaVersion"
   private static let onboardingStepKey = "onboardingStep"
-  static let currentVersion = 1
+  /// v2 inserted `welcome` ahead of `llmSelection`, shifting every raw value up
+  /// by one.
+  static let currentVersion = 2
 
-  /// Panopticon ships with a fresh bundle identifier, so there is no legacy
-  /// Panopticon onboarding state to migrate. This only stamps the current schema
-  /// version and returns the stored step.
   @discardableResult
   static func migrateIfNeeded(defaults: UserDefaults = .standard) -> Int {
-    defaults.set(currentVersion, forKey: schemaVersionKey)
+    let storedVersion = defaults.integer(forKey: schemaVersionKey)
+    if storedVersion < currentVersion {
+      // Only installs that actually ran v1 carry v1 numbering. A fresh install
+      // has no stamped version and no saved step, and must stay at 0 so it opens
+      // on the welcome rather than being pushed past it.
+      if storedVersion == 1, defaults.object(forKey: onboardingStepKey) != nil {
+        defaults.set(defaults.integer(forKey: onboardingStepKey) + 1, forKey: onboardingStepKey)
+      }
+      defaults.set(currentVersion, forKey: schemaVersionKey)
+    }
     return defaults.integer(forKey: onboardingStepKey)
   }
 
   static func restoredStep(defaults: UserDefaults = .standard) -> OnboardingStep {
-    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .llmSelection
-  }
-}
-
-struct WelcomeView: View {
-  let fullText: String
-  @Binding var textOpacity: Double
-  @Binding var timelineOffset: CGFloat
-  let onStart: () -> Void
-
-  var body: some View {
-    ZStack {
-      // Text and button container
-      VStack {
-        VStack(spacing: 20) {
-          Text("Panopticon")
-            .font(.system(size: 28, weight: .semibold))
-            .foregroundColor(Theme.Palette.ink)
-            .tracking(-0.5)
-            .opacity(textOpacity)
-
-          Text(fullText)
-            .font(.system(size: 36, weight: .semibold))
-            .multilineTextAlignment(.center)
-            .foregroundColor(.black.opacity(0.8))
-            .padding(.horizontal, 20)
-            .minimumScaleFactor(0.5)
-            .lineLimit(3)
-            .frame(minHeight: 100)
-            .opacity(textOpacity)
-            .onAppear {
-              withAnimation(.easeOut(duration: 0.6)) {
-                textOpacity = 1
-              }
-            }
-
-          PanopticonSurfaceButton(
-            action: onStart,
-            content: { Text("Start").font(.system(size: 16)).fontWeight(.semibold) },
-            background: Theme.Palette.ink,
-            foreground: .white,
-            borderColor: .clear,
-            cornerRadius: 8,
-            horizontalPadding: 28,
-            verticalPadding: 14,
-            minWidth: 160,
-            isFilledStyle: true
-          )
-          .opacity(textOpacity)
-          .animation(.easeIn(duration: 0.3).delay(0.4), value: textOpacity)
-        }
-        .padding(.top, 20)
-
-        Spacer()
-      }
-      .zIndex(1)
-
-      // Timeline image
-      VStack {
-        Spacer()
-        Image("OnboardingTimeline")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(maxWidth: 800)
-          .offset(y: timelineOffset)
-          .opacity(timelineOffset > 0 ? 0 : 1)
-          .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0).delay(0.3))
-            {
-              timelineOffset = 0
-            }
-          }
-      }
-    }
+    OnboardingStep(rawValue: migrateIfNeeded(defaults: defaults)) ?? .welcome
   }
 }
 

@@ -29,3 +29,6 @@ tools/
 # Eval frameworks
 claudeeval/
 codexeval/
+
+# Coverage artifact from xcodebuild test runs
+default.profraw
