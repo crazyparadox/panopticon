@@ -86,6 +86,23 @@ function version(tag: string): string {
   return tag.replace(/^v/, "");
 }
 
+/** Releases up to this one were built with CFBundleVersion set to the version
+ *  string itself ("0.1.12"); later ones use the integer scheme below. */
+const LAST_STRING_BUILD = 112;
+
+/** The CFBundleVersion the release workflow stamped into a build. Current
+ *  scheme: MAJOR*10000 + MINOR*100 + PATCH (v0.1.13 → 113). Sparkle compares
+ *  this against the installed CFBundleVersion, so it must be exactly what the
+ *  build carries: an old release advertised as "112" would look newer than an
+ *  installed "0.1.12" and be offered to people who already have it. */
+function buildNumber(tag: string): string {
+  const [major = 0, minor = 0, patch = 0] = (version(tag).split("-")[0] ?? "")
+    .split(".")
+    .map((n) => parseInt(n, 10) || 0);
+  const build = major * 10000 + minor * 100 + patch;
+  return build <= LAST_STRING_BUILD ? version(tag) : String(build);
+}
+
 /** Recent releases rendered as landing-page rows. Returns null when GitHub is
  *  unreachable and nothing is cached, so the caller can fall back to a link
  *  rather than printing a version history that isn't real. */
@@ -152,7 +169,7 @@ export async function serveAppcast(_req: Request, res: Response): Promise<void> 
         if (!asset) return null;
         return `    <item>
       <title>${esc(r.name ?? r.tag_name)}</title>
-      <sparkle:version>${esc(version(r.tag_name))}</sparkle:version>
+      <sparkle:version>${esc(buildNumber(r.tag_name))}</sparkle:version>
       <sparkle:shortVersionString>${esc(version(r.tag_name))}</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <pubDate>${new Date(r.published_at).toUTCString()}</pubDate>
@@ -180,18 +197,35 @@ ${items}
 
 // ── Download redirect ────────────────────────────────────────────────────
 //
-// Sends the visitor to the newest release's .zip so the landing button never
-// points at a stale version. Falls back to the releases page if there is no
-// downloadable asset yet.
+// Releases are published through Amore, which serves the newest build at a
+// stable URL. Until Amore has a first release that URL 404s, so fall back to
+// the GitHub release DMG rather than send visitors to an error page.
+
+const AMORE_DOWNLOAD = "https://api.amore.computer/v1/apps/com.panopticon.Panopticon/download";
+const GITHUB_DOWNLOAD = `https://github.com/${REPO}/releases/latest/download/Panopticon.dmg`;
+
+let amoreCheck: { at: number; ok: boolean } | null = null;
+
+async function amoreHasRelease(): Promise<boolean> {
+  if (amoreCheck && Date.now() - amoreCheck.at < CACHE_MS) return amoreCheck.ok;
+  let ok = false;
+  try {
+    const resp = await fetch(AMORE_DOWNLOAD, {
+      method: "HEAD",
+      redirect: "manual",
+      signal: AbortSignal.timeout(3000),
+    });
+    ok = resp.status < 400;
+  } catch {
+    // Unreachable: keep the last known answer rather than flip on a blip.
+    ok = amoreCheck?.ok ?? false;
+  }
+  amoreCheck = { at: Date.now(), ok };
+  return ok;
+}
 
 export async function serveDownload(_req: Request, res: Response): Promise<void> {
-  // Deliberately no API call. The previous version asked GitHub for the newest
-  // asset, and the unauthenticated API allows 60 requests/hour per IP; on
-  // Vercel's shared egress that quota runs out and every miss dumped the
-  // visitor on the releases page instead of downloading. GitHub resolves
-  // /releases/latest/download/<name> itself, so a stable asset name needs no
-  // quota, no cache, and no fallback path.
-  res.redirect(302, `https://github.com/${REPO}/releases/latest/download/Panopticon.dmg`);
+  res.redirect(302, (await amoreHasRelease()) ? AMORE_DOWNLOAD : GITHUB_DOWNLOAD);
 }
 
 // ── Human changelog page ─────────────────────────────────────────────────

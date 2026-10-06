@@ -51,12 +51,11 @@ const landingHtml = readFileSync(new URL("./landing.html", import.meta.url), "ut
 const staticAssets: Record<string, Buffer> = {
   "iphone-frame.png": readFileSync(new URL("./assets/iphone-frame.png", import.meta.url)),
   "poke-logo.png": readFileSync(new URL("./assets/poke-logo.png", import.meta.url)),
-  "folk-logo.png": readFileSync(new URL("./assets/folk-logo.png", import.meta.url)),
+  "grokbot-logo.png": readFileSync(new URL("./assets/grokbot-logo.png", import.meta.url)),
   "hermes-logo.png": readFileSync(new URL("./assets/hermes-logo.png", import.meta.url)),
   "openclaw-logo.png": readFileSync(new URL("./assets/openclaw-logo.png", import.meta.url)),
   "wall-imessage.jpg": readFileSync(new URL("./assets/wall-imessage.jpg", import.meta.url)),
   "wall-telegram.jpg": readFileSync(new URL("./assets/wall-telegram.jpg", import.meta.url)),
-  "wall-whatsapp.jpg": readFileSync(new URL("./assets/wall-whatsapp.jpg", import.meta.url)),
   "app-icon.png": readFileSync(new URL("./assets/app-icon.png", import.meta.url)),
 };
 const IS_DEV = process.env.NODE_ENV !== "production" && !process.env.VERCEL;

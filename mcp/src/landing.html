@@ -302,52 +302,70 @@
   .imsg .pill { color: #fff; }
   .imsg .pill svg { color: #0a84ff; }
 
-  /* WhatsApp, dark */
-  .wa { background: #0b141a; }
-  .wa .chat-head {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 10px 8px; background: rgba(16, 18, 20, 0.96);
-    position: relative; z-index: 2;
+  /* Grok Bot, light (after the iOS app: floating header pill with the agent's
+     avatar, grey message cards, file chip, lettered quick replies) */
+  .phone .screen.grokbot { background: #fcfcfc; color: #111; }
+  .grokbot .statusbar { color: #000; }
+  .grokbot .statusbar .sicons { filter: invert(1); }
+  .grokbot .homebar { background: rgba(0, 0, 0, 0.85); }
+  .grokbot .gb-head {
+    display: flex; align-items: center; gap: 4px; padding: 2px 9px 4px;
+    flex-shrink: 0; position: relative; z-index: 3;
   }
-  .wa .chat-head .back { font-size: 12px; color: #fff; display: inline-flex; align-items: center; gap: 2px; }
-  .wa .chat-head .back .cnt { font-size: 8.5px; }
-  .wa .chat-head .avatar-img { width: 24px; height: 24px; }
-  .wa .cname { font-size: 10px; font-weight: 600; color: #fff; flex: 1; }
-  .wa .icons { display: inline-flex; align-items: center; gap: 12px; color: #fff; opacity: 0.92; }
-  .wa .chat-body {
-    background: #0b141a url("/assets/wall-whatsapp.jpg") center/cover no-repeat;
-    background-attachment: local;
+  .grokbot .gb-round {
+    width: 24px; height: 24px; border-radius: 50%; background: #fff; color: #111;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
-  .wa .datechip {
-    align-self: center; background: rgba(24, 26, 28, 0.9); color: #cfd4d8;
-    border-radius: 8px; padding: 2px 9px; font-size: 7.5px; font-weight: 600; margin: 2px 0;
+  .grokbot .gb-round.end { margin-left: auto; }
+  .grokbot .gb-agent {
+    display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 4px;
+    background: #fff; border-radius: 999px; font-size: 9.5px; font-weight: 500;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
-  .wa .bubble { border-radius: 7px; }
-  .wa .bubble.in { background: #202c33; color: #e9edef; }
-  .wa .bubble.out { background: #005c4b; color: #e9edef; }
-  .wa .bubble.tail.in { border-top-left-radius: 0; }
-  .wa .bubble.tail.out { border-top-right-radius: 0; }
-  .wa .bubble.tail::before { content: ""; position: absolute; top: 0; width: 0; height: 0; }
-  .wa .bubble.tail.in::before {
-    left: -6px; border-top: 8px solid #202c33; border-left: 6px solid transparent;
+  .grokbot .gb-agent svg { display: block; }
+  .grokbot .chat-body { padding: 6px 8px 4px; gap: 5px; }
+  .grokbot .bubble { max-width: 88%; }
+  .grokbot .bubble.in { background: #f2f2f0; border-radius: 11px; padding: 6px 8px; color: #111; }
+  .grokbot .bubble.in b { font-weight: 600; }
+  .grokbot .bubble.out { background: #111; color: #fff; border-radius: 11px; padding: 5px 9px; }
+  .grokbot .bubble + .bubble { margin-top: 0; }
+  .grokbot .gb-file {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 5px; max-width: none;
   }
-  .wa .bubble.tail.out::before {
-    right: -6px; border-top: 8px solid #005c4b; border-right: 6px solid transparent;
+  .grokbot .gb-file .md {
+    width: 20px; height: 20px; border-radius: 5px; background: #e4e4e2; color: #777;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 6.5px; font-weight: 600; letter-spacing: -0.2px;
   }
-  .wa .meta { color: rgba(255,255,255,0.55); }
-  .wa .meta .tick { color: #53bdeb; vertical-align: -1px; }
-  .wa .inputbar {
-    margin-top: auto; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 7px 10px 22px;
-    background: rgba(16, 18, 20, 0.96); color: #aebac1;
-    position: relative; z-index: 2;
+  .grokbot .gb-file .nm { font-size: 8.5px; font-weight: 500; line-height: 1.25; }
+  .grokbot .gb-file .nm i { font-style: normal; color: #aaa; font-weight: 400; }
+  .grokbot .gb-file .sz { font-size: 7px; color: #999; display: block; }
+  .grokbot .gb-ask { padding: 7px 7px 7px; }
+  .grokbot .gb-ask p { margin: 0 2px 5px; }
+  .grokbot .gb-opts { background: #fff; border-radius: 8px; overflow: hidden; }
+  .grokbot .gb-opts span {
+    display: flex; align-items: center; gap: 6px; padding: 3.5px 6px; font-size: 9px;
+    border-top: 1px solid #ededeb;
   }
-  .wa .inputbar > span { display: inline-flex; align-items: center; }
-  .wa .field {
-    flex: 1; border-radius: 999px; padding: 4px 10px; font-size: 9px;
-    background: #1f2427; color: #6f7a80;
-    /* Placeholder left, sticker right, both vertically centred, matching the
-       iMessage and Telegram fields, which already flexed. */
+  .grokbot .gb-opts span:first-child { border-top: none; }
+  .grokbot .gb-opts em {
+    font-style: normal; width: 11px; height: 11px; border-radius: 3px; background: #f2f2f0;
+    color: #b0b0ae; font-size: 6.5px; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .grokbot .gb-composer {
+    margin-top: auto; flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+    padding: 6px 9px 22px; position: relative; z-index: 2;
+  }
+  .grokbot .gb-field {
+    flex: 1; height: 24px; border-radius: 999px; background: #fff;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
     display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3px 0 10px; font-size: 9px; color: #a5a5a5;
+  }
+  .grokbot .gb-mic {
+    width: 18px; height: 18px; border-radius: 50%; background: #ececec; color: #777;
+    display: inline-flex; align-items: center; justify-content: center;
   }
 
   /* Telegram, dark */
@@ -570,28 +588,23 @@
 
       <div class="phone-col">
         <div class="phone">
-          <div class="screen wa">
+          <div class="screen grokbot">
             <div class="statusbar"><span>4:52</span><span class="sicons"><svg width="13" height="8" viewBox="0 0 13 8" fill="#fff"><rect x="0" y="5" width="2" height="3" rx="0.6"/><rect x="3.3" y="3.5" width="2" height="4.5" rx="0.6"/><rect x="6.6" y="2" width="2" height="6" rx="0.6" opacity="0.4"/><rect x="9.9" y="0.5" width="2" height="7.5" rx="0.6" opacity="0.4"/></svg><svg width="12" height="8" viewBox="0 0 16 11" fill="#fff"><path d="M8 9.5a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.4 1.4a4.1 4.1 0 015.8 0l1.4-1.4A6 6 0 008 5.6zM8 1.5C5 1.5 2.3 2.7.3 4.7l1.4 1.4A8.8 8.8 0 018 3.5c2.4 0 4.6 1 6.3 2.6l1.4-1.4c-2-2-4.7-3.2-7.7-3.2z" transform="scale(1) translate(0,-1.5)"/></svg><svg width="17" height="9" viewBox="0 0 25 12" ><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" stroke-opacity="0.5"/><rect x="2" y="2" width="11" height="8" rx="1.6" fill="#fff"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="#fff" fill-opacity="0.5"/></svg></span></div>
-            <div class="chat-head">
-              <span class="back"><svg viewBox="0 0 10 16" width="6" height="10" aria-hidden="true"><path d="M8.5 1L2 8l6.5 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="cnt">236</span></span>
-              <img class="avatar-img" src="/assets/folk-logo.png" alt="folk" />
-              <span class="cname">folk</span>
-              <span class="icons"><svg viewBox="0 0 20 13" width="13" height="9" aria-hidden="true"><rect x="0.6" y="1.1" width="11.9" height="10.8" rx="2.9" stroke="currentColor" stroke-width="1.25" fill="none"/><path d="M13.4 5.1 18.9 2.2v8.6L13.4 7.9z" stroke="currentColor" stroke-width="1.25" fill="none" stroke-linejoin="round"/></svg> <svg viewBox="0 0 14 14" width="10" height="10" aria-hidden="true"><path d="M3.5 1.4c.5-.5 1.2-.4 1.6.1l1.5 2c.3.4.3.9-.1 1.3l-.9.9c.5 1.1 1.9 2.5 3 3l.9-.9c.4-.4.9-.4 1.3-.1l2 1.5c.5.4.6 1.1.1 1.6l-1 1c-.5.5-1.2.7-1.8.5C7 11.4 2.7 7.1 1.1 3.9c-.3-.6-.1-1.4.4-1.9z" stroke="currentColor" stroke-width="1.15" fill="none" stroke-linejoin="round"/></svg></span>
+            <div class="gb-head">
+              <span class="gb-round"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></span>
+              <span class="gb-agent"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#111"/><rect x="7.6" y="7.4" width="2.6" height="6" rx="1.3" fill="#fff" transform="rotate(-28 8.9 10.4)"/><rect x="13.6" y="6.2" width="2.6" height="6" rx="1.3" fill="#fff" transform="rotate(-28 14.9 9.2)"/></svg>Grok</span>
+              <span class="gb-round end"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span>
             </div>
             <div class="chat-body">
-              <span class="bubble in tail turn" style="--i:0">hey, one thing before you shut the laptop<span class="meta">5:29 PM</span></span>
-              <span class="bubble out tail turn" style="--i:1">go<span class="meta">5:30 PM <svg class="tick" viewBox="0 0 16 11" width="11" height="8" fill="none" aria-hidden="true"><path d="M1 6.1 3.5 8.7 9 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.6 6.6 8.4 8.7 14.6 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
-              <span class="bubble in tail turn" style="--i:2">you were on a call with Priya 2:15–2:50, then opened her deal right after<span class="meta">5:30 PM</span></span>
-              <span class="bubble in turn" style="--i:3">log it as a touchpoint and move the deal to Proposal?<span class="meta">5:31 PM</span></span>
-              <span class="bubble out tail turn" style="--i:4">how do you even know that<span class="meta">5:32 PM <svg class="tick" viewBox="0 0 16 11" width="11" height="8" fill="none" aria-hidden="true"><path d="M1 6.1 3.5 8.7 9 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.6 6.6 8.4 8.7 14.6 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
-              <span class="bubble in tail turn" style="--i:5">your panopticon timeline. i read it, i don't watch you 🙂<span class="meta">5:32 PM</span></span>
-              <span class="bubble out tail turn" style="--i:6">ok fine. yes to both<span class="meta">5:33 PM <svg class="tick" viewBox="0 0 16 11" width="11" height="8" fill="none" aria-hidden="true"><path d="M1 6.1 3.5 8.7 9 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.6 6.6 8.4 8.7 14.6 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
-              <span class="bubble in tail turn" style="--i:7">done. nudging you Thursday too. Marcus has gone three weeks quiet.<span class="meta">5:34 PM</span></span>
+              <span class="bubble out" style="--i:0">write my standup from today</span>
+              <span class="bubble in" style="--i:1">Pulled today from your Panopticon timeline: <b>3h 40m</b> in Xcode on the sync refactor, <b>55m</b> on X, and your best stretch was <b>10:05–11:45</b> with zero context switches.</span>
+              <span class="bubble in" style="--i:2">Drafted it. Led with the refactor, left the X time out. Notes on the two PRs you opened are in the file.</span>
+              <span class="bubble in gb-file" style="--i:3"><span class="md">M↓</span><span class="nm">standup-oct-6<i>.md</i><span class="sz">1.2 KB</span></span></span>
+              <span class="bubble in gb-ask" style="--i:4"><p>Want me to send it, or change something first?</p><span class="gb-opts"><span><em>A</em>Post it to #eng</span><span><em>B</em>Make it shorter</span><span><em>C</em>Add tomorrow's plan</span><span><em>D</em>Flag the release blocker</span></span></span>
             </div>
-            <div class="inputbar blur-bottom">
-              <span><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-              <span class="field"><span>Message</span><span style="opacity:0.8"><svg viewBox="0 0 14 14" width="10" height="10" fill="none" aria-hidden="true"><path d="M12.8 7.7V3.5A2.4 2.4 0 0 0 10.4 1.1H3.6A2.4 2.4 0 0 0 1.2 3.5v7A2.4 2.4 0 0 0 3.6 12.9h4.1z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><path d="M7.7 12.9V9.7a2 2 0 0 1 2-2h3.1" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></span></span>
-              <span><svg viewBox="0 0 16 13" width="12" height="10" aria-hidden="true"><path d="M5.4 1.2h5.2l1.1 1.4h2A1.9 1.9 0 0 1 15.5 4.5v6.1a1.9 1.9 0 0 1-1.9 1.9H2.4A1.9 1.9 0 0 1 .5 10.6V4.5a1.9 1.9 0 0 1 1.9-1.9h2z" stroke="currentColor" stroke-width="1.15" fill="none" stroke-linejoin="round"/><circle cx="8" cy="7.2" r="2.6" stroke="currentColor" stroke-width="1.15" fill="none"/></svg></span><span><svg viewBox="0 0 12 16" width="7" height="10" aria-hidden="true"><rect x="3.9" y="1" width="4.2" height="8" rx="2.1" stroke="currentColor" stroke-width="1.15" fill="none"/><path d="M1.8 7.4a4.2 4.2 0 008.4 0M6 11.6v3.2" stroke="currentColor" stroke-width="1.15" fill="none" stroke-linecap="round"/></svg></span>
+            <div class="gb-composer">
+              <span class="gb-round"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+              <span class="gb-field">Ask Grok<span class="gb-mic"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3"/></svg></span></span>
             </div>
             <span class="homebar"></span>
           </div>
@@ -727,9 +740,17 @@ bearer_token_env_var = "PANOPTICON_TOKEN"</code>
         <a class="act" href="https://poke.com/integrations/new" target="_blank" rel="noreferrer">Connect ↗</a>
       </div>
       <div class="conn-row">
-        <img class="conn-mark" src="/assets/folk-logo.png" alt="folk" />
-        <span class="conn-name">folk</span>
-        <a class="act" href="https://www.folk.com/docs/connecting-apps" target="_blank" rel="noreferrer">Connect ↗</a>
+        <img class="conn-mark" src="/assets/grokbot-logo.png" alt="Grok Bot" />
+        <span class="conn-name">Grok Bot</span>
+        <button type="button" class="act cpbtn" onclick="cp(this,'cn-grokbot')"><svg class="cpi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15C9 12.1716 9 10.7574 9.87868 9.87868C10.7574 9 12.1716 9 15 9H16C18.8284 9 20.2426 9 21.1213 9.87868C22 10.7574 22 12.1716 22 15V16C22 18.8284 22 20.2426 21.1213 21.1213C20.2426 22 18.8284 22 16 22H15C12.1716 22 10.7574 22 9.87868 21.1213C9 20.2426 9 18.8284 9 16V15Z"/><path d="M17 9C16.9975 6.04291 16.9528 4.51121 16.092 3.46243C15.9258 3.25989 15.7401 3.07418 15.5376 2.90796C14.4312 2 12.7875 2 9.5 2C6.21252 2 4.56878 2 3.46243 2.90796C3.25989 3.07417 3.07418 3.25989 2.90796 3.46243C2 4.56878 2 6.21252 2 9.5C2 12.7875 2 14.4312 2.90796 15.5376C3.07417 15.7401 3.25989 15.9258 3.46243 16.092C4.51121 16.9528 6.04291 16.9975 9 17"/></svg>Copy config</button>
+        <code id="cn-grokbot" hidden>{
+  "mcpServers": {
+    "panopticon": {
+      "url": "https://&lt;your-server&gt;/mcp",
+      "headers": { "Authorization": "Bearer &lt;token&gt;" }
+    }
+  }
+}</code>
       </div>
     </div>
 
@@ -749,7 +770,7 @@ bearer_token_env_var = "PANOPTICON_TOKEN"</code>
 
     <p><span class="strong">Who can read the data?</span> Whoever holds the bearer token you generated. Rotate it, or drop the tables, whenever you like.</p>
 
-    <p><span class="strong">Do I need all three of Poke, folk and Hermes?</span> No, those are just examples. Anything that speaks MCP can read the timeline.</p>
+    <p><span class="strong">Do I need all three of Poke, Grok Bot and Hermes?</span> No, those are just examples. Anything that speaks MCP can read the timeline.</p>
   </div>
 
   <!-- changelog -->
