@@ -53,7 +53,7 @@ enum RecordingControl {
   }
 
   private static func hasScreenRecordingPermission() async -> Bool {
-    guard CGPreflightScreenCaptureAccess() else { return false }
+    guard ScreenRecordingPermissionNotice.isGranted else { return false }
 
     do {
       _ = try await SCShareableContent.excludingDesktopWindows(

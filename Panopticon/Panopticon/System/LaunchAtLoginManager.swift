@@ -23,7 +23,22 @@ final class LaunchAtLoginManager: ObservableObject {
     // SMAppService.mainApp.status makes a synchronous XPC call that can take 5+ seconds
     Task {
       await refreshStatusAsync()
+      applyDefaultOnFirstLaunch()
     }
+  }
+
+  private static let defaultAppliedKey = "launchAtLoginDefaultApplied"
+
+  /// Launch at login is on by default: register once on first launch, then leave
+  /// it to the user so turning it off in Settings or System Settings sticks.
+  /// Debug builds skip this so DerivedData copies never become login items.
+  private func applyDefaultOnFirstLaunch() {
+    #if !DEBUG
+      let defaults = UserDefaults.standard
+      guard !defaults.bool(forKey: Self.defaultAppliedKey) else { return }
+      defaults.set(true, forKey: Self.defaultAppliedKey)
+      setEnabled(true)
+    #endif
   }
 
   /// Re-sync with System Settings, e.g. if the user adds/removes Panopticon manually.

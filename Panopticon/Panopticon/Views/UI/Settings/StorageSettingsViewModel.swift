@@ -67,7 +67,7 @@ final class StorageSettingsViewModel: ObservableObject {
     }
 
     Task.detached(priority: .utility) { [weak self] in
-      let permission = CGPreflightScreenCaptureAccess()
+      let permission = ScreenRecordingPermissionNotice.isGranted
       let recordingsURL = StorageManager.shared.recordingsRoot
 
       let recordingsSize = StorageSettingsViewModel.directorySize(at: recordingsURL)
