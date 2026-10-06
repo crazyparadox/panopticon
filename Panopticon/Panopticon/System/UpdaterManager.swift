@@ -2,11 +2,10 @@
 //  UpdaterManager.swift
 //  Panopticon
 //
-//  Minimal Sparkle wrapper. The feed (SUFeedURL in Info.plist) points at the
-//  self-hosted MCP server's /appcast.xml, which is generated on the fly from
-//  this repo's GitHub releases. Update integrity relies on Sparkle's Apple
-//  code-signing validation: release builds are Developer ID signed, and
-//  Sparkle accepts an update whose signing team matches the installed app's.
+//  Minimal Sparkle wrapper. The feed (SUFeedURL in Info.plist) is served by
+//  Amore, which hosts the release archives and signs them with the EdDSA key
+//  whose public half is SUPublicEDKey. Sparkle rejects any update that isn't
+//  signed with that key, on top of its Developer ID code-signing check.
 //
 
 import Sparkle

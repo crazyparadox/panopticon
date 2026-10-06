@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -16,9 +16,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>SUFeedURL</key>
-	<string>https://panopticon-mcp.vercel.app/appcast.xml</string>
+	<string>https://api.amore.computer/v1/apps/com.panopticon.Panopticon/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>W4CTFqeIoKkXZzUDcynbaMFNpyD019PL3sdPFx/lZVQ=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUScheduledCheckInterval</key>
