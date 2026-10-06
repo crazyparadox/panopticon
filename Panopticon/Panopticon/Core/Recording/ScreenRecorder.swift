@@ -179,6 +179,10 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   /// SCShareableContent, which re-presents the system permission prompt when the
   /// grant is stale, so this is what keeps that from becoming a prompt storm.
   private static let minDisplayRefreshInterval: TimeInterval = 60
+  /// When capture started waiting on a display missing from ScreenCaptureKit's
+  /// snapshot (an external monitor still waking after unlock). nil when not
+  /// waiting.
+  private var displayDeferredSince: Date?
   private var tracker: ActiveDisplayTracker!
   private var currentDisplayID: CGDirectDisplayID?
   private var requestedDisplayID: CGDirectDisplayID?
@@ -247,7 +251,10 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
         false, onScreenWindowsOnly: true)
       cachedContent = content
 
-      // 2. Choose display: prefer requested → active → first
+      // 2. Choose display: prefer requested → active. Defer if the preferred
+      // one is missing from the snapshot: an external monitor still waking
+      // after unlock is briefly absent, and falling back to the first display
+      // would record the built-in screen until the cursor crossed screens.
       let displaysByID: [CGDirectDisplayID: SCDisplay] = Dictionary(
         uniqueKeysWithValues: content.displays.map { ($0.displayID, $0) }
       )
@@ -256,20 +263,35 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       }
       let preferredID = requestedDisplayID ?? trackerID
 
-      let display: SCDisplay
-      if let pid = preferredID, let scd = displaysByID[pid] {
-        display = scd
+      let display: SCDisplay?
+      if let pid = preferredID {
+        display = displaysByID[pid]
+        if display == nil {
+          requestedDisplayID = pid
+          displayDeferredSince = Date()
+          dbg(
+            "setupCapture: preferred display \(pid) not in snapshot (count=\(content.displays.count)); deferring"
+          )
+        } else {
+          requestedDisplayID = nil
+          displayDeferredSince = nil
+        }
       } else if let first = content.displays.first {
         display = first
+        requestedDisplayID = nil
+        displayDeferredSince = nil
       } else {
         throw ScreenRecorderError.noDisplay
       }
 
       cachedDisplay = display
-      currentDisplayID = display.displayID
-      requestedDisplayID = nil
+      currentDisplayID = display?.displayID
 
-      dbg("Setup complete - display \(display.displayID) (\(display.width)x\(display.height))")
+      if let display {
+        dbg("Setup complete - display \(display.displayID) (\(display.width)x\(display.height))")
+      } else {
+        dbg("Setup complete - awaiting display availability")
+      }
 
       // 3. Start capture timer
       q.async { [weak self] in
@@ -345,6 +367,9 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
     }
     guard let display = cachedDisplay else {
       dbg("captureScreenshot skipped - no display")
+      // Waiting on a deferred display. didChangeScreenParameters usually
+      // recovers it; this is the fallback if that refresh was throttled.
+      requestDisplayRefresh(reason: "no display")
       return
     }
     guard ScreenRecordingPermissionNotice.isGranted else {
@@ -450,18 +475,26 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       // produced a prompt every capture tick. Throttling fixes that without
       // giving up on recording.
       if (error as NSError).domain == SCStreamErrorDomain {
-        let now = Date()
-        if let last = lastDisplayRefreshAttempt,
-          now.timeIntervalSince(last) < Self.minDisplayRefreshInterval
-        {
-          dbg("SCStream error - display refresh throttled")
-        } else {
-          lastDisplayRefreshAttempt = now
-          dbg("SCStream error - will refresh display on next capture")
-          Task { await refreshDisplay() }
-        }
+        requestDisplayRefresh(reason: "SCStream error")
       }
     }
+  }
+
+  /// Refresh the display selection, at most once per minDisplayRefreshInterval.
+  /// Every automatic refresh goes through here: refreshDisplay calls
+  /// SCShareableContent, which re-presents the permission prompt when the grant
+  /// is stale.
+  private func requestDisplayRefresh(reason: String) {
+    let now = Date()
+    if let last = lastDisplayRefreshAttempt,
+      now.timeIntervalSince(last) < Self.minDisplayRefreshInterval
+    {
+      dbg("\(reason) - display refresh throttled")
+      return
+    }
+    lastDisplayRefreshAttempt = now
+    dbg("\(reason) - refreshing display")
+    Task { await refreshDisplay() }
   }
 
   private func scaledCaptureSize(for display: SCDisplay) -> (width: Int, height: Int) {
@@ -480,6 +513,7 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   ) throws -> URL {
     let fileURL = StorageManager.shared.nextScreenshotURL()
     try jpegData.write(to: fileURL)
+    ScreenRecordingPermissionNotice.recordSuccessfulCapture()
 
     _ = StorageManager.shared.saveScreenshot(
       url: fileURL,
@@ -500,17 +534,36 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
         false, onScreenWindowsOnly: true)
       cachedContent = content
 
-      // Prefer requested display (from active display tracking) over current
+      // Prefer requested display over current; hold if it's missing from the
+      // snapshot rather than jumping to whichever display is listed first.
       let targetID = requestedDisplayID ?? currentDisplayID
 
-      if let id = targetID,
-        let display = content.displays.first(where: { $0.displayID == id })
-      {
-        cachedDisplay = display
-        currentDisplayID = id
-        if requestedDisplayID == id { requestedDisplayID = nil }
-        dbg("Switched to display \(id)")
-      } else if let first = content.displays.first {
+      if let id = targetID {
+        if let display = content.displays.first(where: { $0.displayID == id }) {
+          cachedDisplay = display
+          currentDisplayID = id
+          if requestedDisplayID == id { requestedDisplayID = nil }
+          displayDeferredSince = nil
+          dbg("Switched to display \(id)")
+        } else if cachedDisplay == nil, let since = displayDeferredSince,
+          Date().timeIntervalSince(since) >= Self.minDisplayRefreshInterval,
+          let first = content.displays.first
+        {
+          // Waited a full refresh interval and the display never came back
+          // (unplugged rather than waking): record what is there instead of
+          // recording nothing.
+          cachedDisplay = first
+          currentDisplayID = first.displayID
+          requestedDisplayID = nil
+          displayDeferredSince = nil
+          dbg("refreshDisplay: target \(id) never appeared; falling back to \(first.displayID)")
+        } else {
+          if cachedDisplay == nil, displayDeferredSince == nil { displayDeferredSince = Date() }
+          dbg(
+            "refreshDisplay: target \(id) not in snapshot (count=\(content.displays.count)); keeping current"
+          )
+        }
+      } else if let first = content.displays.first, cachedDisplay == nil {
         cachedDisplay = first
         currentDisplayID = first.displayID
       }
@@ -594,7 +647,7 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
       return
     }
 
-    guard currentDisplayID != nil, state == .capturing else {
+    guard state == .capturing else {
       dbg("Active display changed while not capturing – will switch on next start")
       return
     }
@@ -611,6 +664,19 @@ final class ScreenRecorder: NSObject, @unchecked Sendable {
   private func registerForSleepAndLock() {
     let nc = NSWorkspace.shared.notificationCenter
     let dnc = DistributedNotificationCenter.default()
+
+    // Screen configuration changed (a monitor finished waking, was plugged in
+    // or removed): recover any deferred display selection. Throttled like
+    // every other automatic refresh; a wake fires several of these.
+    NotificationCenter.default.addObserver(
+      forName: NSApplication.didChangeScreenParametersNotification,
+      object: nil, queue: nil
+    ) { [weak self] _ in
+      self?.q.async { [weak self] in
+        guard let self, self.state == .capturing else { return }
+        self.requestDisplayRefresh(reason: "didChangeScreenParameters")
+      }
+    }
 
     // System will sleep
     nc.addObserver(

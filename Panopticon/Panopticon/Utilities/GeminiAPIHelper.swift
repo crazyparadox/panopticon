@@ -11,7 +11,7 @@ class GeminiAPIHelper {
   static let shared = GeminiAPIHelper()
   private init() {}
 
-  private let testModel = GeminiModel.flashLite31
+  private let testModel = GeminiModel.flashLite35
 
   enum APIError: Error, LocalizedError {
     case invalidAPIKey

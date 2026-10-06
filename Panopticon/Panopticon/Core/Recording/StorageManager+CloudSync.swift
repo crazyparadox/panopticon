@@ -78,7 +78,7 @@ extension StorageManager {
             category: row["category"],
             subcategory: row["subcategory"] ?? "",
             title: row["title"],
-            summary: row["summary"],
+            summary: row["summary"] ?? "",
             detailedSummary: row["detailed_summary"] ?? "",
             distractions: distractions,
             appSites: appSites

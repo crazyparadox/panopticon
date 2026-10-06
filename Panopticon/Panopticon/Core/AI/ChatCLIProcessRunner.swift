@@ -110,6 +110,28 @@ struct ChatCLIProcessRunner {
     processEnvironment["CODEX_HOME"] == nil
   }
 
+  /// Whether `codex exec [resume] --help` lists `--ignore-user-config`.
+  /// Cached per subcommand: this is asked on every run.
+  private nonisolated(unsafe) static var ignoreUserConfigSupport: [String: Bool] = [:]
+  private static let ignoreUserConfigSupportLock = NSLock()
+
+  static func codexSupportsIgnoringUserConfig(resuming: Bool) -> Bool {
+    let key = resuming ? "resume" : "exec"
+    ignoreUserConfigSupportLock.lock()
+    if let cached = ignoreUserConfigSupport[key] {
+      ignoreUserConfigSupportLock.unlock()
+      return cached
+    }
+    ignoreUserConfigSupportLock.unlock()
+    let helpCommand = "codex exec\(resuming ? " resume" : "") --help"
+    let supported = LoginShellRunner.run(helpCommand, timeout: 10)
+      .stdout.contains("--ignore-user-config")
+    ignoreUserConfigSupportLock.lock()
+    ignoreUserConfigSupport[key] = supported
+    ignoreUserConfigSupportLock.unlock()
+    return supported
+  }
+
   func printShellCommand(
     tool: ChatCLITool,
     shellCommand: String,
@@ -317,7 +339,13 @@ struct ChatCLIProcessRunner {
       if let effort = reasoningEffort {
         cmdParts.append(contentsOf: ["-c", "model_reasoning_effort=\(effort)"])
       }
-      if shouldDisableConfiguredCodexMCPServers(processEnvironment: processEnvironment) {
+      // Skip the user's config.toml entirely when the CLI can: disabling MCP
+      // servers one by one breaks on plugin-registered servers that have no
+      // config.toml entry ("invalid transport"), and the fallback then moves
+      // the run into a temporary CODEX_HOME where `exec resume` finds nothing.
+      if Self.codexSupportsIgnoringUserConfig(resuming: sessionId != nil) {
+        cmdParts.append("--ignore-user-config")
+      } else if shouldDisableConfiguredCodexMCPServers(processEnvironment: processEnvironment) {
         let mcpServers = LoginShellRunner.getCodexMCPServerNames()
         for serverName in mcpServers {
           cmdParts.append(contentsOf: ["--config", "mcp_servers.\(serverName).enabled=false"])
@@ -801,7 +829,10 @@ struct ChatCLIProcessRunner {
       if let effort = reasoningEffort {
         cmdParts.append(contentsOf: ["-c", "model_reasoning_effort=\(effort)"])
       }
-      if shouldDisableConfiguredCodexMCPServers(processEnvironment: processEnvironment) {
+      // Same as the streaming path: prefer skipping config.toml outright.
+      if Self.codexSupportsIgnoringUserConfig(resuming: false) {
+        cmdParts.append("--ignore-user-config")
+      } else if shouldDisableConfiguredCodexMCPServers(processEnvironment: processEnvironment) {
         let mcpServers = LoginShellRunner.getCodexMCPServerNames()
         for serverName in mcpServers {
           cmdParts.append(contentsOf: ["--config", "mcp_servers.\(serverName).enabled=false"])

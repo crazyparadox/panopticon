@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import GRDB
 
@@ -37,6 +38,9 @@ extension StorageManager {
 
   /// Opens the database with automatic recovery from backup if corrupted.
   /// Order of attempts: 1) Normal open, 2) Restore from most recent backup, 3) Fresh database
+  /// Recovery only runs for corruption errors. Environmental failures (disk full,
+  /// file locked/permissions) leave an intact database on disk — deleting it would
+  /// destroy user data — so those show an alert and quit instead.
   static func openDatabaseSafely(
     at dbURL: URL,
     backupsDir: URL,
@@ -50,6 +54,10 @@ extension StorageManager {
       return pool
     } catch {
       print("⚠️ [StorageManager] Failed to open database: \(error)")
+
+      guard isCorruptionError(error) else {
+        showDatabaseUnavailableAlertAndQuit(error: error)
+      }
 
       // Attempt 2: Restore from most recent backup
       if let backupURL = findMostRecentBackup(in: backupsDir, fileManager: fileManager) {
@@ -87,10 +95,52 @@ extension StorageManager {
 
         return pool
       } catch {
-        // This is truly fatal - can't even create a fresh database
-        fatalError("[StorageManager] Cannot create database: \(error)")
+        // Even a fresh database can't be created — the environment is broken.
+        showDatabaseUnavailableAlertAndQuit(error: error)
       }
     }
+  }
+
+  /// True only for SQLite errors that mean the database file itself is damaged.
+  /// Everything else (disk full, unable to open, I/O errors) is environmental.
+  private static func isCorruptionError(_ error: Error) -> Bool {
+    guard let dbError = error as? DatabaseError else { return false }
+    let primary = dbError.resultCode.primaryResultCode
+    return primary == .SQLITE_CORRUPT || primary == .SQLITE_NOTADB
+  }
+
+  /// Tells the user the database is unavailable (most commonly a full disk) and
+  /// quits cleanly instead of crashing.
+  private static func showDatabaseUnavailableAlertAndQuit(error: Error) -> Never {
+    let presentAlert = {
+      let alert = NSAlert()
+      alert.alertStyle = .critical
+      alert.messageText = "Panopticon Can't Open Its Database"
+      alert.informativeText = """
+        Panopticon couldn't open its database and has to quit. Your recordings are \
+        untouched. This usually happens when the disk is full — free up some space \
+        and open Panopticon again.
+
+        Error: \(error)
+        """
+      alert.addButton(withTitle: "Quit")
+      alert.runModal()
+    }
+
+    if Thread.isMainThread {
+      presentAlert()
+    } else {
+      // StorageManager.shared can be first touched from a background thread while
+      // the main thread is blocked waiting on the same init — a sync hop would
+      // deadlock. Show the alert async and time out if it never gets dismissed.
+      let dismissed = DispatchSemaphore(value: 0)
+      DispatchQueue.main.async {
+        presentAlert()
+        dismissed.signal()
+      }
+      _ = dismissed.wait(timeout: .now() + 60)
+    }
+    exit(1)
   }
 
   /// Finds the most recent backup file in the backups directory

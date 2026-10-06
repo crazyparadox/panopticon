@@ -11,6 +11,7 @@ final class DailyRecapScheduler: @unchecked Sendable {
   private let queue = DispatchQueue(label: "com.panopticon.dailyRecapScheduler", qos: .utility)
   private var timer: DispatchSourceTimer?
   private var isRunningCheck = false
+  private let attemptBudget = DailyRecapAttemptBudget()
 
   private let checkInterval: TimeInterval = 5 * 60
   private let sourceLookbackWindowDays = 3
@@ -48,7 +49,7 @@ final class DailyRecapScheduler: @unchecked Sendable {
     timer?.setEventHandler {}
     timer?.cancel()
     timer = nil
-    isRunningCheck = false
+    // An in-flight check still owns this flag until its defer runs.
   }
 
   private func triggerCheckOnQueue(reason: String) {
@@ -120,6 +121,11 @@ final class DailyRecapScheduler: @unchecked Sendable {
     }
 
     guard providerAvailability.isAvailable else {
+      return
+    }
+
+    // Reserve before generation so failures and app restarts cannot restart the retry loop.
+    guard attemptBudget.reserveAttempt(forDay: targetDay) != nil else {
       return
     }
 
